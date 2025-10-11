@@ -1,22 +1,49 @@
-BINARY_NAME=bot-server
+BOT_BINARY_NAME=bot-server
+API_BINARY_NAME=api-server
 OUTPUT_DIR=bin
 
 # Choose the Go compiler
 GOBUILD=go build
 GO_SOURCE_HASH:=$(shell find . -name "*.go" | sort | xargs cat | sha1sum | cut -c1-8)
 
+# Load environment variables
+include .env
+export
+
 all: build
 
-build:
+build: build-bot build-api
+
+build-bot:
 	mkdir -p $(OUTPUT_DIR)
-	$(GOBUILD) -ldflags "-X 'github.com/ekkolyth/ekko-bot/internal/shared/state.GoSourceHash=$(GO_SOURCE_HASH)'" -o $(OUTPUT_DIR)/$(BINARY_NAME) -v ./cmd/bot
+	$(GOBUILD) -ldflags "-X 'github.com/ekkolyth/ekko-bot/internal/shared/state.GoSourceHash=$(GO_SOURCE_HASH)'" -o $(OUTPUT_DIR)/$(BOT_BINARY_NAME) -v ./cmd/bot
+
+build-api:
+	mkdir -p $(OUTPUT_DIR)
+	$(GOBUILD) -o $(OUTPUT_DIR)/$(API_BINARY_NAME) -v ./cmd/api
 
 clean:
 	go clean
-	rm -f $(OUTPUT_DIR)/$(BINARY_NAME)
+	rm -f $(OUTPUT_DIR)/$(BOT_BINARY_NAME)
+	rm -f $(OUTPUT_DIR)/$(API_BINARY_NAME)
 
 run: build
-	./$(OUTPUT_DIR)/$(BINARY_NAME)
+	@echo "Starting both bot and API servers..."
+	@echo "Bot server: Discord bot (connects to Discord API)"
+	@echo "API server: http://localhost:$(API_PORT) (REST API)"
+	@echo "Press Ctrl+C to stop both servers"
+	@trap 'kill %1 %2' INT; \
+	./$(OUTPUT_DIR)/$(BOT_BINARY_NAME) & \
+	./$(OUTPUT_DIR)/$(API_BINARY_NAME) & \
+	wait
+
+run-bot: build-bot
+	@echo "Starting bot server..."
+	./$(OUTPUT_DIR)/$(BOT_BINARY_NAME)
+
+run-api: build-api
+	@echo "Starting API server..."
+	./$(OUTPUT_DIR)/$(API_BINARY_NAME)
 
 test:
 	go test -v ./...
