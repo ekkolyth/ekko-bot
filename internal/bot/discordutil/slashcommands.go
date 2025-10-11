@@ -4,7 +4,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ekkolyth/ekko-bot/internal/constants"
+	"github.com/ekkolyth/ekko-bot/internal/shared/config"
 	"github.com/ekkolyth/ekko-bot/internal/shared/logging"
 	"github.com/ekkolyth/ekko-bot/internal/shared/state"
 
@@ -12,7 +12,7 @@ import (
 )
 
 func SetupSlashCommands(s *discordgo.Session) {
-	logging.InfoLog(constants.ANSIBlue + "Setting up slash commands")
+	logging.InfoLog(config.CLI_BLUE + "Setting up slash commands")
 	var theNumberOneAsFloat float64 = 1.0
 
 	commands := []*discordgo.ApplicationCommand{

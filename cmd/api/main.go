@@ -52,7 +52,7 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{"message": "Hello Music World"}`))
-		logging.InfoLog("Incoming API Request")
+		logging.ApiLog("Incoming API Request")
 	})
 
 	// Configure HTTP server
