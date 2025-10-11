@@ -4,10 +4,10 @@ import (
 	"strings"
 
 	"github.com/ekkolyth/ekko-bot/internal/audio"
-	"github.com/ekkolyth/ekko-bot/internal/discordutil"
-	"github.com/ekkolyth/ekko-bot/internal/logging"
-	"github.com/ekkolyth/ekko-bot/internal/state"
-	"github.com/ekkolyth/ekko-bot/internal/validation"
+	"github.com/ekkolyth/ekko-bot/internal/bot/discordutil"
+	"github.com/ekkolyth/ekko-bot/internal/shared/logging"
+	"github.com/ekkolyth/ekko-bot/internal/shared/state"
+	"github.com/ekkolyth/ekko-bot/internal/shared/validation"
 )
 
 func AddSong(ctx *state.Context, search_mode bool) { // mode (false for play, true for search)

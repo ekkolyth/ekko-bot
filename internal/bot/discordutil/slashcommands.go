@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/ekkolyth/ekko-bot/internal/constants"
-	"github.com/ekkolyth/ekko-bot/internal/logging"
-	"github.com/ekkolyth/ekko-bot/internal/state"
+	"github.com/ekkolyth/ekko-bot/internal/shared/logging"
+	"github.com/ekkolyth/ekko-bot/internal/shared/state"
 
 	"github.com/bwmarrin/discordgo"
 )

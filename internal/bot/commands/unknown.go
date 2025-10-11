@@ -3,7 +3,7 @@ package commands
 import (
 	"os"
 
-	"github.com/ekkolyth/ekko-bot/internal/state"
+	"github.com/ekkolyth/ekko-bot/internal/shared/state"
 )
 
 func Unknown(ctx *state.Context) {
