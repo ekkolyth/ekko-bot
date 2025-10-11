@@ -1,4 +1,4 @@
-BINARY_NAME=music-bot
+BINARY_NAME=ekko-bot-music-server
 
 # Choose the Go compiler
 GOBUILD=go build
@@ -6,17 +6,17 @@ GO_SOURCE_HASH:=$(shell find . -name "*.go" | sort | xargs cat | sha1sum | cut -
 
 all: build
 
-build: 
+build:
 	$(GOBUILD) -ldflags "-X 'github.com/ekkolyth/ekko-bot/internal/state.GoSourceHash=$(GO_SOURCE_HASH)'" -o $(BINARY_NAME) -v ./cmd/bot
 
-clean: 
+clean:
 	go clean
 	rm -f $(BINARY_NAME)
 
 run: build
 	./$(BINARY_NAME)
 
-test: 
+test:
 	go test -v ./...
 
 version:
@@ -29,7 +29,7 @@ docker-network-create:
 	docker network create musicbot-net || echo "Network already exists"
 
 docker-run:
-	$(MAKE) docker-network-create 
+	$(MAKE) docker-network-create
 	docker run -d --name $(BINARY_NAME) --network musicbot-net --user 1000:1000 --read-only -v /app/config:/app/config:ro --cap-drop ALL \
 	--security-opt no-new-privileges --memory=1G --cpus=3 --pids-limit=40 --restart unless-stopped $(BINARY_NAME)
 
@@ -42,7 +42,7 @@ docker-start:
 docker-stop:
 	docker stop $(BINARY_NAME)
 
-docker-rm: 
+docker-rm:
 	docker rm $(BINARY_NAME)
 
 docker-rmi:
