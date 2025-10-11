@@ -20,7 +20,7 @@ func ErrorLog(message string) {
 	log.Println(config.CLI_RED + "[FATAL]" + config.CLI_RESET + message)
 }
 
-func FatalLog(message string) {
+func FatalLog(message string, error error) {
 	log.Fatal(config.CLI_RED + "[FATAL]" + config.CLI_RESET + message)
 }
 
