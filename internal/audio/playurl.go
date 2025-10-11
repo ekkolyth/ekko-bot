@@ -10,7 +10,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 
-	"github.com/ekkolyth/ekko-bot/internal/constants"
+	"github.com/ekkolyth/ekko-bot/internal/shared/config"
 	"github.com/ekkolyth/ekko-bot/internal/shared/state"
 	"github.com/ekkolyth/ekko-bot/internal/shared/validation"
 )
@@ -31,7 +31,7 @@ func PlayURL(v *discordgo.VoiceConnection, url string, stop <-chan bool, pauseCh
 		"-o", "-",
 		url) // Get only audio, best quality
 
-	ffmpegCmd := exec.Command("ffmpeg", "-i", "pipe:0", "-f", "s16le", "-ar", strconv.Itoa(constants.FrameRate), "-ac", strconv.Itoa(constants.Channels), "pipe:1")
+	ffmpegCmd := exec.Command("ffmpeg", "-i", "pipe:0", "-f", "s16le", "-ar", strconv.Itoa(config.FrameRate), "-ac", strconv.Itoa(config.Channels), "pipe:1")
 
 	// Setup proper cleanup to ensure processes terminate
 	defer func() {
@@ -87,7 +87,7 @@ func PlayURL(v *discordgo.VoiceConnection, url string, stop <-chan bool, pauseCh
 	}()
 
 	// Set up reading from ffmpeg output
-	ffmpegbuf := bufio.NewReaderSize(ffmpegOut, constants.FfmpegBufferSize)
+	ffmpegbuf := bufio.NewReaderSize(ffmpegOut, config.FfmpegBufferSize)
 
 	// Handle stopping ffmpeg process if needed
 	go func() {
@@ -159,7 +159,7 @@ func PlayURL(v *discordgo.VoiceConnection, url string, stop <-chan bool, pauseCh
 			time.Sleep(100 * time.Millisecond)
 			continue
 		}
-		audiobuf := make([]int16, constants.FrameSize*constants.Channels)
+		audiobuf := make([]int16, config.FrameSize*config.Channels)
 
 
 		// Process audio normally
@@ -196,10 +196,10 @@ func PlayURL(v *discordgo.VoiceConnection, url string, stop <-chan bool, pauseCh
 		for i := range audiobuf {
 			// Calculate new value and clamp to int16 range to prevent distortion
 			newValue := float64(audiobuf[i]) * currentVolume
-			if newValue > constants.MaxClampValue {
-				newValue = constants.MaxClampValue
-			} else if newValue < constants.MinClampValue {
-				newValue = constants.MinClampValue
+			if newValue > config.MaxClampValue {
+				newValue = config.MaxClampValue
+			} else if newValue < config.MinClampValue {
+				newValue = config.MinClampValue
 			}
 			audiobuf[i] = int16(newValue)
 		}
