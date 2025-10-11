@@ -32,7 +32,7 @@ run: build
 	@echo "Bot server: Discord bot (connects to Discord API)"
 	@echo "API server: http://localhost:$(API_PORT) (REST API)"
 	@echo "Press Ctrl+C to stop both servers"
-	@trap 'kill %1 %2' INT; \
+	@trap 'kill %1 %2; exit 0' INT; \
 	./$(OUTPUT_DIR)/$(BOT_BINARY_NAME) & \
 	./$(OUTPUT_DIR)/$(API_BINARY_NAME) & \
 	wait

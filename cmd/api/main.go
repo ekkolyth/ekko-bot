@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
 	"time"
 
 	"github.com/ekkolyth/ekko-bot/internal/shared/logging"
@@ -64,8 +67,27 @@ func main() {
 		IdleTimeout:  60 * time.Second,
 	}
 
-	log.Println("✅ API running on http://localhost:" + port)
-	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		log.Fatal("❌ Server error:", err)
+	// Setup graceful shutdown
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	// Start server in a goroutine
+	go func() {
+		logging.InfoLog("✅ API running on http://localhost:" + port)
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logging.FatalLog("%s", err)
+		}
+	}()
+
+	// Wait for shutdown signal
+	<-quit
+	log.Println("Server is shutting down...")
+
+	// Shutdown Gracefully
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	if err := server.Shutdown(ctx); err != nil {
+		logging.FatalLog("Server forced to shutdown:", err)
 	}
+	log.Println("Server exited")
 }

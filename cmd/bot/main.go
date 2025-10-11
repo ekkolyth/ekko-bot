@@ -5,7 +5,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/ekkolyth/ekko-bot/internal/bot/discordutil"
+	"github.com/ekkolyth/ekko-bot/internal/bot/discord"
 	"github.com/ekkolyth/ekko-bot/internal/bot/handlers"
 	"github.com/ekkolyth/ekko-bot/internal/shared/logging"
 	"github.com/ekkolyth/ekko-bot/internal/shared/state"
@@ -14,26 +14,26 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func setup() { // find env, get bot token, check dependencies
+func setup() {
 
 	//Check .env
 	if err := godotenv.Load(); err != nil {
-		logging.FatalLog("Error loading .env file")
+		logging.FatalLog("Error loading .env file", err)
 	}
 	//Check Discord Token
 	state.Token = os.Getenv("DISCORD_BOT_TOKEN")
 	if state.Token == "" {
-		logging.FatalLog("Token not found - check .env file")
+		logging.FatalLog("Token not found - check .env file", nil)
 	}
 
 	// Check yt-dlp
 	if _, err := exec.LookPath("yt-dlp"); err != nil {
-		logging.FatalLog("yt-dlp not found. Please install it with: pip install yt-dlp")
+		logging.FatalLog("yt-dlp not found. Please install it with: pip install yt-dlp", err)
 	}
 
 	// Check ffmpeg
 	if _, err := exec.LookPath("ffmpeg"); err != nil {
-		logging.FatalLog("ffmpeg not found. Please install it with your package manager")
+		logging.FatalLog("ffmpeg not found. Please install it with your package manager", err)
 	}
 
 	// Parse disabled commands from .env
@@ -50,7 +50,7 @@ func main() {
 	setup()
 	dg, err := discordgo.New("Bot " + state.Token)
 	if err != nil {
-		logging.FatalLog("Error creating Discord session: " + err.Error())
+		logging.FatalLog("Error creating Discord session", err)
 	}
 
 	dg.AddHandler(handlers.HandleMessageCreate)
@@ -58,10 +58,10 @@ func main() {
 
 	err = dg.Open()
 
-	discordutil.SetupSlashCommands(dg)
+	discord.SetupSlashCommands(dg)
 
 	if err != nil {
-		logging.FatalLog("Error opening connection: " + err.Error())
+		logging.FatalLog("Error opening connection", err)
 	}
 	defer dg.Close()
 	logging.InfoLog("Version: " + state.GoSourceHash)
