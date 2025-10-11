@@ -3,7 +3,7 @@ package commands
 import (
 	"fmt"
 
-	"github.com/ekkolyth/ekko-bot/internal/state"
+	"github.com/ekkolyth/ekko-bot/internal/shared/state"
 )
 
 func CurrentVolume(ctx *state.Context) {

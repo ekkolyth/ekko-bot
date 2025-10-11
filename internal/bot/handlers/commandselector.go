@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"github.com/ekkolyth/ekko-bot/internal/commands"
-	"github.com/ekkolyth/ekko-bot/internal/state"
+	"github.com/ekkolyth/ekko-bot/internal/bot/commands"
+	"github.com/ekkolyth/ekko-bot/internal/shared/state"
 )
 
 // Both handlers can use this to forward to the correct command

@@ -1,4 +1,5 @@
-BINARY_NAME=ekko-bot-music-server
+BINARY_NAME=bot-server
+OUTPUT_DIR=bin
 
 # Choose the Go compiler
 GOBUILD=go build
@@ -7,14 +8,15 @@ GO_SOURCE_HASH:=$(shell find . -name "*.go" | sort | xargs cat | sha1sum | cut -
 all: build
 
 build:
-	$(GOBUILD) -ldflags "-X 'github.com/ekkolyth/ekko-bot/internal/state.GoSourceHash=$(GO_SOURCE_HASH)'" -o $(BINARY_NAME) -v ./cmd/bot
+	mkdir -p $(OUTPUT_DIR)
+	$(GOBUILD) -ldflags "-X 'github.com/ekkolyth/ekko-bot/internal/shared/state.GoSourceHash=$(GO_SOURCE_HASH)'" -o $(OUTPUT_DIR)/$(BINARY_NAME) -v ./cmd/bot
 
 clean:
 	go clean
-	rm -f $(BINARY_NAME)
+	rm -f $(OUTPUT_DIR)/$(BINARY_NAME)
 
 run: build
-	./$(BINARY_NAME)
+	./$(OUTPUT_DIR)/$(BINARY_NAME)
 
 test:
 	go test -v ./...

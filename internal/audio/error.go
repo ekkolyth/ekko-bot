@@ -1,7 +1,7 @@
 package audio
 
 import (
-	"github.com/ekkolyth/ekko-bot/internal/logging"
+	"github.com/ekkolyth/ekko-bot/internal/shared/logging"
 )
 
 // OnError gets called by dgvoice when an error is encountered.

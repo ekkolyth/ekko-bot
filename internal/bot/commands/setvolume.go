@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/ekkolyth/ekko-bot/internal/state"
+	"github.com/ekkolyth/ekko-bot/internal/shared/state"
 )
 
 func SetVolume(ctx *state.Context) {

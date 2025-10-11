@@ -1,8 +1,8 @@
 package commands
 
 import (
-	"github.com/ekkolyth/ekko-bot/internal/discordutil"
-	"github.com/ekkolyth/ekko-bot/internal/state"
+	"github.com/ekkolyth/ekko-bot/internal/bot/discordutil"
+	"github.com/ekkolyth/ekko-bot/internal/shared/state"
 )
 
 func SkipSong(ctx *state.Context) {

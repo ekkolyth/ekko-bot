@@ -3,7 +3,7 @@ package discordutil
 import (
 	"os"
 
-	"github.com/ekkolyth/ekko-bot/internal/state"
+	"github.com/ekkolyth/ekko-bot/internal/shared/state"
 
 	"github.com/bwmarrin/discordgo"
 )

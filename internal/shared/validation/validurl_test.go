@@ -3,7 +3,7 @@ package validation_test
 import (
 	"testing"
 
-	"github.com/ekkolyth/ekko-bot/internal/validation"
+	"github.com/ekkolyth/ekko-bot/internal/shared/validation"
 )
 
 //"github.com/stretchr/testify/assert"

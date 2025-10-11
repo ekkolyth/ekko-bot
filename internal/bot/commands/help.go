@@ -1,7 +1,7 @@
 package commands
 
 import (
-	"github.com/ekkolyth/ekko-bot/internal/state"
+	"github.com/ekkolyth/ekko-bot/internal/shared/state"
 )
 
 func Help(ctx *state.Context) {

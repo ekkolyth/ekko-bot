@@ -11,8 +11,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 
 	"github.com/ekkolyth/ekko-bot/internal/constants"
-	"github.com/ekkolyth/ekko-bot/internal/state"
-	"github.com/ekkolyth/ekko-bot/internal/validation"
+	"github.com/ekkolyth/ekko-bot/internal/shared/state"
+	"github.com/ekkolyth/ekko-bot/internal/shared/validation"
 )
 
 // Discord voice server/channel.  voice websocket and udp socket

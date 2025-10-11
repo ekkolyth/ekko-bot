@@ -4,8 +4,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/ekkolyth/ekko-bot/internal/state"
-	"github.com/ekkolyth/ekko-bot/internal/validation"
+	"github.com/ekkolyth/ekko-bot/internal/shared/state"
+	"github.com/ekkolyth/ekko-bot/internal/shared/validation"
 
 	"github.com/bwmarrin/discordgo"
 )

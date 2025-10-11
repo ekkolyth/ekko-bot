@@ -5,8 +5,8 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/ekkolyth/ekko-bot/internal/logging"
-	"github.com/ekkolyth/ekko-bot/internal/validation"
+	"github.com/ekkolyth/ekko-bot/internal/shared/logging"
+	"github.com/ekkolyth/ekko-bot/internal/shared/validation"
 )
 
 func SearchYoutube(query string) (string, bool) {

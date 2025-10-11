@@ -5,10 +5,10 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/ekkolyth/ekko-bot/internal/discordutil"
-	"github.com/ekkolyth/ekko-bot/internal/handlers"
-	"github.com/ekkolyth/ekko-bot/internal/logging"
-	"github.com/ekkolyth/ekko-bot/internal/state"
+	"github.com/ekkolyth/ekko-bot/internal/bot/discordutil"
+	"github.com/ekkolyth/ekko-bot/internal/bot/handlers"
+	"github.com/ekkolyth/ekko-bot/internal/shared/logging"
+	"github.com/ekkolyth/ekko-bot/internal/shared/state"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
