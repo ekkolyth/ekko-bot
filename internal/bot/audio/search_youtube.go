@@ -15,7 +15,7 @@ func SearchYoutube(query string) (string, bool) {
 	cmd.Stdout = &outputFromSearch
 	err := cmd.Run()
 	if err != nil {
-		logging.ErrorLog("Error: " + err.Error())
+		logging.Error("Error: " + err.Error())
 		return "", false
 	}
 

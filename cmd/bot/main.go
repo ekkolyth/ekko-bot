@@ -18,22 +18,22 @@ func setup() {
 
 	//Check .env
 	if err := godotenv.Load(); err != nil {
-		logging.FatalLog("Error loading .env file", err)
+		logging.Fatal("Error loading .env file", err)
 	}
 	//Check Discord Token
 	state.Token = os.Getenv("DISCORD_BOT_TOKEN")
 	if state.Token == "" {
-		logging.FatalLog("Token not found - check .env file", nil)
+		logging.Fatal("Token not found - check .env file", nil)
 	}
 
 	// Check yt-dlp
 	if _, err := exec.LookPath("yt-dlp"); err != nil {
-		logging.FatalLog("yt-dlp not found. Please install it with: pip install yt-dlp", err)
+		logging.Fatal("yt-dlp not found. Please install it with: pip install yt-dlp", err)
 	}
 
 	// Check ffmpeg
 	if _, err := exec.LookPath("ffmpeg"); err != nil {
-		logging.FatalLog("ffmpeg not found. Please install it with your package manager", err)
+		logging.Fatal("ffmpeg not found. Please install it with your package manager", err)
 	}
 
 	// Parse disabled commands from .env
@@ -50,7 +50,7 @@ func main() {
 	setup()
 	dg, err := discordgo.New("Bot " + state.Token)
 	if err != nil {
-		logging.FatalLog("Error creating Discord session", err)
+		logging.Fatal("Error creating Discord session", err)
 	}
 
 	dg.AddHandler(handlers.HandleMessageCreate)
@@ -61,10 +61,10 @@ func main() {
 	discord.SetupSlashCommands(dg)
 
 	if err != nil {
-		logging.FatalLog("Error opening connection", err)
+		logging.Fatal("Error opening connection", err)
 	}
 	defer dg.Close()
-	logging.InfoLog("Version: " + state.GoSourceHash)
-	logging.InfoLog("Bot is running. Press CTRL-C to exit.")
+	logging.Info("Version: " + state.GoSourceHash)
+	logging.Info("Bot is running. Press CTRL-C to exit.")
 	select {} // block forever
 }

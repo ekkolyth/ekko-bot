@@ -17,14 +17,14 @@ func playAudio(ctx *state.Context, url string, stop chan bool, pauseCh chan bool
 	if !discord.BotInChannel(ctx) {
 		vc, err = discord.JoinUserVoiceChannel(ctx)
 		if err != nil {
-			logging.ErrorLog("Error joining voice channel: " + err.Error())
+			logging.Error("Error joining voice channel: " + err.Error())
 			ctx.Reply("Error joining voice channel.")
 			return
 		}
 	} else {
 		vc, err = discord.GetVoiceConnection(ctx)
 		if err != nil {
-			logging.ErrorLog("Error getting voice connection: " + err.Error())
+			logging.Error("Error getting voice connection: " + err.Error())
 			ctx.Reply("Error with voice connection.")
 			return
 		}
@@ -37,5 +37,5 @@ func playAudio(ctx *state.Context, url string, stop chan bool, pauseCh chan bool
 	}()
 
 	<-songDone
-	logging.InfoLog("Song playback complete")
+	logging.Info("Song playback complete")
 }

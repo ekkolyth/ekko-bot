@@ -15,6 +15,6 @@ func HandleInteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreat
 
 	ctx := state.NewInteractionContext(s, i)
 
-	logging.InteractionCreateLog(ctx.User.Username, ctx.CommandName, ctx.ArgumentstoString())
+	logging.InteractionCreate(ctx.User.Username, ctx.CommandName, ctx.ArgumentstoString())
 	commandSelector(ctx)
 }

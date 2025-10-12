@@ -8,8 +8,8 @@ import (
 var OnError = func(str string, err error) {
 
 	if err != nil {
-		logging.DgvoiceLog(str + ": " + err.Error())
+		logging.Dgvoice(str + ": " + err.Error())
 	} else {
-		logging.DgvoiceLog(str)
+		logging.Dgvoice(str)
 	}
 }

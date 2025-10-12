@@ -11,7 +11,7 @@ import (
 
 func HandleMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
-	logging.MessageCreateLog(m.Author.Username, m.Content)
+	logging.MessageCreate(m.Author.Username, m.Content)
 
 	if m.Author.Bot || !strings.HasPrefix(m.Content, "!") { // ignore bot messages and messages not starting with '!'
 		return
