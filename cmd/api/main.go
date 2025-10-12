@@ -55,7 +55,7 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{"message": "Hello Music World"}`))
-		logging.ApiLog("Incoming API Request")
+		logging.Api("Incoming API Request")
 	})
 
 	// Configure HTTP server
@@ -73,9 +73,9 @@ func main() {
 
 	// Start server in a goroutine
 	go func() {
-		logging.InfoLog("✅ API running on http://localhost:" + port)
+		logging.Info("✅ API running on http://localhost:" + port)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logging.FatalLog("%s", err)
+			logging.Fatal("%s", err)
 		}
 	}()
 
@@ -87,7 +87,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	if err := server.Shutdown(ctx); err != nil {
-		logging.FatalLog("Server forced to shutdown:", err)
+		logging.Fatal("Server forced to shutdown:", err)
 	}
 	log.Println("Server exited")
 }

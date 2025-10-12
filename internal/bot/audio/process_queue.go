@@ -38,7 +38,7 @@ func ProcessQueue(ctx *state.Context) {
 			songLength := len(state.Queue[ctx.GetGuildID()])
 			state.QueueMutex.Unlock()
 
-			logging.InfoLog("Playing song, " + strconv.Itoa(songLength) + " more in queue ")
+			logging.Info("Playing song, " + strconv.Itoa(songLength) + " more in queue ")
 			ctx.Reply(fmt.Sprintf("Now playing: %s", currentURL))
 
 			// Create a stop channel for this song
@@ -62,7 +62,7 @@ func ProcessQueue(ctx *state.Context) {
 			go playAudio(ctx, currentURL, stop, pauseCh, done)
 			<-done
 
-			logging.InfoLog("Song finished, moving to next in queue if available.")
+			logging.Info("Song finished, moving to next in queue if available.")
 
 			// Clean up pause channel
 			state.PauseChMutex.Lock()

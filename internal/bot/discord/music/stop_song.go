@@ -42,7 +42,7 @@ func StopSong(ctx *state.Context) {
 		vc.Speaking(false)
 		err = vc.Disconnect()
 		if err != nil {
-			logging.ErrorLog("Error disconnecting from voice channel: " + err.Error())
+			logging.Error("Error disconnecting from voice channel: " + err.Error())
 		}
 	}()
 

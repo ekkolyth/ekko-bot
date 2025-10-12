@@ -4,7 +4,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ekkolyth/ekko-bot/internal/shared/config"
 	"github.com/ekkolyth/ekko-bot/internal/shared/logging"
 	"github.com/ekkolyth/ekko-bot/internal/shared/state"
 
@@ -12,7 +11,7 @@ import (
 )
 
 func SetupSlashCommands(s *discordgo.Session) {
-	logging.InfoLog(config.CLI_BLUE + "Setting up slash commands")
+	logging.Info("Setting up slash commands")
 	var minValueAddr float64 = 1.0
 
 	commands := []*discordgo.ApplicationCommand{
@@ -77,40 +76,40 @@ func SetupSlashCommands(s *discordgo.Session) {
 
 	existingCommands, err := s.ApplicationCommands(s.State.User.ID, "")
 	if err != nil {
-		logging.FatalLog("Could not fetch existing commands", err)
+		logging.Fatal("Could not fetch existing commands", err)
 	}
 
 	if shouldRefresh {
 		// Delete all existing commands to ensure they're up to date
-		logging.InfoLog("REFRESH_COMMANDS enabled - deleting existing commands to refresh them...")
+		logging.Info("REFRESH_COMMANDS enabled - deleting existing commands to refresh them...")
 		for _, existingCmd := range existingCommands {
 			err := s.ApplicationCommandDelete(s.State.User.ID, "", existingCmd.ID)
 			if err != nil {
-				logging.WarningLog("Could not delete command:" + existingCmd.Name + " " + err.Error())
+				logging.Warning("Could not delete command:" + existingCmd.Name + " " + err.Error())
 			} else {
-				logging.InfoLog("Deleted command: " + existingCmd.Name)
+				logging.Info("Deleted command: " + existingCmd.Name)
 			}
 		}
 
 		// Register all commands fresh
 		for _, cmd := range commands {
 			if state.DisabledCommands[cmd.Name] {
-				logging.WarningLog("Skipping disabled command:" + cmd.Name)
+				logging.Warning("Skipping disabled command:" + cmd.Name)
 				continue
 			}
 			_, err := s.ApplicationCommandCreate(s.State.User.ID, "", cmd)
 			if err != nil {
-				logging.FatalLog("Could not create command: " + cmd.Name, err)
+				logging.Fatal("Could not create command: "+cmd.Name, err)
 			} else {
-				logging.InfoLog("Registered command: " + cmd.Name)
+				logging.Info("Registered command: " + cmd.Name)
 			}
 		}
 	} else {
 		// Only register commands that don't exist yet (original behavior)
-		logging.InfoLog("REFRESH_COMMANDS disabled - only registering missing commands...")
+		logging.Info("REFRESH_COMMANDS disabled - only registering missing commands...")
 		for _, cmd := range commands {
 			if state.DisabledCommands[cmd.Name] {
-				logging.WarningLog("Skipping disabled command:" + cmd.Name)
+				logging.Warning("Skipping disabled command:" + cmd.Name)
 				continue
 			}
 			found := false
@@ -123,12 +122,12 @@ func SetupSlashCommands(s *discordgo.Session) {
 			if !found {
 				_, err := s.ApplicationCommandCreate(s.State.User.ID, "", cmd)
 				if err != nil {
-					logging.FatalLog("Could not create command: " + cmd.Name, err)
+					logging.Fatal("Could not create command: "+cmd.Name, err)
 				} else {
-					logging.InfoLog("Registered command: " + cmd.Name)
+					logging.Info("Registered command: " + cmd.Name)
 				}
 			}
 		}
 	}
-	logging.InfoLog("Slash commands setup complete.")
+	logging.Info("Slash commands setup complete.")
 }

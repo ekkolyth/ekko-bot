@@ -42,7 +42,7 @@ func AddSong(ctx *state.Context, search_mode bool) { // mode (false for play, tr
 		url, found_result = audio.SearchYoutube(searchQuery)
 
 		if !found_result {
-			logging.ErrorLog("No results found for: " + searchQuery)
+			logging.Error("No results found for: " + searchQuery)
 			ctx.Reply("No results found for: " + searchQuery)
 			return
 		}
