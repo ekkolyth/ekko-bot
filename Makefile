@@ -27,14 +27,28 @@ clean:
 	rm -f $(OUTPUT_DIR)/$(BOT_BINARY_NAME)
 	rm -f $(OUTPUT_DIR)/$(API_BINARY_NAME)
 
+# Install web dependencies if needed
+install-web-deps:
+	@if [ ! -d "web/node_modules" ]; then \
+		echo "Installing web dependencies..."; \
+		cd web && pnpm install; \
+	fi
+
+# Start web UI
+run-web: install-web-deps
+	@echo "Starting web UI..."
+	cd web && pnpm dev
+
 run: build
-	@echo "Starting both bot and API servers..."
+	@echo "Starting bot server, API server, and web UI..."
 	@echo "Bot server: Discord bot (connects to Discord API)"
 	@echo "API server: http://localhost:$(API_PORT) (REST API)"
-	@echo "Press Ctrl+C to stop both servers"
-	@trap 'kill %1 %2; exit 0' INT; \
+	@echo "Web UI: http://localhost:3000 (React frontend)"
+	@echo "Press Ctrl+C to stop all servers"
+	@trap 'kill %1 %2 %3; exit 0' INT; \
 	./$(OUTPUT_DIR)/$(BOT_BINARY_NAME) & \
 	./$(OUTPUT_DIR)/$(API_BINARY_NAME) & \
+	$(MAKE) run-web & \
 	wait
 
 run-bot: build-bot
