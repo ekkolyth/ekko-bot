@@ -1,25 +1,27 @@
-# Database Integration with Better Auth, SQLC, and Goose
+# Bot Backend Database with SQLC and Goose
 
-This directory contains the unified database setup for the Ekko Bot application, integrating Better Auth migrations with SQLC and Goose for type-safe database operations.
+This directory contains the database setup for the Ekko Bot backend application using SQLC and Goose for type-safe database operations.
+
+**Important**: This database is separate from the Better Auth database. Authentication is handled entirely in the `web/` package using Better Auth with its own PostgreSQL instance.
 
 ## Structure
 
 ```
 sql/
-├── migrations/           # Goose migrations (including Better Auth)
-│   └── 001_better_auth_tables.sql
-├── schema/              # SQLC schema files
-│   └── better_auth.sql
-├── queries/             # SQLC query files
-│   └── better_auth.sql
+├── migrations/           # Goose migrations for bot data
+│   └── 001_bot_status.sql
+├── schema/              # SQLC schema files for bot data
+│   └── bot_status.sql
+├── queries/             # SQLC query files for bot data
+│   └── bot_status.sql
 └── README.md           # This file
 ```
 
 ## Generated Code
 
 SQLC generates Go code in `internal/db/`:
-- `models.go` - Go structs for all database tables
-- `better_auth.sql.go` - Generated query functions
+- `models.go` - Go structs for bot database tables
+- `bot_status.sql.go` - Generated query functions for bot status
 - `db.go` - Database connection and query setup
 - `querier.go` - Interface for all database operations
 - `connection.go` - Database connection management
@@ -60,15 +62,12 @@ make db-setup
 make dev
 ```
 
-## Better Auth Integration
+## Bot Data Tables
 
-The Better Auth tables are now managed by Goose and accessible through SQLC:
+The bot backend database contains tables for bot-specific data:
 
 ### Tables
-- `user` - User accounts
-- `session` - User sessions
-- `account` - OAuth/SSO accounts
-- `verification` - Email verification tokens
+- `bot_status` - Bot activity and status tracking
 
 ### Usage Example
 
@@ -90,19 +89,21 @@ func main() {
     defer database.Close()
 
     // Use the generated services
-    userService := db.NewUserService(database)
-    sessionService := db.NewSessionService(database)
+    botStatusService := db.NewBotStatusService(database)
 
-    // Create a user
-    user, err := userService.GetUserByEmail(ctx, "user@example.com")
+    // Get active bot status
+    status, err := botStatusService.GetActiveBotStatus(ctx)
     if err != nil {
         // Handle error
     }
 
-    // Validate a session
-    user, session, err := sessionService.ValidateSession(ctx, "session_token")
+    // Update bot activity
+    updatedStatus, err := botStatusService.UpdateBotActivity(ctx, &db.UpdateBotActivityParams{
+        ID:       "bot-1",
+        Activity: "Playing music",
+    })
     if err != nil {
-        // Handle invalid session
+        // Handle error
     }
 }
 ```
@@ -138,12 +139,11 @@ DB_URL=postgres://username:password@host:port/database
 
 ## Integration with Better Auth Frontend
 
-The Better Auth frontend (in `/web/`) will continue to work with the same database tables. The Go backend can now:
+The Better Auth frontend (in `/web/`) uses its own PostgreSQL database instance. The Go backend:
 
-1. Read user data created by Better Auth
-2. Create additional tables that reference Better Auth users
-3. Perform complex queries joining Better Auth tables with custom tables
-4. Maintain data consistency across both systems
+1. **Does NOT store auth data** - authentication is handled entirely by Better Auth
+2. **Uses separate database** - bot data is stored in its own PostgreSQL instance
+3. **Communicates via API** - the bot backend receives user context through API calls from the web frontend
 
 ## Best Practices
 

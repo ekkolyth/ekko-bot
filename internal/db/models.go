@@ -8,48 +8,10 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type Account struct {
-	ID                    string             `json:"id"`
-	AccountId             string             `json:"accountId"`
-	ProviderId            string             `json:"providerId"`
-	UserId                string             `json:"userId"`
-	AccessToken           *string            `json:"accessToken"`
-	RefreshToken          *string            `json:"refreshToken"`
-	IdToken               *string            `json:"idToken"`
-	AccessTokenExpiresAt  pgtype.Timestamptz `json:"accessTokenExpiresAt"`
-	RefreshTokenExpiresAt pgtype.Timestamptz `json:"refreshTokenExpiresAt"`
-	Scope                 *string            `json:"scope"`
-	Password              *string            `json:"password"`
-	CreatedAt             pgtype.Timestamptz `json:"createdAt"`
-	UpdatedAt             pgtype.Timestamptz `json:"updatedAt"`
-}
-
-type Session struct {
+type BotStatus struct {
 	ID        string             `json:"id"`
-	ExpiresAt pgtype.Timestamptz `json:"expiresAt"`
-	Token     string             `json:"token"`
+	IsActive  bool               `json:"isActive"`
+	Activity  *string            `json:"activity"`
 	CreatedAt pgtype.Timestamptz `json:"createdAt"`
 	UpdatedAt pgtype.Timestamptz `json:"updatedAt"`
-	IpAddress *string            `json:"ipAddress"`
-	UserAgent *string            `json:"userAgent"`
-	UserId    string             `json:"userId"`
-}
-
-type User struct {
-	ID            string             `json:"id"`
-	Name          string             `json:"name"`
-	Email         string             `json:"email"`
-	EmailVerified bool               `json:"emailVerified"`
-	Image         *string            `json:"image"`
-	CreatedAt     pgtype.Timestamptz `json:"createdAt"`
-	UpdatedAt     pgtype.Timestamptz `json:"updatedAt"`
-}
-
-type Verification struct {
-	ID         string             `json:"id"`
-	Identifier string             `json:"identifier"`
-	Value      string             `json:"value"`
-	ExpiresAt  pgtype.Timestamptz `json:"expiresAt"`
-	CreatedAt  pgtype.Timestamptz `json:"createdAt"`
-	UpdatedAt  pgtype.Timestamptz `json:"updatedAt"`
 }
