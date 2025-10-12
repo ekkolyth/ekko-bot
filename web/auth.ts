@@ -14,4 +14,8 @@ export const auth = betterAuth({
   database: pool,
   secret: process.env.BETTER_AUTH_SECRET!,
   baseURL: process.env.BETTER_AUTH_URL!,
+  // Tell Better Auth to skip migrations since we're using Goose
+  advanced: {
+    skipMigrations: true,
+  },
 });

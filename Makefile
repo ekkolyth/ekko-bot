@@ -65,6 +65,40 @@ test:
 version:
 	@echo "Version: $(GO_SOURCE_HASH)"
 
+# Database migration commands
+migrate-up:
+	@echo "Running database migrations..."
+	goose -dir sql/migrations postgres "$(DB_URL)" up
+
+migrate-down:
+	@echo "Rolling back database migrations..."
+	goose -dir sql/migrations postgres "$(DB_URL)" down
+
+migrate-status:
+	@echo "Checking migration status..."
+	goose -dir sql/migrations postgres "$(DB_URL)" status
+
+migrate-create:
+	@echo "Creating new migration: $(NAME)"
+	goose -dir sql/migrations create $(NAME) sql
+
+# SQLC code generation
+sqlc-generate:
+	@echo "Generating SQLC code..."
+	sqlc generate
+
+sqlc-verify:
+	@echo "Verifying SQLC queries..."
+	sqlc compile
+
+# Database setup
+db-setup: migrate-up sqlc-generate
+	@echo "Database setup complete!"
+
+# Development workflow
+dev: db-setup build
+	@echo "Development environment ready!"
+
 docker-build:
 	docker build -t $(BINARY_NAME) .
 
