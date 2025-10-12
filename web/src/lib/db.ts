@@ -1,6 +1,6 @@
 import { Pool } from "pg";
 
-const dbUrl: string | undefined = process.env.DB_URL;
+const dbUrl: string | undefined = process.env.BETTER_AUTH_DB_URL;
 const isProduction: string | undefined = process.env.NODE_ENV;
 
 // Create PostgreSQL connection pool

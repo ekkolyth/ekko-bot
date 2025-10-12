@@ -9,30 +9,15 @@ import (
 )
 
 type Querier interface {
-	CreateAccount(ctx context.Context, arg *CreateAccountParams) (*Account, error)
-	CreateSession(ctx context.Context, arg *CreateSessionParams) (*Session, error)
-	CreateUser(ctx context.Context, arg *CreateUserParams) (*User, error)
-	CreateVerification(ctx context.Context, arg *CreateVerificationParams) (*Verification, error)
-	DeleteAccount(ctx context.Context, id string) error
-	DeleteExpiredSessions(ctx context.Context) error
-	DeleteExpiredVerifications(ctx context.Context) error
-	DeleteSession(ctx context.Context, id string) error
-	DeleteUser(ctx context.Context, id string) error
-	DeleteVerification(ctx context.Context, id string) error
-	GetAccountByID(ctx context.Context, id string) (*Account, error)
-	GetAccountByProvider(ctx context.Context, arg *GetAccountByProviderParams) (*Account, error)
-	GetAccountsByUserID(ctx context.Context, userid string) ([]*Account, error)
-	GetSessionByID(ctx context.Context, id string) (*Session, error)
-	GetSessionByToken(ctx context.Context, token string) (*Session, error)
-	GetSessionsByUserID(ctx context.Context, userid string) ([]*Session, error)
-	GetUserByEmail(ctx context.Context, email string) (*User, error)
-	// Better Auth queries
-	GetUserByID(ctx context.Context, id string) (*User, error)
-	GetVerificationByID(ctx context.Context, id string) (*Verification, error)
-	GetVerificationByIdentifier(ctx context.Context, identifier string) (*Verification, error)
-	UpdateAccount(ctx context.Context, arg *UpdateAccountParams) (*Account, error)
-	UpdateSession(ctx context.Context, arg *UpdateSessionParams) (*Session, error)
-	UpdateUser(ctx context.Context, arg *UpdateUserParams) (*User, error)
+	CreateBotStatus(ctx context.Context, arg *CreateBotStatusParams) (*BotStatus, error)
+	DeleteBotStatus(ctx context.Context, id string) error
+	GetActiveBotStatus(ctx context.Context) (*BotStatus, error)
+	// Bot status queries
+	GetBotStatus(ctx context.Context, id string) (*BotStatus, error)
+	ListAllBotStatuses(ctx context.Context) ([]*BotStatus, error)
+	UpdateBotActiveStatus(ctx context.Context, arg *UpdateBotActiveStatusParams) (*BotStatus, error)
+	UpdateBotActivity(ctx context.Context, arg *UpdateBotActivityParams) (*BotStatus, error)
+	UpdateBotStatus(ctx context.Context, arg *UpdateBotStatusParams) (*BotStatus, error)
 }
 
 var _ Querier = (*Queries)(nil)
