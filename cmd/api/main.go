@@ -51,10 +51,10 @@ func main() {
 	})
 
 	// Example Route
-	router.Get("/api/music", func(w http.ResponseWriter, r *http.Request) {
+	router.Get("/api/bot", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"message": "Hello Music World"}`))
+		w.Write([]byte(`{"message": "Hello from Scolei"}`))
 		logging.Api("Incoming API Request")
 	})
 

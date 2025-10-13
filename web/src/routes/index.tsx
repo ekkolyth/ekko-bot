@@ -1,5 +1,5 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
+import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 
 import {
   Zap,
@@ -9,69 +9,62 @@ import {
   Waves,
   Sparkles,
   Music,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute("/")({
   component: App,
-})
+});
 
 function App() {
-  const [isLoading, setIsLoading] = useState(false)
-  const [response, setResponse] = useState<string | null>(null)
-
-  const handleApiCall = async () => {
-    setIsLoading(true)
-    setResponse(null)
-    try {
-      const res = await fetch('/api/music')
-      const data = await res.json()
-      setResponse(JSON.stringify(data, null, 2))
-    } catch (error) {
-      setResponse(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`)
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ["bot-api"],
+    queryFn: async () => {
+      const res = await fetch("/api/bot");
+      if (!res.ok) throw new Error("Failed to fetch");
+      return res.json();
+    },
+    enabled: false, // Don't auto-fetch, only when button is clicked
+  });
 
   const features = [
     {
       icon: <Zap className="w-12 h-12 text-cyan-400" />,
-      title: 'Powerful Server Functions',
+      title: "Powerful Server Functions",
       description:
-        'Write server-side code that seamlessly integrates with your client components. Type-safe, secure, and simple.',
+        "Write server-side code that seamlessly integrates with your client components. Type-safe, secure, and simple.",
     },
     {
       icon: <Server className="w-12 h-12 text-cyan-400" />,
-      title: 'Flexible Server Side Rendering',
+      title: "Flexible Server Side Rendering",
       description:
-        'Full-document SSR, streaming, and progressive enhancement out of the box. Control exactly what renders where.',
+        "Full-document SSR, streaming, and progressive enhancement out of the box. Control exactly what renders where.",
     },
     {
       icon: <RouteIcon className="w-12 h-12 text-cyan-400" />,
-      title: 'API Routes',
+      title: "API Routes",
       description:
-        'Build type-safe API endpoints alongside your application. No separate backend needed.',
+        "Build type-safe API endpoints alongside your application. No separate backend needed.",
     },
     {
       icon: <Shield className="w-12 h-12 text-cyan-400" />,
-      title: 'Strongly Typed Everything',
+      title: "Strongly Typed Everything",
       description:
-        'End-to-end type safety from server to client. Catch errors before they reach production.',
+        "End-to-end type safety from server to client. Catch errors before they reach production.",
     },
     {
       icon: <Waves className="w-12 h-12 text-cyan-400" />,
-      title: 'Full Streaming Support',
+      title: "Full Streaming Support",
       description:
-        'Stream data from server to client progressively. Perfect for AI applications and real-time updates.',
+        "Stream data from server to client progressively. Perfect for AI applications and real-time updates.",
     },
     {
       icon: <Sparkles className="w-12 h-12 text-cyan-400" />,
-      title: 'Next Generation Ready',
+      title: "Next Generation Ready",
       description:
-        'Built from the ground up for modern web applications. Deploy anywhere JavaScript runs.',
+        "Built from the ground up for modern web applications. Deploy anywhere JavaScript runs.",
     },
-  ]
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
@@ -85,7 +78,7 @@ function App() {
               className="w-24 h-24 md:w-32 md:h-32"
             />
             <h1 className="text-6xl md:text-7xl font-bold text-white">
-              <span className="text-gray-300">TANSTACK</span>{' '}
+              <span className="text-gray-300">TANSTACK</span>{" "}
               <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
                 START
               </span>
@@ -101,16 +94,23 @@ function App() {
           </p>
           <div className="flex flex-col items-center gap-4">
             <Button
-              onClick={handleApiCall}
+              onClick={() => refetch()}
               disabled={isLoading}
               className="px-8 py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg transition-colors shadow-lg shadow-cyan-500/50 disabled:opacity-50"
             >
               <Music className="w-4 h-4 mr-2" />
-              {isLoading ? 'Calling API...' : 'Test Music API'}
+              {isLoading ? "Calling API..." : "Test Music API"}
             </Button>
-            {response && (
+            {data && (
               <div className="mt-4 p-4 bg-slate-800 rounded-lg max-w-2xl w-full">
-                <pre className="text-sm text-gray-300 whitespace-pre-wrap">{response}</pre>
+                <pre className="text-sm text-gray-300 whitespace-pre-wrap">
+                  {JSON.stringify(data, null, 2)}
+                </pre>
+              </div>
+            )}
+            {error && (
+              <div className="mt-4 p-4 bg-red-800 rounded-lg max-w-2xl w-full">
+                <pre className="text-sm text-red-300 whitespace-pre-wrap">Error: {error.message}</pre>
               </div>
             )}
             <p className="text-gray-400 text-sm mt-2">
@@ -139,5 +139,5 @@ function App() {
         </div>
       </section>
     </div>
-  )
+  );
 }
