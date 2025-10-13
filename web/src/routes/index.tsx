@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { useState } from 'react'
 
 import {
   Zap,
@@ -7,13 +8,32 @@ import {
   Shield,
   Waves,
   Sparkles,
+  Music,
 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 export const Route = createFileRoute('/')({
   component: App,
 })
 
 function App() {
+  const [isLoading, setIsLoading] = useState(false)
+  const [response, setResponse] = useState<string | null>(null)
+
+  const handleApiCall = async () => {
+    setIsLoading(true)
+    setResponse(null)
+    try {
+      const res = await fetch('/api/music')
+      const data = await res.json()
+      setResponse(JSON.stringify(data, null, 2))
+    } catch (error) {
+      setResponse(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const features = [
     {
       icon: <Zap className="w-12 h-12 text-cyan-400" />,
@@ -80,19 +100,21 @@ function App() {
             safety.
           </p>
           <div className="flex flex-col items-center gap-4">
-            <a
-              href="https://tanstack.com/start"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-8 py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg transition-colors shadow-lg shadow-cyan-500/50"
+            <Button
+              onClick={handleApiCall}
+              disabled={isLoading}
+              className="px-8 py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg transition-colors shadow-lg shadow-cyan-500/50 disabled:opacity-50"
             >
-              Documentation
-            </a>
+              <Music className="w-4 h-4 mr-2" />
+              {isLoading ? 'Calling API...' : 'Test Music API'}
+            </Button>
+            {response && (
+              <div className="mt-4 p-4 bg-slate-800 rounded-lg max-w-2xl w-full">
+                <pre className="text-sm text-gray-300 whitespace-pre-wrap">{response}</pre>
+              </div>
+            )}
             <p className="text-gray-400 text-sm mt-2">
-              Begin your TanStack Start journey by editing{' '}
-              <code className="px-2 py-1 bg-slate-700 rounded text-cyan-400">
-                /src/routes/index.tsx
-              </code>
+              Test the music API endpoint by clicking the button above
             </p>
           </div>
         </div>

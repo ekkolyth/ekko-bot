@@ -21,7 +21,8 @@ const config = defineConfig(({ mode }) => {
       viteReact(),
     ],
     define: {
-      'process.env': env
+      'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV || 'development'),
+      'process.env.BETTER_AUTH_URL': JSON.stringify(env.BETTER_AUTH_URL),
     }
   }
 })
