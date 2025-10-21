@@ -4,13 +4,13 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/ekkolyth/ekko-bot/internal/shared/state"
+	"github.com/ekkolyth/ekko-bot/internal/shared/context"
 	"github.com/ekkolyth/ekko-bot/internal/shared/validation"
 
 	"github.com/bwmarrin/discordgo"
 )
 
-func NukeMessages(ctx *state.Context) {
+func NukeMessages(ctx *context.Context) {
 	// check if the user has permission to manage messages
 	if !validation.HasPermission(ctx, discordgo.PermissionManageMessages) {
 		ctx.Reply("You do not have permission to use this command.")

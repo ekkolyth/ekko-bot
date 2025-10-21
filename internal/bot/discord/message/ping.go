@@ -1,7 +1,7 @@
 package message
 
-import "github.com/ekkolyth/ekko-bot/internal/shared/state"
+import "github.com/ekkolyth/ekko-bot/internal/shared/context"
 
-func Ping(ctx *state.Context) {
+func Ping(ctx *context.Context) {
 	ctx.Reply("Ping")
 }

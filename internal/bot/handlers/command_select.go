@@ -4,19 +4,19 @@ import (
 	"github.com/ekkolyth/ekko-bot/internal/bot/discord/core"
 	"github.com/ekkolyth/ekko-bot/internal/bot/discord/message"
 	"github.com/ekkolyth/ekko-bot/internal/bot/discord/music"
-	"github.com/ekkolyth/ekko-bot/internal/shared/state"
+	"github.com/ekkolyth/ekko-bot/internal/shared/context"
 )
 
 // Both handlers can use this to forward to the correct command
-func commandSelector(ctx *state.Context) {
-	if state.DisabledCommands[ctx.CommandName] {
+func commandSelector(ctx *context.Context) {
+	if context.DisabledCommands[ctx.CommandName] {
 		ctx.Reply("This command has been disabled.")
 		return
 	}
 
 	switch ctx.CommandName {
 	case "ping":
-		message.Pong(ctx)
+		message.Ping(ctx)
 	case "pong":
 		message.Ping(ctx)
 	case "play":

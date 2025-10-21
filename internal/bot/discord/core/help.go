@@ -1,12 +1,10 @@
 package core
 
-import (
-	"github.com/ekkolyth/ekko-bot/internal/shared/state"
-)
+import "github.com/ekkolyth/ekko-bot/internal/shared/context"
 
-func Help(ctx *state.Context) {
+func Help(ctx *context.Context) {
 	prefix := "/"
-	if ctx.GetSourceType() == int(state.SourceTypeMessage) {
+	if ctx.GetSourceType() == int(context.SourceTypeMessage) {
 		prefix = "!"
 	}
 

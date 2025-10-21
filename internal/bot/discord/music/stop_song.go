@@ -4,11 +4,11 @@ import (
 	"time"
 
 	"github.com/ekkolyth/ekko-bot/internal/bot/discord"
+	"github.com/ekkolyth/ekko-bot/internal/shared/context"
 	"github.com/ekkolyth/ekko-bot/internal/shared/logging"
-	"github.com/ekkolyth/ekko-bot/internal/shared/state"
 )
 
-func StopSong(ctx *state.Context) {
+func StopSong(ctx *context.Context) {
 	// Get the voice connection for the guild
 	vc, err := discord.GetVoiceConnection(ctx)
 	if err != nil {
@@ -17,22 +17,22 @@ func StopSong(ctx *state.Context) {
 	}
 
 	// Signal the current song to stop
-	state.StopMutex.Lock()
-	if stopChan, exists := state.StopChannels[ctx.GetGuildID()]; exists {
+	context.StopMutex.Lock()
+	if stopChan, exists := context.StopChannels[ctx.GetGuildID()]; exists {
 		close(stopChan)
-		delete(state.StopChannels, ctx.GetGuildID())
+		delete(context.StopChannels, ctx.GetGuildID())
 	}
-	state.StopMutex.Unlock()
+	context.StopMutex.Unlock()
 
 	// Clear the queue for the guild
-	state.QueueMutex.Lock()
-	state.Queue[ctx.GetGuildID()] = []string{}
-	state.QueueMutex.Unlock()
+	context.QueueMutex.Lock()
+	context.Queue[ctx.GetGuildID()] = []string{}
+	context.QueueMutex.Unlock()
 
 	// Mark the bot as not playing
-	state.PlayingMutex.Lock()
-	state.Playing[ctx.GetGuildID()] = false
-	state.PlayingMutex.Unlock()
+	context.PlayingMutex.Lock()
+	context.Playing[ctx.GetGuildID()] = false
+	context.PlayingMutex.Unlock()
 
 	// Wait a moment for processes to terminate cleanly
 	// then disconnect from the voice channel

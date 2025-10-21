@@ -2,7 +2,7 @@ package audio
 
 import (
 	"github.com/ekkolyth/ekko-bot/internal/shared/config"
-	"github.com/ekkolyth/ekko-bot/internal/shared/state"
+	"github.com/ekkolyth/ekko-bot/internal/shared/context"
 
 	"github.com/bwmarrin/discordgo"
 	"layeh.com/gopus"
@@ -17,7 +17,7 @@ func SendPCM(v *discordgo.VoiceConnection, pcm <-chan []int16) {
 
 	var err error
 
-	state.OpusEncoder, err = gopus.NewEncoder(config.FrameRate, config.Channels, gopus.Audio)
+	context.OpusEncoder, err = gopus.NewEncoder(config.FrameRate, config.Channels, gopus.Audio)
 
 	if err != nil {
 		OnError("NewEncoder Error", err)
@@ -33,7 +33,7 @@ func SendPCM(v *discordgo.VoiceConnection, pcm <-chan []int16) {
 		}
 
 		// try encoding pcm frame with Opus
-		opus, err := state.OpusEncoder.Encode(recv, config.FrameSize, config.MaxBytes)
+		opus, err := context.OpusEncoder.Encode(recv, config.FrameSize, config.MaxBytes)
 		if err != nil {
 			OnError("Encoding Error", err)
 			return
