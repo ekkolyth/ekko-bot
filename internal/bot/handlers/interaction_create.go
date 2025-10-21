@@ -1,8 +1,8 @@
 package handlers
 
 import (
+	"github.com/ekkolyth/ekko-bot/internal/shared/context"
 	"github.com/ekkolyth/ekko-bot/internal/shared/logging"
-	"github.com/ekkolyth/ekko-bot/internal/shared/state"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -13,7 +13,7 @@ func HandleInteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreat
 		return
 	}
 
-	ctx := state.NewInteractionContext(s, i)
+	ctx := context.NewInteractionContext(s, i)
 
 	logging.InteractionCreate(ctx.User.Username, ctx.CommandName, ctx.ArgumentstoString())
 	commandSelector(ctx)

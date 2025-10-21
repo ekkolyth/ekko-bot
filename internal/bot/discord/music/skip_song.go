@@ -2,10 +2,10 @@ package music
 
 import (
 	"github.com/ekkolyth/ekko-bot/internal/bot/discord"
-	"github.com/ekkolyth/ekko-bot/internal/shared/state"
+	"github.com/ekkolyth/ekko-bot/internal/shared/context"
 )
 
-func SkipSong(ctx *state.Context) {
+func SkipSong(ctx *context.Context) {
 	vc, err := discord.GetVoiceConnection(ctx)
 	if err != nil {
 		ctx.Reply("Not in a voice channel")
@@ -13,12 +13,12 @@ func SkipSong(ctx *state.Context) {
 	}
 
 	// Signal the current song to stop
-	state.StopMutex.Lock()
-	if stopChan, exists := state.StopChannels[ctx.GetGuildID()]; exists {
+	context.StopMutex.Lock()
+	if stopChan, exists := context.StopChannels[ctx.GetGuildID()]; exists {
 		close(stopChan)
-		delete(state.StopChannels, ctx.GetGuildID())
+		delete(context.StopChannels, ctx.GetGuildID())
 	}
-	state.StopMutex.Unlock()
+	context.StopMutex.Unlock()
 
 	vc.Speaking(false)
 

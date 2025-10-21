@@ -3,12 +3,12 @@ package discord
 import (
 	"os"
 
-	"github.com/ekkolyth/ekko-bot/internal/shared/state"
+	"github.com/ekkolyth/ekko-bot/internal/shared/context"
 
 	"github.com/bwmarrin/discordgo"
 )
 
-func GetVoiceConnection(ctx *state.Context) (*discordgo.VoiceConnection, error) {
+func GetVoiceConnection(ctx *context.Context) (*discordgo.VoiceConnection, error) {
 	vc := ctx.GetSession().VoiceConnections[ctx.GetGuildID()]
 	if vc == nil {
 		return nil, os.ErrNotExist
@@ -16,13 +16,13 @@ func GetVoiceConnection(ctx *state.Context) (*discordgo.VoiceConnection, error) 
 	return vc, nil
 }
 
-func BotInChannel(ctx *state.Context) bool {
+func BotInChannel(ctx *context.Context) bool {
 	// determines whether the bot is in the guild's channel
 	_, err := GetVoiceConnection(ctx)
 	return err == nil
 }
 
-func JoinUserVoiceChannel(ctx *state.Context) (*discordgo.VoiceConnection, error) {
+func JoinUserVoiceChannel(ctx *context.Context) (*discordgo.VoiceConnection, error) {
 
 	guild, err := ctx.GetSession().State.Guild(ctx.GetGuildID())
 	if err != nil {
@@ -41,7 +41,7 @@ func JoinUserVoiceChannel(ctx *state.Context) (*discordgo.VoiceConnection, error
 	return nil, os.ErrNotExist
 }
 
-func IsUserInVoiceChannel(ctx *state.Context) bool {
+func IsUserInVoiceChannel(ctx *context.Context) bool {
 	guild, err := ctx.GetSession().State.Guild(ctx.GetGuildID())
 	if err != nil {
 		return false

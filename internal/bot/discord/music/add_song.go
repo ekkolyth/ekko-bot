@@ -5,12 +5,12 @@ import (
 
 	"github.com/ekkolyth/ekko-bot/internal/bot/audio"
 	"github.com/ekkolyth/ekko-bot/internal/bot/discord"
+	"github.com/ekkolyth/ekko-bot/internal/shared/context"
 	"github.com/ekkolyth/ekko-bot/internal/shared/logging"
-	"github.com/ekkolyth/ekko-bot/internal/shared/state"
 	"github.com/ekkolyth/ekko-bot/internal/shared/validation"
 )
 
-func AddSong(ctx *state.Context, search_mode bool) { // mode (false for play, true for search)
+func AddSong(ctx *context.Context, search_mode bool) { // mode (false for play, true for search)
 	var url string
 
 	if !discord.IsUserInVoiceChannel(ctx) {
@@ -19,7 +19,7 @@ func AddSong(ctx *state.Context, search_mode bool) { // mode (false for play, tr
 	}
 
 	if search_mode {
-		if ctx.SourceType == state.SourceTypeInteraction {
+		if ctx.SourceType == context.SourceTypeInteraction {
 			// To avoid the discord timeout for interactions
 			ctx.Reply("Searching...")
 		}
@@ -66,21 +66,21 @@ func AddSong(ctx *state.Context, search_mode bool) { // mode (false for play, tr
 		}
 
 	}
-	state.QueueMutex.Lock()
-	state.Queue[ctx.GetGuildID()] = append(state.Queue[ctx.GetGuildID()], url)
-	state.QueueMutex.Unlock()
+	context.QueueMutex.Lock()
+	context.Queue[ctx.GetGuildID()] = append(context.Queue[ctx.GetGuildID()], url)
+	context.QueueMutex.Unlock()
 
-	state.PlayingMutex.Lock()
-	isAlreadyPlaying := state.Playing[ctx.GetGuildID()]
-	state.PlayingMutex.Unlock()
+	context.PlayingMutex.Lock()
+	isAlreadyPlaying := context.Playing[ctx.GetGuildID()]
+	context.PlayingMutex.Unlock()
 
 	ctx.Reply("Added to queue.")
 
 	if !isAlreadyPlaying {
 		// Start processing the queue if the bot is idle
-		state.PlayingMutex.Lock()
-		state.Playing[ctx.GetGuildID()] = true
-		state.PlayingMutex.Unlock()
+		context.PlayingMutex.Lock()
+		context.Playing[ctx.GetGuildID()] = true
+		context.PlayingMutex.Unlock()
 		audio.ProcessQueue(ctx)
 	}
 }

@@ -2,13 +2,13 @@ package audio
 
 import (
 	"github.com/ekkolyth/ekko-bot/internal/bot/discord"
+	"github.com/ekkolyth/ekko-bot/internal/shared/context"
 	"github.com/ekkolyth/ekko-bot/internal/shared/logging"
-	"github.com/ekkolyth/ekko-bot/internal/shared/state"
 
 	"github.com/bwmarrin/discordgo"
 )
 
-func playAudio(ctx *state.Context, url string, stop chan bool, pauseCh chan bool, done chan bool) {
+func playAudio(ctx *context.Context, url string, stop chan bool, pauseCh chan bool, done chan bool) {
 	defer close(done) // Signal when this function exits
 
 	var vc *discordgo.VoiceConnection

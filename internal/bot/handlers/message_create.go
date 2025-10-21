@@ -3,8 +3,8 @@ package handlers
 import (
 	"strings"
 
+	"github.com/ekkolyth/ekko-bot/internal/shared/context"
 	"github.com/ekkolyth/ekko-bot/internal/shared/logging"
-	"github.com/ekkolyth/ekko-bot/internal/shared/state"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -17,7 +17,7 @@ func HandleMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	ctx := state.NewMessageContext(s, m)
+	ctx := context.NewMessageContext(s, m)
 
 	commandSelector(ctx)
 }

@@ -3,10 +3,10 @@ package core
 import (
 	"os"
 
-	"github.com/ekkolyth/ekko-bot/internal/shared/state"
+	"github.com/ekkolyth/ekko-bot/internal/shared/context"
 )
 
-func Unknown(ctx *state.Context) {
+func Unknown(ctx *context.Context) {
 	// Check .env for how to handle unknown commands
 	// default case is "ignore"
 

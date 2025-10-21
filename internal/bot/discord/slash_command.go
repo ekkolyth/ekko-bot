@@ -4,8 +4,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ekkolyth/ekko-bot/internal/shared/context"
 	"github.com/ekkolyth/ekko-bot/internal/shared/logging"
-	"github.com/ekkolyth/ekko-bot/internal/shared/state"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -16,7 +16,6 @@ func SetupSlashCommands(s *discordgo.Session) {
 
 	commands := []*discordgo.ApplicationCommand{
 		{Name: "ping", Description: "Replies with Pong"},
-		{Name: "pong", Description: "Replies with Ping"},
 		{Name: "play", Description: "Play a Youtube URL",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -93,7 +92,7 @@ func SetupSlashCommands(s *discordgo.Session) {
 
 		// Register all commands fresh
 		for _, cmd := range commands {
-			if state.DisabledCommands[cmd.Name] {
+			if context.DisabledCommands[cmd.Name] {
 				logging.Warning("Skipping disabled command:" + cmd.Name)
 				continue
 			}
@@ -108,7 +107,7 @@ func SetupSlashCommands(s *discordgo.Session) {
 		// Only register commands that don't exist yet (original behavior)
 		logging.Info("REFRESH_COMMANDS disabled - only registering missing commands...")
 		for _, cmd := range commands {
-			if state.DisabledCommands[cmd.Name] {
+			if context.DisabledCommands[cmd.Name] {
 				logging.Warning("Skipping disabled command:" + cmd.Name)
 				continue
 			}

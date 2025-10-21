@@ -5,19 +5,19 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ekkolyth/ekko-bot/internal/shared/state"
+	"github.com/ekkolyth/ekko-bot/internal/shared/context"
 	"github.com/ekkolyth/ekko-bot/internal/shared/validation"
 
 	"github.com/bwmarrin/discordgo"
 )
 
-func Uptime(ctx *state.Context) {
+func Uptime(ctx *context.Context) {
 	if !validation.HasPermission(ctx, discordgo.PermissionAdministrator) {
 		ctx.Reply("You do not have permission to use this command.")
 		return
 	}
 	timeNow := time.Now()
-	uptime := timeNow.Sub(state.StartTime)
+	uptime := timeNow.Sub(context.StartTime)
 	// convert to days, hours, minutes, seconds
 	days := int(uptime.Hours() / 24)
 	hours := int(uptime.Hours()) % 24

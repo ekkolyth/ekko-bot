@@ -1,13 +1,13 @@
 package validation
 
 import (
-	"github.com/ekkolyth/ekko-bot/internal/shared/state"
+	"github.com/ekkolyth/ekko-bot/internal/shared/context"
 
 	"github.com/bwmarrin/discordgo"
 )
 
 // Given a permission, checks if the user has that permission in the guild
-func HasPermission(ctx *state.Context, permission_requested int64) bool {
+func HasPermission(ctx *context.Context, permission_requested int64) bool {
 
 	member, err := ctx.GetSession().GuildMember(ctx.GetGuildID(), ctx.GetUser().ID)
 	if err != nil {

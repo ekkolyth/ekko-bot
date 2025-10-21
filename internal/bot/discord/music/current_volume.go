@@ -3,18 +3,18 @@ package music
 import (
 	"fmt"
 
-	"github.com/ekkolyth/ekko-bot/internal/shared/state"
+	"github.com/ekkolyth/ekko-bot/internal/shared/context"
 )
 
-func CurrentVolume(ctx *state.Context) {
+func CurrentVolume(ctx *context.Context) {
 	var currentVolume float64
-	state.VolumeMutex.Lock()
-	currentVolume, ok := state.Volume[ctx.GetGuildID()]
+	context.VolumeMutex.Lock()
+	currentVolume, ok := context.Volume[ctx.GetGuildID()]
 	if !ok {
 		currentVolume = 1.0 // Default volume if not set
-		state.Volume[ctx.GetGuildID()] = 1.0
+		context.Volume[ctx.GetGuildID()] = 1.0
 	}
-	state.VolumeMutex.Unlock()
+	context.VolumeMutex.Unlock()
 	// Convert to percentage for display
 	currentVolume = currentVolume * 100.0 // Convert factor back to percentage
 	ctx.Reply(fmt.Sprintf("Current volume is %.1f%%", currentVolume))

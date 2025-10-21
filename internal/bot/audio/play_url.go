@@ -11,7 +11,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 
 	"github.com/ekkolyth/ekko-bot/internal/shared/config"
-	"github.com/ekkolyth/ekko-bot/internal/shared/state"
+	"github.com/ekkolyth/ekko-bot/internal/shared/context"
 	"github.com/ekkolyth/ekko-bot/internal/shared/validation"
 )
 
@@ -185,13 +185,13 @@ func PlayURL(v *discordgo.VoiceConnection, url string, stop <-chan bool, pauseCh
 
 		// Apply volume adjustment
 		// Use v.GuildID for per-guild volume
-		state.VolumeMutex.Lock()
-		currentVolume, ok := state.Volume[v.GuildID]
+		context.VolumeMutex.Lock()
+		currentVolume, ok := context.Volume[v.GuildID]
 		if !ok {
 			currentVolume = 1.0
-			state.Volume[v.GuildID] = 1.0
+			context.Volume[v.GuildID] = 1.0
 		}
-		state.VolumeMutex.Unlock()
+		context.VolumeMutex.Unlock()
 
 		for i := range audiobuf {
 			// Calculate new value and clamp to int16 range to prevent distortion

@@ -1,17 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { json } from "@tanstack/react-start"
 
 export const Route = createFileRoute("/api/bot/")({
   server: {
     handlers: {
-      GET: async ({ request }: { request: Request }) => {
-        const botApi: string = "http://localhost:1337/api/bot";
-        const response = await fetch(botApi, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
+      GET: async () => {
+        return json({
+          ok: true,
+          message: "Bot API route is working!",
+          timestamp: new Date().toISOString(),
         });
-        return response;
       },
     },
   },

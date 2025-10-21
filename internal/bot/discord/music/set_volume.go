@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/ekkolyth/ekko-bot/internal/shared/state"
+	"github.com/ekkolyth/ekko-bot/internal/shared/context"
 )
 
-func SetVolume(ctx *state.Context) {
+func SetVolume(ctx *context.Context) {
 	volume := ctx.Arguments["level"]
 
 	if len(volume) < 1 {
@@ -24,12 +24,12 @@ func SetVolume(ctx *state.Context) {
 	// Normalize the volume to a range of 0.0 to 2.0
 	newVolume = newVolume / 100.0 // Convert percentage to a factor
 
-	state.VolumeMutex.Lock()
-	if _, ok := state.Volume[ctx.GetGuildID()]; !ok {
-		state.Volume[ctx.GetGuildID()] = 1.0 // Initialize to default if not set
+	context.VolumeMutex.Lock()
+	if _, ok := context.Volume[ctx.GetGuildID()]; !ok {
+		context.Volume[ctx.GetGuildID()] = 1.0 // Initialize to default if not set
 	}
-	state.Volume[ctx.GetGuildID()] = newVolume
-	state.VolumeMutex.Unlock()
+	context.Volume[ctx.GetGuildID()] = newVolume
+	context.VolumeMutex.Unlock()
 
 	ctx.Reply(fmt.Sprintf("Volume set to %.1f%%", preservedVolume))
 }
