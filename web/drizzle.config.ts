@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export default defineConfig({
-  schema: "./auth-schema.ts",
+  schema: "@src/data/auth-schema.ts",
   out: "./drizzle",
   dialect: "postgresql",
   dbCredentials: {

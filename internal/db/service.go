@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"fmt"
 )
 
 // BotStatusService provides methods for bot status-related database operations
