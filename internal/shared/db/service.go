@@ -15,41 +15,41 @@ func NewBotStatusService(db *DB) *BotStatusService {
 }
 
 // SetBotActive sets the bot's active status
-func (s *BotStatusService) SetBotActive(ctx context.Context, id string, isActive bool) (*BotStatus, error) {
-	return s.db.UpdateBotActiveStatus(ctx, &UpdateBotActiveStatusParams{
+func (s *BotStatusService) SetBotActive(ctx context.Context, id string, isActive bool) (*BotState, error) {
+	return s.db.Queries.UpdateBotActiveStatus(ctx, &UpdateBotActiveStatusParams{
 		ID:       id,
 		IsActive: isActive,
 	})
 }
 
 // SetBotActivity sets the bot's activity message
-func (s *BotStatusService) SetBotActivity(ctx context.Context, id string, activity *string) (*BotStatus, error) {
-	return s.db.UpdateBotActivity(ctx, &UpdateBotActivityParams{
-		ID:       id,
-		Activity: activity,
+func (s *BotStatusService) SetBotActivity(ctx context.Context, id string, activity *string) (*BotState, error) {
+	return s.db.Queries.UpdateBotActivity(ctx, &UpdateBotActivityParams{
+		ID:              id,
+		CurrentActivity: activity,
 	})
 }
 
 // GetActiveBotStatus gets the currently active bot status
-func (s *BotStatusService) GetActiveBotStatus(ctx context.Context) (*BotStatus, error) {
-	return s.db.GetActiveBotStatus(ctx)
+func (s *BotStatusService) GetActiveBotStatus(ctx context.Context) (*BotState, error) {
+	return s.db.Queries.GetActiveBotStatus(ctx)
 }
 
 // GetAllBotStatuses gets all bot statuses
-func (s *BotStatusService) GetAllBotStatuses(ctx context.Context) ([]*BotStatus, error) {
-	return s.db.ListAllBotStatuses(ctx)
+func (s *BotStatusService) GetAllBotStatuses(ctx context.Context) ([]*BotState, error) {
+	return s.db.Queries.ListAllBotStatuses(ctx)
 }
 
 // CreateBotStatus creates a new bot status entry
-func (s *BotStatusService) CreateBotStatus(ctx context.Context, id string, isActive bool, activity *string) (*BotStatus, error) {
-	return s.db.CreateBotStatus(ctx, &CreateBotStatusParams{
-		ID:       id,
-		IsActive: isActive,
-		Activity: activity,
+func (s *BotStatusService) CreateBotStatus(ctx context.Context, id string, isActive bool, activity *string) (*BotState, error) {
+	return s.db.Queries.CreateBotStatus(ctx, &CreateBotStatusParams{
+		ID:              id,
+		IsActive:        isActive,
+		CurrentActivity: activity,
 	})
 }
 
 // DeleteBotStatus deletes a bot status entry
 func (s *BotStatusService) DeleteBotStatus(ctx context.Context, id string) error {
-	return s.db.DeleteBotStatus(ctx, id)
+	return s.db.Queries.DeleteBotStatus(ctx, id)
 }

@@ -1,9 +1,7 @@
-package validation_test
+package httpx
 
 import (
 	"testing"
-
-	"github.com/ekkolyth/ekko-bot/internal/shared/validation"
 )
 
 //"github.com/stretchr/testify/assert"
@@ -78,7 +76,7 @@ func TestIsValidURL(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		result := validation.IsValidURL(test.input)
+		result := IsValidURL(test.input)
 		if result != test.expected {
 			t.Errorf("isValidURL(%q) = %v; want %v", test.input, result, test.expected)
 		}

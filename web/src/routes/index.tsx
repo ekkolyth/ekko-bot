@@ -18,9 +18,9 @@ export const Route = createFileRoute("/")({
 
 function App() {
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["bot-api"],
+    queryKey: ["healthz"],
     queryFn: async () => {
-      const res = await fetch("/api/bot");
+      const res = await fetch("/api/healthz");
       if (!res.ok) throw new Error("Failed to fetch");
       return res.json();
     },

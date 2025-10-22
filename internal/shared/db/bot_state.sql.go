@@ -136,18 +136,18 @@ func (q *Queries) UpdateBotActiveStatus(ctx context.Context, arg *UpdateBotActiv
 
 const UpdateBotActivity = `-- name: UpdateBotActivity :one
 UPDATE "bot_state"
-SET is_active = $2, "updated_at" = CURRENT_TIMESTAMP
+SET current_activity = $2, "updated_at" = CURRENT_TIMESTAMP
 WHERE id = $1
 RETURNING id, is_active, current_activity, created_at, updated_at
 `
 
 type UpdateBotActivityParams struct {
-	ID       string `json:"id"`
-	IsActive bool   `json:"is_active"`
+	ID              string  `json:"id"`
+	CurrentActivity *string `json:"current_activity"`
 }
 
 func (q *Queries) UpdateBotActivity(ctx context.Context, arg *UpdateBotActivityParams) (*BotState, error) {
-	row := q.db.QueryRow(ctx, UpdateBotActivity, arg.ID, arg.IsActive)
+	row := q.db.QueryRow(ctx, UpdateBotActivity, arg.ID, arg.CurrentActivity)
 	var i BotState
 	err := row.Scan(
 		&i.ID,

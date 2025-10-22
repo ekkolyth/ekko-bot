@@ -15,7 +15,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var startTime = time.Now()
+var StartTime = time.Now()
 
 func main() {
 	// Load environment variables

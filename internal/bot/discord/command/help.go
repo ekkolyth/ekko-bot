@@ -1,4 +1,4 @@
-package core
+package command
 
 import "github.com/ekkolyth/ekko-bot/internal/shared/context"
 

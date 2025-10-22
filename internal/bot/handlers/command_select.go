@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"github.com/ekkolyth/ekko-bot/internal/bot/discord/core"
-	"github.com/ekkolyth/ekko-bot/internal/bot/discord/message"
+	"github.com/ekkolyth/ekko-bot/internal/api/httpx"
+	"github.com/ekkolyth/ekko-bot/internal/bot/discord/command"
 	"github.com/ekkolyth/ekko-bot/internal/bot/discord/music"
 	"github.com/ekkolyth/ekko-bot/internal/shared/context"
 )
@@ -16,9 +16,9 @@ func commandSelector(ctx *context.Context) {
 
 	switch ctx.CommandName {
 	case "ping":
-		message.Ping(ctx)
+		command.Ping(ctx)
 	case "pong":
-		message.Ping(ctx)
+		command.Ping(ctx)
 	case "play":
 		music.AddSong(ctx, false) // false as in not a search
 	case "search":
@@ -36,14 +36,14 @@ func commandSelector(ctx *context.Context) {
 	case "currentvolume":
 		music.CurrentVolume(ctx)
 	case "nuke": // delete n messages
-		message.NukeMessages(ctx)
+		command.NukeMessages(ctx)
 	case "uptime":
-		core.Uptime(ctx)
+		httpx.Uptime(ctx)
 	case "version":
-		core.Version(ctx)
+		httpx.Version(ctx)
 	case "help":
-		core.Help(ctx)
+		command.Help(ctx)
 	default:
-		core.Unknown(ctx)
+		command.Unknown(ctx)
 	}
 }

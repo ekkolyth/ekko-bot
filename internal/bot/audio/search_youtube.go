@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/ekkolyth/ekko-bot/internal/shared/logging"
-	"github.com/ekkolyth/ekko-bot/internal/shared/validation"
+	"github.com/ekkolyth/ekko-bot/internal/api/httpx"
 )
 
 func SearchYoutube(query string) (string, bool) {
@@ -31,7 +31,7 @@ func SearchYoutube(query string) (string, bool) {
 
 	// sanity check with validating the url
 
-	if !validation.IsValidURL(url) {
+	if !httpx.IsValidURL(url) {
 		return "", false
 	}
 

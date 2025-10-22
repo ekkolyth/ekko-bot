@@ -7,7 +7,7 @@ import (
 	"github.com/ekkolyth/ekko-bot/internal/bot/discord"
 	"github.com/ekkolyth/ekko-bot/internal/shared/context"
 	"github.com/ekkolyth/ekko-bot/internal/shared/logging"
-	"github.com/ekkolyth/ekko-bot/internal/shared/validation"
+	"github.com/ekkolyth/ekko-bot/internal/api/httpx"
 )
 
 func AddSong(ctx *context.Context, search_mode bool) { // mode (false for play, true for search)
@@ -28,9 +28,9 @@ func AddSong(ctx *context.Context, search_mode bool) { // mode (false for play, 
 
 		searchQuery := strings.TrimSpace(ctx.Arguments["query"])
 
-		if !validation.IsValidSearchQuery(searchQuery) {
+		if !httpx.IsValidSearchQuery(searchQuery) {
 			var searchQuerySafeToUse bool
-			searchQuery, searchQuerySafeToUse = validation.SanitiseSearchQuery(searchQuery)
+			searchQuery, searchQuerySafeToUse = httpx.SanitiseSearchQuery(searchQuery)
 			hadToSanitise = true
 			if !searchQuerySafeToUse {
 				ctx.Reply("Invalid search query")
@@ -60,7 +60,7 @@ func AddSong(ctx *context.Context, search_mode bool) { // mode (false for play, 
 
 		url = strings.TrimSpace(ctx.Arguments["url"])
 
-		if !validation.IsValidURL(url) {
+		if !httpx.IsValidURL(url) {
 			ctx.Reply("Invalid URL")
 			return
 		}
