@@ -1,12 +1,12 @@
 version: "2"
 sql:
   - engine: "postgresql"
-    queries: "./sql/queries"
-    schema: "./sql/schema"
+    queries: "./internal/shared/db/sql/queries"
+    schema: "./internal/shared/db/sql/migrations"
     gen:
       go:
         package: "db"
-        out: "./internal/db"
+        out: "./internal/shared/db/models"
         sql_package: "pgx/v5"
         emit_json_tags: true
         emit_prepared_queries: false
