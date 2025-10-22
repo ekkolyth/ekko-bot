@@ -14,29 +14,37 @@ func init() {
 var (
 	// from .env
 	Token        string
-	DisabledCommands = make(map[string]bool) // Set of disabled commands
 
-	Queue        = make(map[string][]string) // Guild ID -> Queue of URLs
+	// Set of disabled commands
+	DisabledCommands = make(map[string]bool)
+
+	// Guild ID -> Queue of URLs
+	Queue        = make(map[string][]string)
 	QueueMutex   sync.Mutex
 
 	Playing      = make(map[string]bool)
 	PlayingMutex sync.Mutex
 
-	Paused       = make(map[string]bool) // Guild ID -> Pause state
+	// Guild ID -> Pause state
+	Paused       = make(map[string]bool)
 	PauseMutex   sync.Mutex
 
-	Volume       = make(map[string]float64) // Guild ID -> Volume
+	// Guild ID -> Volume
+	Volume       = make(map[string]float64)
 	VolumeMutex  sync.Mutex
 
 	StopChannels = make(map[string]chan bool)
 	StopMutex    sync.Mutex
 
-	PauseChs     = make(map[string]chan bool) // Map of guild ID to pause channels
+	// Map of guild ID to pause channels
+	PauseChs     = make(map[string]chan bool)
 	PauseChMutex sync.Mutex
 
 	OpusEncoder  *gopus.Encoder
 
-	StartTime time.Time // Time when the bot started
+	// Time when the bot started
+	StartTime time.Time
 
-	GoSourceHash string // short hash of all go source files for version command
+	// short hash of all go source files for version command
+	GoSourceHash string
 )

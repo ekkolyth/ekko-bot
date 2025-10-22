@@ -10,11 +10,12 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/ekkolyth/ekko-bot/internal/api/httpserver"
 	"github.com/ekkolyth/ekko-bot/internal/shared/logging"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
 )
+
+var startTime = time.Now()
 
 func main() {
 	// Load environment variables
@@ -33,30 +34,7 @@ func main() {
 		log.Fatal("❌ Invalid API_PORT value:", port)
 	}
 
-	router := chi.NewRouter()
-
-	// CORS Middleware
-	router.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://*", "http://*"},
-		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
-		AllowedHeaders:   []string{"*"},
-		AllowCredentials: false,
-		MaxAge:           300, // 5 minute cache
-	}))
-
-	// Health Check
-	router.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("ok"))
-	})
-
-	// Example Route
-	router.Get("/api/bot", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"message": "Hello from Scolei"}`))
-		logging.Api("Incoming API Request")
-	})
+	router := httpserver.NewRouter()
 
 	// Configure HTTP server
 	server := &http.Server{

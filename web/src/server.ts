@@ -5,6 +5,10 @@ import {
   defineHandlerCallback,
 } from '@tanstack/react-start/server'
 
+import dotenv from 'dotenv'
+
+dotenv.config()
+
 // RFC-safe split in case getSetCookie() isn't available in your runtime
 function splitSetCookieHeader(headerValue: string): string[] {
   // Split on commas that start a new cookie: ", <token>="
