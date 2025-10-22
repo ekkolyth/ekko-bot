@@ -7,7 +7,6 @@ export const Route = createFileRoute('/api/healthz/')({
     handlers: {
       GET: async () => {
         try {
-          // Forward the request to your Go API
           const response = await fetch(`${baseURL}/api/healthz`, {
             method: "GET",
             headers: {
@@ -15,7 +14,6 @@ export const Route = createFileRoute('/api/healthz/')({
             },
           })
 
-          // If the API is unhealthy
           if (!response.ok) {
             const text = await response.text()
             return json(
