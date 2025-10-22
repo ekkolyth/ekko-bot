@@ -48,7 +48,7 @@ func NewRouter() http.Handler {
 	}))
 
 	// health (keeps compile happy + good liveness probe)
-	router.Get("/healthz", handlers.Health)
+	router.Get("/api/healthz", handlers.Health)
 
 	// versioned api surface — add your real endpoints here
 	router.Route("/api/v1", func(api chi.Router) {

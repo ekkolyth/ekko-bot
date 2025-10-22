@@ -8,7 +8,7 @@ export const Route = createFileRoute('/api/healthz/')({
       GET: async () => {
         try {
           // Forward the request to your Go API
-          const response = await fetch(`${baseURL}/api/health`, {
+          const response = await fetch(`${baseURL}/api/healthz`, {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
