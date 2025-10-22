@@ -12,14 +12,14 @@ import (
 
 	"github.com/ekkolyth/ekko-bot/internal/shared/config"
 	"github.com/ekkolyth/ekko-bot/internal/shared/context"
-	"github.com/ekkolyth/ekko-bot/internal/shared/validation"
+	"github.com/ekkolyth/ekko-bot/internal/api/httpx"
 )
 
 // Discord voice server/channel.  voice websocket and udp socket
 // must already be setup before this will work.
 func PlayURL(v *discordgo.VoiceConnection, url string, stop <-chan bool, pauseCh <-chan bool) {
 
-	if !validation.IsValidURL(url) {
+	if !httpx.IsValidURL(url) {
 		OnError("Invalid URL"+url, nil)
 		return
 	}

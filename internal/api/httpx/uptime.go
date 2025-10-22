@@ -1,4 +1,4 @@
-package core
+package httpx
 
 import (
 	"strconv"
@@ -6,13 +6,12 @@ import (
 	"time"
 
 	"github.com/ekkolyth/ekko-bot/internal/shared/context"
-	"github.com/ekkolyth/ekko-bot/internal/shared/validation"
 
 	"github.com/bwmarrin/discordgo"
 )
 
 func Uptime(ctx *context.Context) {
-	if !validation.HasPermission(ctx, discordgo.PermissionAdministrator) {
+	if !context.HasPermission(ctx, discordgo.PermissionAdministrator) {
 		ctx.Reply("You do not have permission to use this command.")
 		return
 	}

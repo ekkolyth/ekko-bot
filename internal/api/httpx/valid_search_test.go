@@ -1,9 +1,7 @@
-package validation_test
+package httpx
 
 import (
 	"testing"
-
-	"github.com/ekkolyth/ekko-bot/internal/shared/validation"
 )
 
 func TestIsValidSearchQuery(t *testing.T) {
@@ -46,7 +44,7 @@ func TestIsValidSearchQuery(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		result := validation.IsValidSearchQuery(test.input)
+		result := IsValidSearchQuery(test.input)
 		if result != test.expected {
 			t.Errorf("isValidSearchQuery(%q) = %v; want %v", test.input, result, test.expected)
 		}
@@ -77,7 +75,7 @@ func TestSanitiseSearchQuery(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		output, valid := validation.SanitiseSearchQuery(test.input)
+		output, valid := SanitiseSearchQuery(test.input)
 		if output != test.expectedOutput || valid != test.expectedValid {
 			t.Errorf("sanitiseSearchQuery(%q) = (%q, %v); want (%q, %v)", test.input, output, valid, test.expectedOutput, test.expectedValid)
 		}

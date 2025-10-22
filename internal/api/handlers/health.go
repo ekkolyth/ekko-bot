@@ -2,14 +2,16 @@ package handlers
 
 import (
 	"net/http"
-	"time"
-)
 
+	"github.com/ekkolyth/ekko-bot/internal/api/httpx"
+	"github.com/ekkolyth/ekko-bot/internal/shared/logging"
+)
 
 func Health(w http.ResponseWriter, r *http.Request) {
 	status := map[string]any{
 		"status": "ok",
-		"uptime": time.Since(startTime).String(),
+		"uptime": httpx.Uptime,
 	}
-	RespondJSON(w, http.StatusOK, status)
+	logging.Api("Health Check OK")
+	httpx.RespondJSON(w, http.StatusOK, status)
 }

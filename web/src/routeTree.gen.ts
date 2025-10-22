@@ -10,12 +10,12 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ApiBotRouteRouteImport } from './routes/api/bot/route'
+import { Route as ApiQueueIndexRouteImport } from './routes/api/queue/index'
+import { Route as ApiHealthzIndexRouteImport } from './routes/api/healthz/index'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
 import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
-import { Route as ApiBotQueueRouteRouteImport } from './routes/api/bot/queue/route'
 import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.index'
 import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr.spa-mode'
 import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
@@ -26,9 +26,14 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiBotRouteRoute = ApiBotRouteRouteImport.update({
-  id: '/api/bot',
-  path: '/api/bot',
+const ApiQueueIndexRoute = ApiQueueIndexRouteImport.update({
+  id: '/api/queue/',
+  path: '/api/queue/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiHealthzIndexRoute = ApiHealthzIndexRouteImport.update({
+  id: '/api/healthz/',
+  path: '/api/healthz/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
@@ -50,11 +55,6 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
-} as any)
-const ApiBotQueueRouteRoute = ApiBotQueueRouteRouteImport.update({
-  id: '/queue',
-  path: '/queue',
-  getParentRoute: () => ApiBotRouteRoute,
 } as any)
 const DemoStartSsrIndexRoute = DemoStartSsrIndexRouteImport.update({
   id: '/demo/start/ssr/',
@@ -79,12 +79,12 @@ const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/api/bot': typeof ApiBotRouteRouteWithChildren
-  '/api/bot/queue': typeof ApiBotQueueRouteRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/api/healthz': typeof ApiHealthzIndexRoute
+  '/api/queue': typeof ApiQueueIndexRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -92,12 +92,12 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/api/bot': typeof ApiBotRouteRouteWithChildren
-  '/api/bot/queue': typeof ApiBotQueueRouteRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/api/healthz': typeof ApiHealthzIndexRoute
+  '/api/queue': typeof ApiQueueIndexRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -106,12 +106,12 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/api/bot': typeof ApiBotRouteRouteWithChildren
-  '/api/bot/queue': typeof ApiBotQueueRouteRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/api/healthz/': typeof ApiHealthzIndexRoute
+  '/api/queue/': typeof ApiQueueIndexRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -121,12 +121,12 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/api/bot'
-    | '/api/bot/queue'
     | '/api/auth/$'
     | '/demo/api/names'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/api/healthz'
+    | '/api/queue'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -134,12 +134,12 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/api/bot'
-    | '/api/bot/queue'
     | '/api/auth/$'
     | '/demo/api/names'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/api/healthz'
+    | '/api/queue'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -147,12 +147,12 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/api/bot'
-    | '/api/bot/queue'
     | '/api/auth/$'
     | '/demo/api/names'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/api/healthz/'
+    | '/api/queue/'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -161,11 +161,12 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ApiBotRouteRoute: typeof ApiBotRouteRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   DemoApiNamesRoute: typeof DemoApiNamesRoute
   DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
   DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
+  ApiHealthzIndexRoute: typeof ApiHealthzIndexRoute
+  ApiQueueIndexRoute: typeof ApiQueueIndexRoute
   DemoStartSsrDataOnlyRoute: typeof DemoStartSsrDataOnlyRoute
   DemoStartSsrFullSsrRoute: typeof DemoStartSsrFullSsrRoute
   DemoStartSsrSpaModeRoute: typeof DemoStartSsrSpaModeRoute
@@ -181,11 +182,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/bot': {
-      id: '/api/bot'
-      path: '/api/bot'
-      fullPath: '/api/bot'
-      preLoaderRoute: typeof ApiBotRouteRouteImport
+    '/api/queue/': {
+      id: '/api/queue/'
+      path: '/api/queue'
+      fullPath: '/api/queue'
+      preLoaderRoute: typeof ApiQueueIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/healthz/': {
+      id: '/api/healthz/'
+      path: '/api/healthz'
+      fullPath: '/api/healthz'
+      preLoaderRoute: typeof ApiHealthzIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/start/server-funcs': {
@@ -215,13 +223,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/auth/$'
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/api/bot/queue': {
-      id: '/api/bot/queue'
-      path: '/queue'
-      fullPath: '/api/bot/queue'
-      preLoaderRoute: typeof ApiBotQueueRouteRouteImport
-      parentRoute: typeof ApiBotRouteRoute
     }
     '/demo/start/ssr/': {
       id: '/demo/start/ssr/'
@@ -254,25 +255,14 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface ApiBotRouteRouteChildren {
-  ApiBotQueueRouteRoute: typeof ApiBotQueueRouteRoute
-}
-
-const ApiBotRouteRouteChildren: ApiBotRouteRouteChildren = {
-  ApiBotQueueRouteRoute: ApiBotQueueRouteRoute,
-}
-
-const ApiBotRouteRouteWithChildren = ApiBotRouteRoute._addFileChildren(
-  ApiBotRouteRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ApiBotRouteRoute: ApiBotRouteRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   DemoApiNamesRoute: DemoApiNamesRoute,
   DemoStartApiRequestRoute: DemoStartApiRequestRoute,
   DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
+  ApiHealthzIndexRoute: ApiHealthzIndexRoute,
+  ApiQueueIndexRoute: ApiQueueIndexRoute,
   DemoStartSsrDataOnlyRoute: DemoStartSsrDataOnlyRoute,
   DemoStartSsrFullSsrRoute: DemoStartSsrFullSsrRoute,
   DemoStartSsrSpaModeRoute: DemoStartSsrSpaModeRoute,

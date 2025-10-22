@@ -1,4 +1,4 @@
-package validation
+package httpx
 
 import "regexp"
 
@@ -31,7 +31,7 @@ func SanitiseSearchQuery(query string) (string, bool) {
 	if !good {
 		return "", false
 	}
-	
+
 
 	return sanitised, true
 }
