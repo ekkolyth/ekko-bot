@@ -35,7 +35,7 @@ function SignInPage() {
       {
         email,
         password,
-        callbackURL: "/",
+        callbackURL: "/dashboard",
       },
       {
         onRequest: () => {
