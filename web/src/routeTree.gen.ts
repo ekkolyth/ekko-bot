@@ -9,13 +9,20 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
 import { Route as ApiQueueIndexRouteImport } from './routes/api/queue/index'
 import { Route as ApiHealthzIndexRouteImport } from './routes/api/healthz/index'
+import { Route as authenticatedListenIndexRouteImport } from './routes/(authenticated)/listen/index'
+import { Route as authenticatedDashboardIndexRouteImport } from './routes/(authenticated)/dashboard/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -41,6 +48,18 @@ const ApiHealthzIndexRoute = ApiHealthzIndexRouteImport.update({
   path: '/api/healthz/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const authenticatedListenIndexRoute =
+  authenticatedListenIndexRouteImport.update({
+    id: '/(authenticated)/listen/',
+    path: '/listen/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const authenticatedDashboardIndexRoute =
+  authenticatedDashboardIndexRouteImport.update({
+    id: '/(authenticated)/dashboard/',
+    path: '/dashboard/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -52,6 +71,8 @@ export interface FileRoutesByFullPath {
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/dashboard': typeof authenticatedDashboardIndexRoute
+  '/listen': typeof authenticatedListenIndexRoute
   '/api/healthz': typeof ApiHealthzIndexRoute
   '/api/queue': typeof ApiQueueIndexRoute
 }
@@ -60,15 +81,20 @@ export interface FileRoutesByTo {
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/dashboard': typeof authenticatedDashboardIndexRoute
+  '/listen': typeof authenticatedListenIndexRoute
   '/api/healthz': typeof ApiHealthzIndexRoute
   '/api/queue': typeof ApiQueueIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/(authenticated)/dashboard/': typeof authenticatedDashboardIndexRoute
+  '/(authenticated)/listen/': typeof authenticatedListenIndexRoute
   '/api/healthz/': typeof ApiHealthzIndexRoute
   '/api/queue/': typeof ApiQueueIndexRoute
 }
@@ -79,6 +105,8 @@ export interface FileRouteTypes {
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/api/auth/$'
+    | '/dashboard'
+    | '/listen'
     | '/api/healthz'
     | '/api/queue'
   fileRoutesByTo: FileRoutesByTo
@@ -87,29 +115,44 @@ export interface FileRouteTypes {
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/api/auth/$'
+    | '/dashboard'
+    | '/listen'
     | '/api/healthz'
     | '/api/queue'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/api/auth/$'
+    | '/(authenticated)/dashboard/'
+    | '/(authenticated)/listen/'
     | '/api/healthz/'
     | '/api/queue/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRoute
   AuthSignInRoute: typeof AuthSignInRoute
   AuthSignUpRoute: typeof AuthSignUpRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  authenticatedDashboardIndexRoute: typeof authenticatedDashboardIndexRoute
+  authenticatedListenIndexRoute: typeof authenticatedListenIndexRoute
   ApiHealthzIndexRoute: typeof ApiHealthzIndexRoute
   ApiQueueIndexRoute: typeof ApiQueueIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -145,6 +188,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiHealthzIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(authenticated)/listen/': {
+      id: '/(authenticated)/listen/'
+      path: '/listen'
+      fullPath: '/listen'
+      preLoaderRoute: typeof authenticatedListenIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(authenticated)/dashboard/': {
+      id: '/(authenticated)/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof authenticatedDashboardIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -157,9 +214,12 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRoute,
   AuthSignInRoute: AuthSignInRoute,
   AuthSignUpRoute: AuthSignUpRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  authenticatedDashboardIndexRoute: authenticatedDashboardIndexRoute,
+  authenticatedListenIndexRoute: authenticatedListenIndexRoute,
   ApiHealthzIndexRoute: ApiHealthzIndexRoute,
   ApiQueueIndexRoute: ApiQueueIndexRoute,
 }

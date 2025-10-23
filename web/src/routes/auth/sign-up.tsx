@@ -37,7 +37,6 @@ function SignUp() {
       }
     )
 
-    // Use data/error for additional logic if needed
     if (error) {
       console.error('Sign up failed:', error)
     }
