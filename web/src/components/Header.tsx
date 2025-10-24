@@ -1,14 +1,30 @@
 import { Link } from '@tanstack/react-router'
+import { Button } from './ui/button'
+import { authClient } from '@/lib/auth/client'
+import { useNavigate } from '@tanstack/react-router'
 
 import { useState } from 'react'
 import {
   Home,
   Menu,
+  User,
   X,
 } from 'lucide-react'
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
+
+  const navigate = useNavigate()
+
+  async function handleSignOut() {
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          navigate({ to: "/auth/sign-in" })
+        },
+      },
+    });
+  }
 
   return (
     <>
@@ -59,8 +75,20 @@ export default function Header() {
             <Home size={20} />
             <span className="font-medium">Home</span>
           </Link>
+          <Link
+            to="/auth/sign-in"
+            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
+          >
+            <User size={20} />
+            <span className="font-medium">Sign In</span>
+          </Link>
+          <Button
+            onClick={handleSignOut}
+          >
+            Sign Out
+          </Button>
         </nav>
-      </aside>
+      </aside >
     </>
   )
 }
