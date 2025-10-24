@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/ekkolyth/ekko-bot/internal/api/httpx"
-	"github.com/ekkolyth/ekko-bot/internal/shared/context"
-	"github.com/ekkolyth/ekko-bot/internal/shared/logging"
+	"github.com/ekkolyth/ekko-bot/internal/context"
+	"github.com/ekkolyth/ekko-bot/internal/logging"
 )
 
 func Health(w http.ResponseWriter, r *http.Request) {

@@ -70,8 +70,16 @@ db/status:
 # SQLC code generation
 db/generate:
 	@echo "Generating SQLC code..."
-	sqlc generate
+	sqlc generate --file internal/db/sqlc.yaml
 
 db/verify:
 	@echo "Verifying SQLC queries..."
-	sqlc compile
+	sqlc compile --file internal/db/sqlc.yaml
+
+drizzle/generate:
+	@echo "Running Drizzle Generation..."
+	cd web && npx drizzle-kit generate
+
+drizzle/migrate:
+	@echo "Running Drizzle Migration..."
+	cd web && npx drizzle-kit migrate

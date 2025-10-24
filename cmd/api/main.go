@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/ekkolyth/ekko-bot/internal/api/httpserver"
-	"github.com/ekkolyth/ekko-bot/internal/shared/logging"
+	"github.com/ekkolyth/ekko-bot/internal/logging"
 	"github.com/joho/godotenv"
 )
 

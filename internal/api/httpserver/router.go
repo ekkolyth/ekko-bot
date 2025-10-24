@@ -47,17 +47,31 @@ func NewRouter() http.Handler {
 		MaxAge:           1800, // 1 Hour
 	}))
 
-	// health (keeps compile happy + good liveness probe)
+	// Healthcheck
 	router.Get("/api/healthz", handlers.Health)
 
-	// versioned api surface — add your real endpoints here
-	router.Route("/api/v1", func(api chi.Router) {
-		// api.Get("/bot", handlers.BotStatus)
-		// api.Post("/queue", handlers.Enqueue)
+	//
+	router.Route("/api", func(api chi.Router) {
+		api.Route("/queue", func(query chi.Router){
+			query.Post("/", handlers.QueueAdd)
+		})
 	})
 
 	return router
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 func envList(key string) []string {
   v := os.Getenv(key)
