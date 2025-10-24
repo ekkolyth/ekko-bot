@@ -25,7 +25,7 @@ export const Route = createFileRoute('/api/queue/')({
         const apiURL: string = new URL(Route.path, baseURL).toString()
 
         const controller = new AbortController()
-        const timeout = 10 * 60 * 1000 // 10 minutes, in milliseconds
+        const timeout = 10 * 60 * 1000
         const timer = setTimeout(() => controller.abort(), timeout)
 
         try {
