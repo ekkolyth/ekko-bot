@@ -1,62 +1,33 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
-	"time"
 
 	"github.com/ekkolyth/ekko-bot/internal/api/httpx"
+	"github.com/ekkolyth/ekko-bot/internal/discord"
 )
 
-// QueueRequest defines the expected body when adding a new track.
-type QueueRequest struct {
-	URL     string `json:"url"`
-	GuildID string `json:"guild_id"`
-	UserID  string `json:"user_id"`
+type queueAdd struct {
+	URL string `json:"url"`
 }
 
-// QueueResponse defines what we send back to the frontend.
-type QueueResponse struct {
-	Status   string        `json:"status"`
-	Message  string        `json:"message,omitempty"`
-	Uptime   string        `json:"uptime"`
-	QueuedAt time.Time     `json:"queued_at"`
-	Request  QueueRequest  `json:"request"`
-}
+func QueueAdd(write http.ResponseWriter, read *http.Request) {
+	var request queueAdd
 
-// QueueHandler handles POST requests to /api/music/queue.
-func QueueHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		httpx.RespondJSON(w, http.StatusMethodNotAllowed, map[string]string{
-			"error": "method not allowed",
-		})
+	if err := httpx.DecodeJSON(write, read, &request, 1<<20); err != nil {
+		httpx.RespondError(write, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	var req QueueRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		httpx.RespondJSON(w, http.StatusBadRequest, map[string]string{
-			"error": "invalid JSON body",
-		})
+	if !httpx.IsValidURL(request.URL) {
+		httpx.RespondError(write, http.StatusBadRequest, "Invalid URL")
 		return
 	}
 
-	if req.URL == "" {
-		httpx.RespondJSON(w, http.StatusBadRequest, map[string]string{
-			"error": "missing required field: url",
-		})
-		return
-	}
-
-	// (Later) Insert queue entry into your DB via SQLC
-	// e.g. db.AddToQueue(ctx, req.GuildID, req.UserID, req.URL)
-
-	resp := QueueResponse{
-		Status:   "ok",
-		Message:  "Track queued successfully",
-		QueuedAt: time.Now(),
-		Request:  req,
-	}
-
-	httpx.RespondJSON(w, http.StatusOK, resp)
+	httpx.RespondJSON(write, http.StatusCreated, map[string]any{
+		"ok": true,
+		"youtubeUrl": request.URL,
+	})
+	discord.AddSong(nil, false, request.URL)
+	println(request.URL)
 }

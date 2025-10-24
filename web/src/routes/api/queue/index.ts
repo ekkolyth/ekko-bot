@@ -29,7 +29,7 @@ export const Route = createFileRoute('/api/queue/')({
         const timer = setTimeout(() => controller.abort(), timeout)
 
         try {
-          const requestResponse = await fetch(apiURL, {
+          const response = await fetch(apiURL, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -40,12 +40,12 @@ export const Route = createFileRoute('/api/queue/')({
 
           clearTimeout(timer)
 
-          if (!requestResponse.ok) {
-            const err = await requestResponse.text().catch(() => '')
+          if (!response.ok) {
+            const err = await response.text().catch(() => '')
             return json({ error: 'Bot API failed', detail: err }, { status: 502 })
           }
 
-          const success = await requestResponse.json().catch(() => null)
+          const success = await response.json().catch(() => null)
           return json({ ok: true, success })
         }
 

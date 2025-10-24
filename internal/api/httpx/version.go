@@ -1,7 +1,7 @@
 package httpx
 
 import (
-	"github.com/ekkolyth/ekko-bot/internal/shared/context"
+	"github.com/ekkolyth/ekko-bot/internal/context"
 
 	"github.com/bwmarrin/discordgo"
 )
