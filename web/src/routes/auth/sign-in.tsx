@@ -52,6 +52,13 @@ function SignIn() {
     }
   })
 
+  const handleDiscordLogin = async () => {
+    await authClient.signIn.social({
+      provider: "discord",
+      callbackURL: "/dashboard", // redirect after successful login
+    });
+  }
+
   return (
     <Card className="max-w-md p-6">
       <CardHeader>
@@ -61,6 +68,12 @@ function SignIn() {
         Don't have an account? <Link to="/auth/sign-up">Sign up</Link> instead.
       </CardDescription>
       <CardContent className="px-0">
+        <Button
+          onClick={handleDiscordLogin}
+          type="button"
+          className="discord-button">
+          Sign In with Discord
+        </Button>
         <form
           onSubmit={(e) => {
             e.preventDefault()
