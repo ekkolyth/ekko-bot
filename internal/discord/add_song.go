@@ -19,19 +19,19 @@ func AddSong(ctx *context.Context, search_mode bool, apiURL ...string) { // sear
 		// API call - use provided URL
 		isAPICall = true
 		url = strings.TrimSpace(apiURL[0])
-		
+
 		// For API calls, we need to get guildID from the Discord bot token
 		// For now, we'll use a hardcoded guildID or get it from context if available
 		if ctx != nil {
 			guildID = ctx.GetGuildID()
 		}
-		
+
 		// If no guildID from context, we need to handle this differently
 		// For now, we'll use a default or require it to be passed
 		if guildID == "" {
 			// TODO: Implement proper guild management for API calls
 			// For now, we'll use a hardcoded guildID or get it from environment
-			guildID = "default_guild_id" // This should be replaced with proper guild management
+			guildID = "320162956706971648" // This should be replaced with proper guild management
 			logging.Info("Using default guild ID for API call: " + guildID)
 		}
 	} else {

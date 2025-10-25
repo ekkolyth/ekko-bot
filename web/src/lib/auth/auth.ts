@@ -16,6 +16,13 @@ export const auth = betterAuth({
     enabled: true,
     autoSignIn: true,
   },
+  socialProviders: {
+    discord: {
+      clientId: process.env.DISCORD_CLIENT_ID as string,
+      clientSecret: process.env.DISCORD_CLIENT_SECRET as string,
+      permissions: 2048 | 16384,
+    }
+  },
   plugins: [
     lastLoginMethod(),
     haveIBeenPwned({
@@ -30,4 +37,5 @@ export const auth = betterAuth({
   }),
   secret: process.env.BETTER_AUTH_SECRET!,
   baseURL: process.env.BETTER_AUTH_URL!,
-});
+},
+)

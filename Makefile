@@ -76,6 +76,12 @@ db/verify:
 	@echo "Verifying SQLC queries..."
 	sqlc compile --file internal/db/sqlc.yaml
 
+# Better Auth / Drizzle
+
+auth/generate:
+	@echo "Running Better Auth CLI"
+	cd web && npx @better-auth/cli generate --config src/lib/auth/auth.ts
+
 drizzle/generate:
 	@echo "Running Drizzle Generation..."
 	cd web && npx drizzle-kit generate

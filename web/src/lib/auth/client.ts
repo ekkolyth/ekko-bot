@@ -8,5 +8,10 @@ export const authClient = createAuthClient({
   baseURL: baseURL,
   plugins: [
     lastLoginMethodClient(),
-  ]
+  ],
+  socialProviders: {
+    discord: {
+      enabled: true,
+    }
+  },
 });
