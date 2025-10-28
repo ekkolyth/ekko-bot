@@ -15,66 +15,51 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-
-interface Guild {
-  id: string;
-  name: string;
-  icon: string | null;
-}
-
-interface VoiceChannel {
-  id: string;
-  name: string;
-}
+import { useGuilds } from '@/hooks/use-guilds';
+import { useVoiceChannels } from '@/hooks/use-voice-channels';
+import { useHasDiscord } from '@/hooks/use-has-discord';
+import { useAddToQueue } from '@/hooks/use-add-to-queue';
 
 export const Route = createFileRoute('/(authenticated)/dashboard/')({
   component: Dashboard,
 });
 
 function Dashboard() {
-  const { data: session, isPending } = authClient.useSession();
+  const { data: session, isPending: sessionPending } = authClient.useSession();
   const navigate = useNavigate();
-  const [checkingDiscord, setCheckingDiscord] = useState(true);
-  const [hasDiscord, setHasDiscord] = useState(false);
+  const { data: hasDiscord, isPending: discordPending } = useHasDiscord();
 
   // Check for session
   useEffect(() => {
-    if (!isPending && !session) {
+    if (!sessionPending && !session) {
       navigate({ to: '/auth/sign-in' });
     }
-  }, [isPending, session, navigate]);
+  }, [sessionPending, session, navigate]);
 
   // Check if Discord is connected
   useEffect(() => {
-    if (!session?.user?.id) return;
+    if (!discordPending && hasDiscord === false) {
+      navigate({ to: '/auth/connect-discord' });
+    }
+  }, [discordPending, hasDiscord, navigate]);
 
-    fetch('/api/auth/has-discord')
-      .then((res) => res.json())
-      .then((data) => {
-        setHasDiscord(data.hasDiscord);
-        setCheckingDiscord(false);
+  if (sessionPending || discordPending) return <Spinner />;
 
-        if (!data.hasDiscord) {
-          navigate({ to: '/auth/connect-discord' });
-        }
-      })
-      .catch(() => {
-        setCheckingDiscord(false);
-      });
-  }, [session?.user?.id, navigate]);
-
-  if (isPending || checkingDiscord) return <Spinner />;
-
-  if (!session) return null;
-
-  if (!hasDiscord) return null;
+  if (!session || !hasDiscord) return null;
 
   function InputURL() {
-    const [guilds, setGuilds] = useState<Guild[]>([]);
     const [selectedGuildId, setSelectedGuildId] = useState<string>('');
-    const [voiceChannels, setVoiceChannels] = useState<VoiceChannel[]>([]);
     const [selectedChannelId, setSelectedChannelId] = useState<string>('');
     const [message, setMessage] = useState('');
+
+    // Use TanStack Query hooks
+    const { data: guilds = [], isLoading: guildsLoading, error: guildsError } = useGuilds();
+    const {
+      data: voiceChannels = [],
+      isLoading: channelsLoading,
+      error: channelsError,
+    } = useVoiceChannels(selectedGuildId);
+    const addToQueue = useAddToQueue();
 
     const form = useForm({
       defaultValues: {
@@ -85,34 +70,9 @@ function Dashboard() {
       },
     });
 
-    // Fetch guilds on mount
+    // Reset channel when guild changes
     useEffect(() => {
-      fetch('/api/guilds')
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.ok && data.guilds) {
-            setGuilds(data.guilds);
-          }
-        })
-        .catch((err) => console.error('Failed to fetch guilds:', err));
-    }, []);
-
-    // Fetch voice channels when guild is selected
-    useEffect(() => {
-      if (!selectedGuildId) {
-        setVoiceChannels([]);
-        setSelectedChannelId('');
-        return;
-      }
-
-      fetch(`/api/guilds/${selectedGuildId}/channels`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.ok && data.channels) {
-            setVoiceChannels(data.channels);
-          }
-        })
-        .catch((err) => console.error('Failed to fetch channels:', err));
+      setSelectedChannelId('');
     }, [selectedGuildId]);
 
     const handleSubmit = async (url: string) => {
@@ -124,28 +84,16 @@ function Dashboard() {
       }
 
       try {
-        const response = await fetch('/api/queue', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            guild_id: selectedGuildId,
-            voice_channel_id: selectedChannelId,
-            url,
-          }),
+        await addToQueue.mutateAsync({
+          guild_id: selectedGuildId,
+          voice_channel_id: selectedChannelId,
+          url,
         });
-        const data = await response.json();
 
-        if (data.ok) {
-          setMessage('✅ Song added to queue!');
-          form.reset();
-        } else {
-          setMessage(`❌ Error: ${data.error || 'Unknown error'}`);
-        }
+        setMessage('✅ Song added to queue!');
+        form.reset();
       } catch (error) {
-        setMessage(`❌ Error: ${error}`);
-        console.error('Error', error);
+        setMessage(`❌ Error: ${error instanceof Error ? error.message : String(error)}`);
       }
     };
 
@@ -159,12 +107,16 @@ function Dashboard() {
       >
         <div className='space-y-2'>
           <Label htmlFor='guild'>Guild</Label>
+          {guildsError && (
+            <p className='text-sm text-red-500'>Failed to load guilds. Please reconnect Discord.</p>
+          )}
           <Select
             value={selectedGuildId}
             onValueChange={setSelectedGuildId}
+            disabled={guildsLoading}
           >
             <SelectTrigger id='guild'>
-              <SelectValue placeholder='Select a guild' />
+              <SelectValue placeholder={guildsLoading ? 'Loading guilds...' : 'Select a guild'} />
             </SelectTrigger>
             <SelectContent>
               {guilds.map((guild) => (
@@ -181,16 +133,19 @@ function Dashboard() {
 
         <div className='space-y-2'>
           <Label htmlFor='channel'>Voice Channel</Label>
+          {channelsError && <p className='text-sm text-red-500'>Failed to load channels.</p>}
           <Select
             value={selectedChannelId}
             onValueChange={setSelectedChannelId}
-            disabled={!selectedGuildId || voiceChannels.length === 0}
+            disabled={!selectedGuildId || channelsLoading || voiceChannels.length === 0}
           >
             <SelectTrigger id='channel'>
               <SelectValue
                 placeholder={
                   !selectedGuildId
                     ? 'Select a guild first'
+                    : channelsLoading
+                    ? 'Loading channels...'
                     : voiceChannels.length === 0
                     ? 'No voice channels available'
                     : 'Select a voice channel'
@@ -230,9 +185,9 @@ function Dashboard() {
         <Button
           className='mt-4'
           type='submit'
-          disabled={!selectedGuildId || !selectedChannelId}
+          disabled={!selectedGuildId || !selectedChannelId || addToQueue.isPending}
         >
-          Add to Queue
+          {addToQueue.isPending ? 'Adding...' : 'Add to Queue'}
         </Button>
 
         {message && <div className='p-3 rounded-md bg-muted text-sm'>{message}</div>}

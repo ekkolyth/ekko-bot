@@ -1,8 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { json } from '@tanstack/react-start';
-import { auth, db } from '@/lib/auth/auth';
-import * as authSchema from '@/db/auth-schema';
-import { eq, and } from 'drizzle-orm';
+import { auth } from '@/lib/auth/auth';
 
 interface DiscordChannel {
   id: string;
@@ -25,28 +23,17 @@ export const Route = createFileRoute('/api/guilds/$guildId/channels')({
           return json({ error: 'Missing guild_id' }, { status: 400 });
         }
 
+        // Use bot token to fetch channels (bot has permission, not user OAuth token)
+        const botToken = process.env.DISCORD_BOT_TOKEN;
+        if (!botToken) {
+          console.error('DISCORD_BOT_TOKEN not configured');
+          return json({ error: 'Bot token not configured' }, { status: 500 });
+        }
+
         try {
-          // Get Discord access token from account table
-          const discordAccounts = await db
-            .select()
-            .from(authSchema.account)
-            .where(
-              and(
-                eq(authSchema.account.userId, session.user.id),
-                eq(authSchema.account.providerId, 'discord')
-              )
-            )
-            .limit(1);
-
-          if (!discordAccounts || discordAccounts.length === 0 || !discordAccounts[0].accessToken) {
-            return json({ error: 'Discord account not linked or token missing' }, { status: 403 });
-          }
-
-          const discordAccount = discordAccounts[0];
-
           const response = await fetch(`https://discord.com/api/v10/guilds/${guildId}/channels`, {
             headers: {
-              Authorization: `Bearer ${discordAccount.accessToken}`,
+              Authorization: `Bot ${botToken}`,
               'Content-Type': 'application/json',
             },
           });

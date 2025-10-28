@@ -3,6 +3,7 @@ import { authClient } from '@/lib/auth/client';
 import { useEffect } from 'react';
 import { Card, CardHeader, CardContent, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useHasDiscord } from '@/hooks/use-has-discord';
 
 export const Route = createFileRoute('/auth/connect-discord')({
   component: ConnectDiscord,
@@ -11,20 +12,15 @@ export const Route = createFileRoute('/auth/connect-discord')({
 function ConnectDiscord() {
   const { data: session, isPending } = authClient.useSession();
   const navigate = useNavigate();
+  const { data: hasDiscord, isPending: discordPending } = useHasDiscord();
 
   // Check if Discord is already connected
   useEffect(() => {
-    if (!isPending && session?.user?.id) {
-      fetch('/api/auth/has-discord')
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.hasDiscord) {
-            // Already connected, go to dashboard
-            navigate({ to: '/dashboard' });
-          }
-        });
+    if (!discordPending && hasDiscord) {
+      // Already connected, go to dashboard
+      navigate({ to: '/dashboard' });
     }
-  }, [session, isPending, navigate]);
+  }, [hasDiscord, discordPending, navigate]);
 
   // If not logged in, redirect to sign-in
   useEffect(() => {
@@ -40,7 +36,7 @@ function ConnectDiscord() {
     });
   };
 
-  if (isPending) {
+  if (isPending || discordPending) {
     return (
       <div className='flex w-full h-screen justify-center items-center'>
         <p>Loading...</p>

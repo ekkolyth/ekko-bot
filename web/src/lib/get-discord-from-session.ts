@@ -1,6 +1,4 @@
-import { db } from '@/lib/auth/auth';
-import * as authSchema from '@/db/auth-schema';
-import { eq, and } from 'drizzle-orm';
+import { getDiscordAccessToken } from './auth/get-discord-access-token';
 
 /**
  * Extracts Discord user ID and tag from Better Auth session
@@ -14,24 +12,15 @@ export async function getDiscordFromSession(session: any): Promise<{
     return { discordUserId: null, discordTag: null };
   }
 
-  // Query the account table directly for Discord account
-  const discordAccount = await db
-    .select()
-    .from(authSchema.account)
-    .where(
-      and(
-        eq(authSchema.account.userId, session.user.id),
-        eq(authSchema.account.providerId, 'discord')
-      )
-    )
-    .limit(1);
+  // Use the helper that auto-refreshes tokens
+  const { accountId } = await getDiscordAccessToken(session.user.id);
 
-  if (!discordAccount || discordAccount.length === 0) {
+  if (!accountId) {
     return { discordUserId: null, discordTag: null };
   }
 
   return {
-    discordUserId: discordAccount[0].accountId, // This is the Discord user ID
-    discordTag: session?.user?.name || discordAccount[0].accountId, // Fallback to ID if no name
+    discordUserId: accountId, // This is the Discord user ID
+    discordTag: session?.user?.name || accountId, // Fallback to ID if no name
   };
 }

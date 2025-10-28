@@ -20,7 +20,6 @@ import { Route as ApiHealthzIndexRouteImport } from './routes/api/healthz/index'
 import { Route as ApiGuildsIndexRouteImport } from './routes/api/guilds/index'
 import { Route as authenticatedDashboardIndexRouteImport } from './routes/(authenticated)/dashboard/index'
 import { Route as ApiAuthHasDiscordRouteImport } from './routes/api/auth/has-discord'
-import { Route as ApiAuthDebugDiscordRouteImport } from './routes/api/auth/debug-discord'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiGuildsGuildIdChannelsRouteImport } from './routes/api/guilds/$guildId/channels'
 
@@ -80,11 +79,6 @@ const ApiAuthHasDiscordRoute = ApiAuthHasDiscordRouteImport.update({
   path: '/api/auth/has-discord',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiAuthDebugDiscordRoute = ApiAuthDebugDiscordRouteImport.update({
-  id: '/api/auth/debug-discord',
-  path: '/api/auth/debug-discord',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -105,7 +99,6 @@ export interface FileRoutesByFullPath {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/auth/verify-discord': typeof AuthVerifyDiscordRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/auth/debug-discord': typeof ApiAuthDebugDiscordRoute
   '/api/auth/has-discord': typeof ApiAuthHasDiscordRoute
   '/dashboard': typeof authenticatedDashboardIndexRoute
   '/api/guilds': typeof ApiGuildsIndexRoute
@@ -121,7 +114,6 @@ export interface FileRoutesByTo {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/auth/verify-discord': typeof AuthVerifyDiscordRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/auth/debug-discord': typeof ApiAuthDebugDiscordRoute
   '/api/auth/has-discord': typeof ApiAuthHasDiscordRoute
   '/dashboard': typeof authenticatedDashboardIndexRoute
   '/api/guilds': typeof ApiGuildsIndexRoute
@@ -138,7 +130,6 @@ export interface FileRoutesById {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/auth/verify-discord': typeof AuthVerifyDiscordRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/auth/debug-discord': typeof ApiAuthDebugDiscordRoute
   '/api/auth/has-discord': typeof ApiAuthHasDiscordRoute
   '/(authenticated)/dashboard/': typeof authenticatedDashboardIndexRoute
   '/api/guilds/': typeof ApiGuildsIndexRoute
@@ -156,7 +147,6 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/auth/verify-discord'
     | '/api/auth/$'
-    | '/api/auth/debug-discord'
     | '/api/auth/has-discord'
     | '/dashboard'
     | '/api/guilds'
@@ -172,7 +162,6 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/auth/verify-discord'
     | '/api/auth/$'
-    | '/api/auth/debug-discord'
     | '/api/auth/has-discord'
     | '/dashboard'
     | '/api/guilds'
@@ -188,7 +177,6 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/auth/verify-discord'
     | '/api/auth/$'
-    | '/api/auth/debug-discord'
     | '/api/auth/has-discord'
     | '/(authenticated)/dashboard/'
     | '/api/guilds/'
@@ -201,7 +189,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-  ApiAuthDebugDiscordRoute: typeof ApiAuthDebugDiscordRoute
   ApiAuthHasDiscordRoute: typeof ApiAuthHasDiscordRoute
   authenticatedDashboardIndexRoute: typeof authenticatedDashboardIndexRoute
   ApiGuildsIndexRoute: typeof ApiGuildsIndexRoute
@@ -289,13 +276,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthHasDiscordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/auth/debug-discord': {
-      id: '/api/auth/debug-discord'
-      path: '/api/auth/debug-discord'
-      fullPath: '/api/auth/debug-discord'
-      preLoaderRoute: typeof ApiAuthDebugDiscordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -335,7 +315,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRouteRoute: AuthRouteRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
-  ApiAuthDebugDiscordRoute: ApiAuthDebugDiscordRoute,
   ApiAuthHasDiscordRoute: ApiAuthHasDiscordRoute,
   authenticatedDashboardIndexRoute: authenticatedDashboardIndexRoute,
   ApiGuildsIndexRoute: ApiGuildsIndexRoute,
