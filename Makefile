@@ -7,8 +7,8 @@ OUTPUT_DIR=bin
 GOBUILD=go build
 GO_SOURCE_HASH:=$(shell find . -name "*.go" | sort | xargs cat | sha1sum | cut -c1-8)
 
-# Load environment variables
-include .env
+# Load environment variables if present (don't fail if missing)
+-include .env
 export
 
 all: build
