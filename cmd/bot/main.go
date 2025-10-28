@@ -1,10 +1,12 @@
 package main
 
 import (
+	"net/http"
 	"os"
 	"os/exec"
 	"strings"
 
+	"github.com/ekkolyth/ekko-bot/internal/bot/httpserver"
 	"github.com/ekkolyth/ekko-bot/internal/context"
 	"github.com/ekkolyth/ekko-bot/internal/discord"
 	"github.com/ekkolyth/ekko-bot/internal/handlers"
@@ -64,6 +66,24 @@ func main() {
 		logging.Fatal("Error opening connection", err)
 	}
 	defer dg.Close()
+	
+	// Start HTTP server for internal API (port 1338)
+	// This allows the Web API to communicate with the bot
+	botAPIPort := os.Getenv("BOT_INTERNAL_API_PORT")
+	if botAPIPort == "" {
+		botAPIPort = "1338" // Default port
+	}
+	
+	logging.Info("Starting bot internal API server on port " + botAPIPort)
+	router := httpserver.NewRouter(dg)
+	
+	// Run HTTP server in goroutine (non-blocking)
+	go func() {
+		if err := http.ListenAndServe(":"+botAPIPort, router); err != nil {
+			logging.Fatal("Failed to start bot internal API server", err)
+		}
+	}()
+	
 	logging.Info("Version: " + context.GoSourceHash)
 	logging.Info("Bot is running. Press CTRL-C to exit.")
 	select {} // block forever

@@ -1,0 +1,73 @@
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Environment files
+.env
+.env.*
+
+# Documentation
+*.md
+README.md
+CONTRIBUTING.md
+LICENSE
+
+# Build artifacts
+bin/
+dist/
+build/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Node modules
+node_modules/
+web/node_modules/
+web/dist/
+web/.vite/
+web/.cache/
+
+# Go build artifacts
+*.test
+*.out
+vendor/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+tmp/
+temp/
+
+# Database files
+*.db
+*.sqlite
+
+# Cursor specific
+.cursor/
+*.cursor
+
+# Test files
+*_test.go
+**/*_test.go
+coverage.*
+*.cover
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# Docker files (we don't need these in the context)
+docker-compose.yml
+docker-compose.*.yml
+Dockerfile.dev

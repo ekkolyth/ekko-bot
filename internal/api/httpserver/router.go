@@ -51,14 +51,10 @@ func NewRouter(dbService *db.Service) http.Handler {
 	// Healthcheck
 	router.Get("/api/healthz", handlers.Health)
 
-	//
+	// API routes - no guild_id needed (single-tenant model)
 	router.Route("/api", func(api chi.Router) {
-		// Queue endpoints with guild_id parameter
-		api.Route("/guilds/{guild_id}", func(guild chi.Router) {
-			guild.Route("/queue", func(query chi.Router) {
-				query.Post("/", handlers.QueueAdd())
-			})
-		})
+		// Queue endpoints - simplified for single-tenant architecture
+		api.Post("/queue", handlers.QueueAdd())
 	})
 
 	return router

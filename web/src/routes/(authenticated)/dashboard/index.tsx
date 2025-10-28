@@ -84,8 +84,9 @@ function Dashboard() {
       }
 
       try {
+        // Note: guild_id not needed in single-tenant architecture
+        // The backend knows which guild from DISCORD_GUILD_ID env var
         await addToQueue.mutateAsync({
-          guild_id: selectedGuildId,
           voice_channel_id: selectedChannelId,
           url,
         });

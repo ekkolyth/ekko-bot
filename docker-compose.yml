@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: ekko-bot-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ekko
+      POSTGRES_PASSWORD: ekko_password
+      POSTGRES_DB: ekko_bot
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - ekko-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ekko"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Ekko Bot Application (Bot + API)
+  ekko-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ekko-bot-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Discord Configuration
+      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
+      DISCORD_GUILD_ID: ${DISCORD_GUILD_ID:-320162956706971648}
+      
+      # Service Ports
+      BOT_INTERNAL_API_PORT: 1338
+      API_PORT: 1337
+      
+      # Service URLs
+      BOT_INTERNAL_API_URL: http://localhost:1338
+      
+      # Database Configuration
+      DATABASE_URL: postgresql://ekko:ekko_password@postgres:5432/ekko_bot
+      
+      # CORS Configuration
+      CORS_ALLOWED_ORIGINS: http://localhost:1339,http://localhost:3000
+      
+      # Optional: Disabled Commands
+      DISABLED_COMMANDS: ${DISABLED_COMMANDS:-}
+    ports:
+      # Web API (public-facing)
+      - "1337:1337"
+      # Bot Internal API (should be internal only in production)
+      - "1338:1338"
+      # Web UI (frontend)
+      - "1339:1339"
+    networks:
+      - ekko-network
+    volumes:
+      # Optional: Mount .env file if you prefer
+      # - ./.env:/app/.env:ro
+      - bot_cache:/app/cache
+
+networks:
+  ekko-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  bot_cache:
+    driver: local
