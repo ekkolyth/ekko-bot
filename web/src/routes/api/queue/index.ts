@@ -1,7 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { json } from '@tanstack/react-start';
-import { authClient } from '@/lib/auth/client';
+import { auth } from '@/lib/auth/auth';
 import { baseURL } from '@/lib/base-url';
+import { getDiscordFromSession } from '@/lib/get-discord-from-session';
 
 interface QueueRequestBody {
   guild_id: string;
@@ -18,18 +19,17 @@ export const Route = createFileRoute('/api/queue/')({
           return json({ error: 'Server Error: BOT_API_URL not set' }, { status: 500 });
         }
 
-        const session = await authClient.getSession();
+        const session = await auth.api.getSession({ headers: request.headers });
         if (!session) {
           return json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // Get Discord user ID from session
-        const discordUserId = (session as any)?.user?.discordUserId;
-        const discordTag = (session as any)?.user?.discordTag;
+        // Get Discord user ID from account table
+        const { discordUserId, discordTag } = await getDiscordFromSession(session);
 
         if (!discordUserId) {
           return json(
-            { error: 'Discord account not linked. Please sign in with Discord.' },
+            { error: 'Discord account not linked. Please connect your Discord account.' },
             { status: 403 }
           );
         }

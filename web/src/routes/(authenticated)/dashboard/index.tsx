@@ -34,15 +34,40 @@ export const Route = createFileRoute('/(authenticated)/dashboard/')({
 function Dashboard() {
   const { data: session, isPending } = authClient.useSession();
   const navigate = useNavigate();
+  const [checkingDiscord, setCheckingDiscord] = useState(true);
+  const [hasDiscord, setHasDiscord] = useState(false);
 
-  if (isPending) return <Spinner />;
+  // Check for session
+  useEffect(() => {
+    if (!isPending && !session) {
+      navigate({ to: '/auth/sign-in' });
+    }
+  }, [isPending, session, navigate]);
 
-  if (!isPending && !session) {
-    navigate({ to: '/auth/sign-in' });
-  }
+  // Check if Discord is connected
+  useEffect(() => {
+    if (!session?.user?.id) return;
 
-  // Check if user has Discord ID
-  const hasDiscordId = (session as any)?.user?.discordUserId;
+    fetch('/api/auth/has-discord')
+      .then((res) => res.json())
+      .then((data) => {
+        setHasDiscord(data.hasDiscord);
+        setCheckingDiscord(false);
+
+        if (!data.hasDiscord) {
+          navigate({ to: '/auth/connect-discord' });
+        }
+      })
+      .catch(() => {
+        setCheckingDiscord(false);
+      });
+  }, [session?.user?.id, navigate]);
+
+  if (isPending || checkingDiscord) return <Spinner />;
+
+  if (!session) return null;
+
+  if (!hasDiscord) return null;
 
   function InputURL() {
     const [guilds, setGuilds] = useState<Guild[]>([]);
@@ -123,16 +148,6 @@ function Dashboard() {
         console.error('Error', error);
       }
     };
-
-    if (!hasDiscordId) {
-      return (
-        <div className='space-y-4'>
-          <p className='text-red-500'>
-            Please sign out and sign back in with Discord to use the music bot.
-          </p>
-        </div>
-      );
-    }
 
     return (
       <form

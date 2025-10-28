@@ -11,12 +11,16 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteRouteImport } from './routes/auth/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthVerifyDiscordRouteImport } from './routes/auth/verify-discord'
 import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
+import { Route as AuthConnectDiscordRouteImport } from './routes/auth/connect-discord'
 import { Route as ApiQueueIndexRouteImport } from './routes/api/queue/index'
 import { Route as ApiHealthzIndexRouteImport } from './routes/api/healthz/index'
 import { Route as ApiGuildsIndexRouteImport } from './routes/api/guilds/index'
 import { Route as authenticatedDashboardIndexRouteImport } from './routes/(authenticated)/dashboard/index'
+import { Route as ApiAuthHasDiscordRouteImport } from './routes/api/auth/has-discord'
+import { Route as ApiAuthDebugDiscordRouteImport } from './routes/api/auth/debug-discord'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiGuildsGuildIdChannelsRouteImport } from './routes/api/guilds/$guildId/channels'
 
@@ -30,6 +34,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthVerifyDiscordRoute = AuthVerifyDiscordRouteImport.update({
+  id: '/verify-discord',
+  path: '/verify-discord',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
 const AuthSignUpRoute = AuthSignUpRouteImport.update({
   id: '/sign-up',
   path: '/sign-up',
@@ -38,6 +47,11 @@ const AuthSignUpRoute = AuthSignUpRouteImport.update({
 const AuthSignInRoute = AuthSignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthConnectDiscordRoute = AuthConnectDiscordRouteImport.update({
+  id: '/connect-discord',
+  path: '/connect-discord',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 const ApiQueueIndexRoute = ApiQueueIndexRouteImport.update({
@@ -61,6 +75,16 @@ const authenticatedDashboardIndexRoute =
     path: '/dashboard/',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAuthHasDiscordRoute = ApiAuthHasDiscordRouteImport.update({
+  id: '/api/auth/has-discord',
+  path: '/api/auth/has-discord',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthDebugDiscordRoute = ApiAuthDebugDiscordRouteImport.update({
+  id: '/api/auth/debug-discord',
+  path: '/api/auth/debug-discord',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -76,9 +100,13 @@ const ApiGuildsGuildIdChannelsRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
+  '/auth/connect-discord': typeof AuthConnectDiscordRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
+  '/auth/verify-discord': typeof AuthVerifyDiscordRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/auth/debug-discord': typeof ApiAuthDebugDiscordRoute
+  '/api/auth/has-discord': typeof ApiAuthHasDiscordRoute
   '/dashboard': typeof authenticatedDashboardIndexRoute
   '/api/guilds': typeof ApiGuildsIndexRoute
   '/api/healthz': typeof ApiHealthzIndexRoute
@@ -88,9 +116,13 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
+  '/auth/connect-discord': typeof AuthConnectDiscordRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
+  '/auth/verify-discord': typeof AuthVerifyDiscordRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/auth/debug-discord': typeof ApiAuthDebugDiscordRoute
+  '/api/auth/has-discord': typeof ApiAuthHasDiscordRoute
   '/dashboard': typeof authenticatedDashboardIndexRoute
   '/api/guilds': typeof ApiGuildsIndexRoute
   '/api/healthz': typeof ApiHealthzIndexRoute
@@ -101,9 +133,13 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
+  '/auth/connect-discord': typeof AuthConnectDiscordRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
+  '/auth/verify-discord': typeof AuthVerifyDiscordRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/auth/debug-discord': typeof ApiAuthDebugDiscordRoute
+  '/api/auth/has-discord': typeof ApiAuthHasDiscordRoute
   '/(authenticated)/dashboard/': typeof authenticatedDashboardIndexRoute
   '/api/guilds/': typeof ApiGuildsIndexRoute
   '/api/healthz/': typeof ApiHealthzIndexRoute
@@ -115,9 +151,13 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/auth/connect-discord'
     | '/auth/sign-in'
     | '/auth/sign-up'
+    | '/auth/verify-discord'
     | '/api/auth/$'
+    | '/api/auth/debug-discord'
+    | '/api/auth/has-discord'
     | '/dashboard'
     | '/api/guilds'
     | '/api/healthz'
@@ -127,9 +167,13 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/auth/connect-discord'
     | '/auth/sign-in'
     | '/auth/sign-up'
+    | '/auth/verify-discord'
     | '/api/auth/$'
+    | '/api/auth/debug-discord'
+    | '/api/auth/has-discord'
     | '/dashboard'
     | '/api/guilds'
     | '/api/healthz'
@@ -139,9 +183,13 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/auth'
+    | '/auth/connect-discord'
     | '/auth/sign-in'
     | '/auth/sign-up'
+    | '/auth/verify-discord'
     | '/api/auth/$'
+    | '/api/auth/debug-discord'
+    | '/api/auth/has-discord'
     | '/(authenticated)/dashboard/'
     | '/api/guilds/'
     | '/api/healthz/'
@@ -153,6 +201,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiAuthDebugDiscordRoute: typeof ApiAuthDebugDiscordRoute
+  ApiAuthHasDiscordRoute: typeof ApiAuthHasDiscordRoute
   authenticatedDashboardIndexRoute: typeof authenticatedDashboardIndexRoute
   ApiGuildsIndexRoute: typeof ApiGuildsIndexRoute
   ApiHealthzIndexRoute: typeof ApiHealthzIndexRoute
@@ -176,6 +226,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/verify-discord': {
+      id: '/auth/verify-discord'
+      path: '/verify-discord'
+      fullPath: '/auth/verify-discord'
+      preLoaderRoute: typeof AuthVerifyDiscordRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
     '/auth/sign-up': {
       id: '/auth/sign-up'
       path: '/sign-up'
@@ -188,6 +245,13 @@ declare module '@tanstack/react-router' {
       path: '/sign-in'
       fullPath: '/auth/sign-in'
       preLoaderRoute: typeof AuthSignInRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/auth/connect-discord': {
+      id: '/auth/connect-discord'
+      path: '/connect-discord'
+      fullPath: '/auth/connect-discord'
+      preLoaderRoute: typeof AuthConnectDiscordRouteImport
       parentRoute: typeof AuthRouteRoute
     }
     '/api/queue/': {
@@ -218,6 +282,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authenticatedDashboardIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/auth/has-discord': {
+      id: '/api/auth/has-discord'
+      path: '/api/auth/has-discord'
+      fullPath: '/api/auth/has-discord'
+      preLoaderRoute: typeof ApiAuthHasDiscordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/debug-discord': {
+      id: '/api/auth/debug-discord'
+      path: '/api/auth/debug-discord'
+      fullPath: '/api/auth/debug-discord'
+      preLoaderRoute: typeof ApiAuthDebugDiscordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -236,13 +314,17 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthRouteRouteChildren {
+  AuthConnectDiscordRoute: typeof AuthConnectDiscordRoute
   AuthSignInRoute: typeof AuthSignInRoute
   AuthSignUpRoute: typeof AuthSignUpRoute
+  AuthVerifyDiscordRoute: typeof AuthVerifyDiscordRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
+  AuthConnectDiscordRoute: AuthConnectDiscordRoute,
   AuthSignInRoute: AuthSignInRoute,
   AuthSignUpRoute: AuthSignUpRoute,
+  AuthVerifyDiscordRoute: AuthVerifyDiscordRoute,
 }
 
 const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
@@ -253,6 +335,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRouteRoute: AuthRouteRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiAuthDebugDiscordRoute: ApiAuthDebugDiscordRoute,
+  ApiAuthHasDiscordRoute: ApiAuthHasDiscordRoute,
   authenticatedDashboardIndexRoute: authenticatedDashboardIndexRoute,
   ApiGuildsIndexRoute: ApiGuildsIndexRoute,
   ApiHealthzIndexRoute: ApiHealthzIndexRoute,
