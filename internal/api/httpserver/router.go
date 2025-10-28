@@ -11,9 +11,10 @@ import (
 	"github.com/go-chi/cors"
 
 	"github.com/ekkolyth/ekko-bot/internal/api/handlers"
+	"github.com/ekkolyth/ekko-bot/internal/db"
 )
 
-func NewRouter() http.Handler {
+func NewRouter(dbService *db.Service) http.Handler {
 	router := chi.NewRouter()
 
 	// standard middleware
@@ -52,8 +53,11 @@ func NewRouter() http.Handler {
 
 	//
 	router.Route("/api", func(api chi.Router) {
-		api.Route("/queue", func(query chi.Router){
-			query.Post("/", handlers.QueueAdd)
+		// Queue endpoints with guild_id parameter
+		api.Route("/guilds/{guild_id}", func(guild chi.Router) {
+			guild.Route("/queue", func(query chi.Router) {
+				query.Post("/", handlers.QueueAdd())
+			})
 		})
 	})
 

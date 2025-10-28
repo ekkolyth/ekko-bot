@@ -14,10 +14,13 @@ type Querier interface {
 	GetActiveBotStatus(ctx context.Context) (*BotState, error)
 	// Bot state queries
 	GetBotStatus(ctx context.Context, id string) (*BotState, error)
+	GetDiscordIdentityByAppUserId(ctx context.Context, appUserID string) (*GetDiscordIdentityByAppUserIdRow, error)
+	GetDiscordIdentityByDiscordUserId(ctx context.Context, discordUserID string) (*GetDiscordIdentityByDiscordUserIdRow, error)
 	ListAllBotStatuses(ctx context.Context) ([]*BotState, error)
 	UpdateBotActiveStatus(ctx context.Context, arg *UpdateBotActiveStatusParams) (*BotState, error)
 	UpdateBotActivity(ctx context.Context, arg *UpdateBotActivityParams) (*BotState, error)
 	UpdateBotStatus(ctx context.Context, arg *UpdateBotStatusParams) (*BotState, error)
+	UpsertUserDiscordAccount(ctx context.Context, arg *UpsertUserDiscordAccountParams) error
 }
 
 var _ Querier = (*Queries)(nil)

@@ -15,9 +15,10 @@ import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
 import { Route as ApiQueueIndexRouteImport } from './routes/api/queue/index'
 import { Route as ApiHealthzIndexRouteImport } from './routes/api/healthz/index'
-import { Route as authenticatedListenIndexRouteImport } from './routes/(authenticated)/listen/index'
+import { Route as ApiGuildsIndexRouteImport } from './routes/api/guilds/index'
 import { Route as authenticatedDashboardIndexRouteImport } from './routes/(authenticated)/dashboard/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiGuildsGuildIdChannelsRouteImport } from './routes/api/guilds/$guildId/channels'
 
 const AuthRouteRoute = AuthRouteRouteImport.update({
   id: '/auth',
@@ -49,12 +50,11 @@ const ApiHealthzIndexRoute = ApiHealthzIndexRouteImport.update({
   path: '/api/healthz/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const authenticatedListenIndexRoute =
-  authenticatedListenIndexRouteImport.update({
-    id: '/(authenticated)/listen/',
-    path: '/listen/',
-    getParentRoute: () => rootRouteImport,
-  } as any)
+const ApiGuildsIndexRoute = ApiGuildsIndexRouteImport.update({
+  id: '/api/guilds/',
+  path: '/api/guilds/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const authenticatedDashboardIndexRoute =
   authenticatedDashboardIndexRouteImport.update({
     id: '/(authenticated)/dashboard/',
@@ -66,6 +66,12 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGuildsGuildIdChannelsRoute =
+  ApiGuildsGuildIdChannelsRouteImport.update({
+    id: '/api/guilds/$guildId/channels',
+    path: '/api/guilds/$guildId/channels',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -74,9 +80,10 @@ export interface FileRoutesByFullPath {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/dashboard': typeof authenticatedDashboardIndexRoute
-  '/listen': typeof authenticatedListenIndexRoute
+  '/api/guilds': typeof ApiGuildsIndexRoute
   '/api/healthz': typeof ApiHealthzIndexRoute
   '/api/queue': typeof ApiQueueIndexRoute
+  '/api/guilds/$guildId/channels': typeof ApiGuildsGuildIdChannelsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -85,9 +92,10 @@ export interface FileRoutesByTo {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/dashboard': typeof authenticatedDashboardIndexRoute
-  '/listen': typeof authenticatedListenIndexRoute
+  '/api/guilds': typeof ApiGuildsIndexRoute
   '/api/healthz': typeof ApiHealthzIndexRoute
   '/api/queue': typeof ApiQueueIndexRoute
+  '/api/guilds/$guildId/channels': typeof ApiGuildsGuildIdChannelsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -97,9 +105,10 @@ export interface FileRoutesById {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/(authenticated)/dashboard/': typeof authenticatedDashboardIndexRoute
-  '/(authenticated)/listen/': typeof authenticatedListenIndexRoute
+  '/api/guilds/': typeof ApiGuildsIndexRoute
   '/api/healthz/': typeof ApiHealthzIndexRoute
   '/api/queue/': typeof ApiQueueIndexRoute
+  '/api/guilds/$guildId/channels': typeof ApiGuildsGuildIdChannelsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -110,9 +119,10 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/api/auth/$'
     | '/dashboard'
-    | '/listen'
+    | '/api/guilds'
     | '/api/healthz'
     | '/api/queue'
+    | '/api/guilds/$guildId/channels'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -121,9 +131,10 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/api/auth/$'
     | '/dashboard'
-    | '/listen'
+    | '/api/guilds'
     | '/api/healthz'
     | '/api/queue'
+    | '/api/guilds/$guildId/channels'
   id:
     | '__root__'
     | '/'
@@ -132,9 +143,10 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/api/auth/$'
     | '/(authenticated)/dashboard/'
-    | '/(authenticated)/listen/'
+    | '/api/guilds/'
     | '/api/healthz/'
     | '/api/queue/'
+    | '/api/guilds/$guildId/channels'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -142,9 +154,10 @@ export interface RootRouteChildren {
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   authenticatedDashboardIndexRoute: typeof authenticatedDashboardIndexRoute
-  authenticatedListenIndexRoute: typeof authenticatedListenIndexRoute
+  ApiGuildsIndexRoute: typeof ApiGuildsIndexRoute
   ApiHealthzIndexRoute: typeof ApiHealthzIndexRoute
   ApiQueueIndexRoute: typeof ApiQueueIndexRoute
+  ApiGuildsGuildIdChannelsRoute: typeof ApiGuildsGuildIdChannelsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -191,11 +204,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiHealthzIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/(authenticated)/listen/': {
-      id: '/(authenticated)/listen/'
-      path: '/listen'
-      fullPath: '/listen'
-      preLoaderRoute: typeof authenticatedListenIndexRouteImport
+    '/api/guilds/': {
+      id: '/api/guilds/'
+      path: '/api/guilds'
+      fullPath: '/api/guilds'
+      preLoaderRoute: typeof ApiGuildsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(authenticated)/dashboard/': {
@@ -210,6 +223,13 @@ declare module '@tanstack/react-router' {
       path: '/api/auth/$'
       fullPath: '/api/auth/$'
       preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/guilds/$guildId/channels': {
+      id: '/api/guilds/$guildId/channels'
+      path: '/api/guilds/$guildId/channels'
+      fullPath: '/api/guilds/$guildId/channels'
+      preLoaderRoute: typeof ApiGuildsGuildIdChannelsRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -234,9 +254,10 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRouteRoute: AuthRouteRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   authenticatedDashboardIndexRoute: authenticatedDashboardIndexRoute,
-  authenticatedListenIndexRoute: authenticatedListenIndexRoute,
+  ApiGuildsIndexRoute: ApiGuildsIndexRoute,
   ApiHealthzIndexRoute: ApiHealthzIndexRoute,
   ApiQueueIndexRoute: ApiQueueIndexRoute,
+  ApiGuildsGuildIdChannelsRoute: ApiGuildsGuildIdChannelsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

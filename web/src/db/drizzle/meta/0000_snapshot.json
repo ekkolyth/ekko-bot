@@ -1,5 +1,5 @@
 {
-  "id": "8c394d15-2381-445f-a683-c63e7d3607c6",
+  "id": "a0ead8d0-56c1-42d9-8adb-26189b9ebe5e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -242,6 +242,18 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "discord_user_id": {
+          "name": "discord_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "discord_tag": {
+          "name": "discord_tag",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
@@ -253,6 +265,13 @@
           "nullsNotDistinct": false,
           "columns": [
             "email"
+          ]
+        },
+        "user_discord_user_id_unique": {
+          "name": "user_discord_user_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "discord_user_id"
           ]
         }
       },

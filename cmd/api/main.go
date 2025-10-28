@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/ekkolyth/ekko-bot/internal/api/httpserver"
+	"github.com/ekkolyth/ekko-bot/internal/db"
 	"github.com/ekkolyth/ekko-bot/internal/logging"
 	"github.com/joho/godotenv"
 )
@@ -34,7 +35,17 @@ func main() {
 		log.Fatal("❌ Invalid API_PORT value:", port)
 	}
 
-	router := httpserver.NewRouter()
+	// Initialize database connection (for guilds, tracks, queue, etc.)
+	ctx := context.Background()
+	dbService, err := db.NewService(ctx)
+	if err != nil {
+		log.Fatal("❌ Failed to connect to database:", err)
+	}
+	defer dbService.DB.Close()
+
+	logging.Info("✅ Database connection established")
+
+	router := httpserver.NewRouter(dbService)
 
 	// Configure HTTP server
 	server := &http.Server{

@@ -34,7 +34,10 @@ CREATE TABLE "user" (
 	"image" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	CONSTRAINT "user_email_unique" UNIQUE("email")
+	"discord_user_id" text,
+	"discord_tag" text,
+	CONSTRAINT "user_email_unique" UNIQUE("email"),
+	CONSTRAINT "user_discord_user_id_unique" UNIQUE("discord_user_id")
 );
 --> statement-breakpoint
 CREATE TABLE "verification" (

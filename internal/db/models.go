@@ -5,6 +5,8 @@
 package db
 
 import (
+	"time"
+
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -47,4 +49,12 @@ type Track struct {
 	Metadata  []byte             `json:"metadata"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+}
+
+type UserDiscordAccount struct {
+	AppUserID     string    `json:"app_user_id"`
+	DiscordUserID string    `json:"discord_user_id"`
+	DisplayTag    string    `json:"display_tag"`
+	AvatarHash    *string   `json:"avatar_hash"`
+	LastSeenAt    time.Time `json:"last_seen_at"`
 }

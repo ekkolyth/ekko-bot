@@ -14,6 +14,12 @@ type DB struct {
 	*Queries
 }
 
+// Service wraps DB and provides additional services
+type Service struct {
+	DB      *DB
+	Queries *Queries
+}
+
 // NewDB creates a new database connection pool and returns a DB instance
 func NewDB(ctx context.Context, databaseURL string) (*DB, error) {
 	pool, err := pgxpool.New(ctx, databaseURL)
@@ -42,6 +48,19 @@ func NewDBFromEnv(ctx context.Context) (*DB, error) {
 	}
 
 	return NewDB(ctx, databaseURL)
+}
+
+// NewService creates a new Service instance with database connection
+func NewService(ctx context.Context) (*Service, error) {
+	db, err := NewDBFromEnv(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Service{
+		DB:      db,
+		Queries: db.Queries,
+	}, nil
 }
 
 // Close closes the database connection pool
