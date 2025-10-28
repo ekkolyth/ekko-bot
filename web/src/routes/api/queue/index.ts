@@ -1,32 +1,63 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from "@tanstack/react-start"
-import { authClient } from '@/lib/auth/client'
-import { baseURL } from "@/lib/base-url"
+import { createFileRoute } from '@tanstack/react-router';
+import { json } from '@tanstack/react-start';
+import { authClient } from '@/lib/auth/client';
+import { baseURL } from '@/lib/base-url';
 
+interface QueueRequestBody {
+  guild_id: string;
+  voice_channel_id: string;
+  url: string;
+}
 
 export const Route = createFileRoute('/api/queue/')({
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {
         if (!baseURL) {
-          console.log('Server Error: BOT_API_URL not set')
-          return json({ error: 'Server Error: BOT_API_URL not set' }, { status: 500 })
+          console.log('Server Error: BOT_API_URL not set');
+          return json({ error: 'Server Error: BOT_API_URL not set' }, { status: 500 });
         }
 
-        const session = await authClient.getSession()
+        const session = await authClient.getSession();
         if (!session) {
-          return json({ error: 'Unauthorized' }, { status: 401 })
+          return json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const requestBody = await request.json().catch(() => null)
+        // Get Discord user ID from session
+        const discordUserId = (session as any)?.user?.discordUserId;
+        const discordTag = (session as any)?.user?.discordTag;
+
+        if (!discordUserId) {
+          return json(
+            { error: 'Discord account not linked. Please sign in with Discord.' },
+            { status: 403 }
+          );
+        }
+
+        const requestBody = (await request.json().catch(() => null)) as QueueRequestBody | null;
         if (!requestBody) {
-          return json({ error: "Invalid Response" }, { status: 400 })
+          return json({ error: 'Invalid Request Body' }, { status: 400 });
         }
-        const apiURL: string = new URL(Route.path, baseURL).toString()
 
-        const controller = new AbortController()
-        const timeout = 10 * 60 * 1000
-        const timer = setTimeout(() => controller.abort(), timeout)
+        // Validate required fields
+        if (!requestBody.guild_id) {
+          return json({ error: 'Missing guild_id' }, { status: 400 });
+        }
+
+        if (!requestBody.voice_channel_id) {
+          return json({ error: 'Missing voice_channel_id' }, { status: 400 });
+        }
+
+        if (!requestBody.url) {
+          return json({ error: 'Missing url' }, { status: 400 });
+        }
+
+        // Build API URL with guild_id in path
+        const apiURL = `${baseURL}/api/guilds/${requestBody.guild_id}/queue`;
+
+        const controller = new AbortController();
+        const timeout = 10 * 60 * 1000;
+        const timer = setTimeout(() => controller.abort(), timeout);
 
         try {
           const response = await fetch(apiURL, {
@@ -34,31 +65,33 @@ export const Route = createFileRoute('/api/queue/')({
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify(requestBody),
+            body: JSON.stringify({
+              discord_user_id: discordUserId,
+              discord_tag: discordTag,
+              voice_channel_id: requestBody.voice_channel_id,
+              url: requestBody.url,
+            }),
             signal: controller.signal,
-          })
+          });
 
-          clearTimeout(timer)
+          clearTimeout(timer);
 
           if (!response.ok) {
-            const err = await response.text().catch(() => '')
-            return json({ error: 'Bot API failed', detail: err }, { status: 502 })
+            const err = await response.text().catch(() => '');
+            return json({ error: 'Bot API failed', detail: err }, { status: 502 });
           }
 
-          const success = await response.json().catch(() => null)
-          return json({ ok: true, success })
-        }
-
-        catch (err: unknown) {
+          const success = await response.json().catch(() => null);
+          return json({ ok: true, success });
+        } catch (err: unknown) {
           if (err instanceof Error && err.name === 'AbortError') {
-            return json({ error: 'Request timed out' }, { status: 504 })
+            return json({ error: 'Request timed out' }, { status: 504 });
           }
-          return json({ error: 'Unexpected error', detail: String(err) }, { status: 500 })
+          return json({ error: 'Unexpected error', detail: String(err) }, { status: 500 });
         } finally {
-          clearTimeout(timer)
+          clearTimeout(timer);
         }
-      }
-    }
-  }
-},
-);
+      },
+    },
+  },
+});

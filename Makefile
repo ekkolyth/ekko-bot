@@ -89,3 +89,7 @@ drizzle/generate:
 drizzle/migrate:
 	@echo "Running Drizzle Migration..."
 	cd web && npx drizzle-kit migrate
+
+drizzle/push:
+	@echo "Running Drizzle Push..."
+	cd web && npx drizzle-kit push

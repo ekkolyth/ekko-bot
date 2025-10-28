@@ -5,17 +5,22 @@ import (
 )
 
 type Context struct {
-	SourceType           CommandSourceType // Where the command came from (i.e., interaction or message)
+	SourceType           CommandSourceType // Where the command came from (i.e., interaction, message, or web)
 	Session              *discordgo.Session
 	Interaction          *discordgo.InteractionCreate // Will be nil if not an interaction
 	Message              *discordgo.MessageCreate     // Will be nil if not a message
 	User                 *discordgo.User              // Caller of the command
 	GuildID              string                       // Guild ID where the command was called
 	ChannelID            string                       // Channel ID where the command was called
+	VoiceChannelID       string                       // Voice channel ID (especially for web actions)
 	ArgumentsRaw         map[string]any               // Raw arguments from the command, type depends on source
 	Arguments            map[string]string            // Standardised arguments, types are consistent
 	CommandName          string                       // Name of the command being executed, used for determining argument keys
 	InteractionResponded bool                         // Whether the interaction has been responded to
+	
+	// Web-specific fields for Discord identity attribution
+	RequesterDiscordUserID string // Discord user ID from identity mapping (for web actions)
+	RequesterTag           string // Discord display tag from identity mapping (for web actions)
 }
 
 type CommandSourceType int
@@ -24,6 +29,7 @@ const (
 	SourceTypeUnknown     CommandSourceType = iota
 	SourceTypeInteraction                   // Slash commands
 	SourceTypeMessage                       // Text commands
+	SourceTypeWeb                           // Web-triggered actions
 )
 
 
