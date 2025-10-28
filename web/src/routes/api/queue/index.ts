@@ -5,7 +5,6 @@ import { baseURL } from '@/lib/base-url';
 import { getDiscordFromSession } from '@/lib/get-discord-from-session';
 
 interface QueueRequestBody {
-  guild_id: string;
   voice_channel_id: string;
   url: string;
 }
@@ -40,10 +39,6 @@ export const Route = createFileRoute('/api/queue/')({
         }
 
         // Validate required fields
-        if (!requestBody.guild_id) {
-          return json({ error: 'Missing guild_id' }, { status: 400 });
-        }
-
         if (!requestBody.voice_channel_id) {
           return json({ error: 'Missing voice_channel_id' }, { status: 400 });
         }
@@ -52,8 +47,8 @@ export const Route = createFileRoute('/api/queue/')({
           return json({ error: 'Missing url' }, { status: 400 });
         }
 
-        // Build API URL with guild_id in path
-        const apiURL = `${baseURL}/api/guilds/${requestBody.guild_id}/queue`;
+        // Build API URL (no guild in path)
+        const apiURL = `${baseURL}/api/queue`;
 
         const controller = new AbortController();
         const timeout = 10 * 60 * 1000;

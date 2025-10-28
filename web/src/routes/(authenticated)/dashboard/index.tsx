@@ -85,7 +85,6 @@ function Dashboard() {
 
       try {
         await addToQueue.mutateAsync({
-          guild_id: selectedGuildId,
           voice_channel_id: selectedChannelId,
           url,
         });

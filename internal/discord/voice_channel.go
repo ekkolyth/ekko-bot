@@ -23,22 +23,32 @@ func BotInChannel(ctx *context.Context) bool {
 }
 
 func JoinUserVoiceChannel(ctx *context.Context) (*discordgo.VoiceConnection, error) {
+    guild, err := ctx.GetSession().State.Guild(ctx.GetGuildID())
+    if err != nil {
+        return nil, err
+    }
 
-	guild, err := ctx.GetSession().State.Guild(ctx.GetGuildID())
-	if err != nil {
-		return nil, err
-	}
+    // Prefer user's current voice channel if available
+    for _, vs := range guild.VoiceStates {
+        if ctx.GetUser() != nil && vs.UserID == ctx.GetUser().ID {
+            vc, err := ctx.GetSession().ChannelVoiceJoin(ctx.GuildID, vs.ChannelID, false, true)
+            if err != nil {
+                return nil, err
+            }
+            return vc, nil
+        }
+    }
 
-	for _, vs := range guild.VoiceStates {
-		if vs.UserID == ctx.GetUser().ID {
-			vc, err := ctx.GetSession().ChannelVoiceJoin(ctx.GuildID, vs.ChannelID, false, true)
-			if err != nil {
-				return nil, err
-			}
-			return vc, nil
-		}
-	}
-	return nil, os.ErrNotExist
+    // Fallback for web/API calls: use VoiceChannelID from context
+    if ctx.VoiceChannelID != "" {
+        vc, err := ctx.GetSession().ChannelVoiceJoin(ctx.GuildID, ctx.VoiceChannelID, false, true)
+        if err != nil {
+            return nil, err
+        }
+        return vc, nil
+    }
+
+    return nil, os.ErrNotExist
 }
 
 func IsUserInVoiceChannel(ctx *context.Context) bool {

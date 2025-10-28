@@ -1,7 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 
 interface AddToQueueParams {
-  guild_id: string;
   voice_channel_id: string;
   url: string;
 }

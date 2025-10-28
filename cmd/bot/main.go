@@ -1,17 +1,19 @@
 package main
 
 import (
-	"os"
-	"os/exec"
-	"strings"
+    "net/http"
+    "os"
+    "os/exec"
+    "strings"
 
-	"github.com/ekkolyth/ekko-bot/internal/context"
-	"github.com/ekkolyth/ekko-bot/internal/discord"
-	"github.com/ekkolyth/ekko-bot/internal/handlers"
-	"github.com/ekkolyth/ekko-bot/internal/logging"
+    bothttp "github.com/ekkolyth/ekko-bot/internal/bot/httpserver"
+    "github.com/ekkolyth/ekko-bot/internal/context"
+    "github.com/ekkolyth/ekko-bot/internal/discord"
+    "github.com/ekkolyth/ekko-bot/internal/handlers"
+    "github.com/ekkolyth/ekko-bot/internal/logging"
 
-	"github.com/bwmarrin/discordgo"
-	"github.com/joho/godotenv"
+    "github.com/bwmarrin/discordgo"
+    "github.com/joho/godotenv"
 )
 
 func setup() {
@@ -64,7 +66,18 @@ func main() {
 		logging.Fatal("Error opening connection", err)
 	}
 	defer dg.Close()
-	logging.Info("Version: " + context.GoSourceHash)
-	logging.Info("Bot is running. Press CTRL-C to exit.")
-	select {} // block forever
+    logging.Info("Version: " + context.GoSourceHash)
+
+    // Start internal HTTP server for bot API on port 1338
+    go func() {
+        addr := ":1338"
+        handler := bothttp.NewRouter(dg)
+        logging.Info("Bot internal API listening on http://localhost" + addr)
+        if err := http.ListenAndServe(addr, handler); err != nil {
+            logging.Fatal("Bot internal HTTP server failed", err)
+        }
+    }()
+
+    logging.Info("Bot is running. Press CTRL-C to exit.")
+    select {} // block forever
 }

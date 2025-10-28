@@ -51,15 +51,13 @@ func NewRouter(dbService *db.Service) http.Handler {
 	// Healthcheck
 	router.Get("/api/healthz", handlers.Health)
 
-	//
-	router.Route("/api", func(api chi.Router) {
-		// Queue endpoints with guild_id parameter
-		api.Route("/guilds/{guild_id}", func(guild chi.Router) {
-			guild.Route("/queue", func(query chi.Router) {
-				query.Post("/", handlers.QueueAdd())
-			})
-		})
-	})
+    //
+    router.Route("/api", func(api chi.Router) {
+        // Simplified queue endpoint (no guild_id in path)
+        api.Route("/queue", func(queue chi.Router) {
+            queue.Post("/", handlers.QueueAdd())
+        })
+    })
 
 	return router
 }
