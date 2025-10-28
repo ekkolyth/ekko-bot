@@ -11,8 +11,7 @@ export const user = pgTable('user', {
     .defaultNow()
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
-  discordUserId: text('discord_user_id').unique(),
-  discordTag: text('discord_tag'),
+  // Note: Discord info is stored in the `account` table, not here
 });
 
 export const session = pgTable('session', {
