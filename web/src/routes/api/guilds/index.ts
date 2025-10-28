@@ -1,8 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { json } from '@tanstack/react-start';
-import { auth, db } from '@/lib/auth/auth';
-import * as authSchema from '@/db/auth-schema';
-import { eq, and } from 'drizzle-orm';
+import { auth } from '@/lib/auth/auth';
+import { getDiscordAccessToken } from '@/lib/auth/get-discord-access-token';
 
 interface DiscordGuild {
   id: string;
@@ -22,35 +21,35 @@ export const Route = createFileRoute('/api/guilds/')({
         }
 
         try {
-          // Get Discord access token from account table
-          const discordAccounts = await db
-            .select()
-            .from(authSchema.account)
-            .where(
-              and(
-                eq(authSchema.account.userId, session.user.id),
-                eq(authSchema.account.providerId, 'discord')
-              )
-            )
-            .limit(1);
+          // Get Discord access token (auto-refreshes if expired)
+          const { token } = await getDiscordAccessToken(session.user.id);
 
-          if (!discordAccounts || discordAccounts.length === 0 || !discordAccounts[0].accessToken) {
-            return json({ error: 'Discord account not linked or token missing' }, { status: 403 });
+          if (!token) {
+            return json(
+              {
+                error:
+                  'Discord account not linked or token expired. Please reconnect your Discord account.',
+              },
+              { status: 403 }
+            );
           }
-
-          const discordAccount = discordAccounts[0];
 
           const response = await fetch('https://discord.com/api/v10/users/@me/guilds', {
             headers: {
-              Authorization: `Bearer ${discordAccount.accessToken}`,
+              Authorization: `Bearer ${token}`,
               'Content-Type': 'application/json',
             },
           });
 
+          console.log('Discord API response status:', response.status);
+
           if (!response.ok) {
             const errorText = await response.text().catch(() => '');
-            console.error('Discord API error:', errorText);
-            return json({ error: 'Failed to fetch guilds', detail: errorText }, { status: 502 });
+            console.error('Discord API error:', response.status, errorText);
+            return json(
+              { error: 'Failed to fetch guilds', detail: errorText, status: response.status },
+              { status: 502 }
+            );
           }
 
           const guilds = (await response.json()) as DiscordGuild[];
@@ -65,6 +64,7 @@ export const Route = createFileRoute('/api/guilds/')({
           });
         } catch (err: unknown) {
           console.error('Error fetching guilds:', err);
+          console.error('Error stack:', err instanceof Error ? err.stack : 'No stack trace');
           return json({ error: 'Unexpected error', detail: String(err) }, { status: 500 });
         }
       },
