@@ -53,7 +53,12 @@ func NewRouter(dbService *db.Service) http.Handler {
 
 	//
 	router.Route("/api", func(api chi.Router) {
-		// Queue endpoints with guild_id parameter
+		// Queue endpoints - simplified (no guild_id in path, container knows its guild)
+		api.Route("/queue", func(queue chi.Router) {
+			queue.Post("/", handlers.QueueAdd())
+		})
+		
+		// Keep backward compatibility for now
 		api.Route("/guilds/{guild_id}", func(guild chi.Router) {
 			guild.Route("/queue", func(query chi.Router) {
 				query.Post("/", handlers.QueueAdd())

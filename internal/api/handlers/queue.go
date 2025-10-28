@@ -1,11 +1,15 @@
 package handlers
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/ekkolyth/ekko-bot/internal/api/httpx"
-	"github.com/ekkolyth/ekko-bot/internal/context"
-	"github.com/ekkolyth/ekko-bot/internal/discord"
 	"github.com/ekkolyth/ekko-bot/internal/logging"
 	"github.com/go-chi/chi/v5"
 )
@@ -18,57 +22,98 @@ type queueAdd struct {
 }
 
 func QueueAdd() http.HandlerFunc {
-	return func(write http.ResponseWriter, read *http.Request) {
-		// Extract guild_id from URL path parameter
-		guildID := chi.URLParam(read, "guild_id")
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Extract guild_id from URL path parameter (for backward compatibility)
+		// For the new simplified route, guild_id is not required
+		guildID := chi.URLParam(r, "guild_id")
 		if guildID == "" {
-			httpx.RespondError(write, http.StatusBadRequest, "Missing guild_id in URL")
-			return
+			// For simplified route, we'll let the bot handle guild validation
+			guildID = "simplified" // Placeholder, bot will use environment variable
 		}
 
 		var request queueAdd
 
-		if err := httpx.DecodeJSON(write, read, &request, 1<<20); err != nil {
-			httpx.RespondError(write, http.StatusBadRequest, err.Error())
+		if err := httpx.DecodeJSON(w, r, &request, 1<<20); err != nil {
+			httpx.RespondError(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
 		// Validate required fields
 		if request.DiscordUserID == "" {
-			httpx.RespondError(write, http.StatusBadRequest, "Missing discord_user_id")
+			httpx.RespondError(w, http.StatusBadRequest, "Missing discord_user_id")
 			return
 		}
 
 		if request.VoiceChannelID == "" {
-			httpx.RespondError(write, http.StatusBadRequest, "Missing voice_channel_id")
+			httpx.RespondError(w, http.StatusBadRequest, "Missing voice_channel_id")
 			return
 		}
 
 		if !httpx.IsValidURL(request.URL) {
-			httpx.RespondError(write, http.StatusBadRequest, "Invalid URL")
+			httpx.RespondError(w, http.StatusBadRequest, "Invalid URL")
 			return
 		}
 
-		// Create a web context with Discord identity from request
-		ctx := &context.Context{
-			SourceType:             context.SourceTypeWeb,
-			Session:                nil, // No Discord session for web actions
-			GuildID:                guildID,
-			VoiceChannelID:         request.VoiceChannelID,
-			RequesterDiscordUserID: request.DiscordUserID,
-			RequesterTag:           request.DiscordTag,
-			Arguments:              map[string]string{"url": request.URL},
-			ArgumentsRaw:           make(map[string]any),
+		// Get bot internal API URL from environment
+		botAPIURL := os.Getenv("BOT_INTERNAL_API_URL")
+		if botAPIURL == "" {
+			httpx.RespondError(w, http.StatusInternalServerError, "Bot internal API URL not configured")
+			return
 		}
 
-		logging.Info("Web action: queue.add discord_user_id=" + request.DiscordUserID + " discord_tag=" + request.DiscordTag + " guild_id=" + guildID + " voice_channel_id=" + request.VoiceChannelID)
+		// Build target URL for bot internal API
+		targetURL := fmt.Sprintf("%s/internal/queue", botAPIURL)
 
-		// Add the song using the web context
-		discord.AddSong(ctx, false, request.URL)
+		// Create JSON payload for bot API
+		payload := map[string]string{
+			"discord_user_id":  request.DiscordUserID,
+			"discord_tag":      request.DiscordTag,
+			"voice_channel_id": request.VoiceChannelID,
+			"url":              request.URL,
+		}
 
-		httpx.RespondJSON(write, http.StatusCreated, map[string]any{
-			"ok":         true,
-			"youtubeUrl": request.URL,
-		})
+		jsonPayload, err := json.Marshal(payload)
+		if err != nil {
+			httpx.RespondError(w, http.StatusInternalServerError, "Failed to marshal request: "+err.Error())
+			return
+		}
+
+		logging.Info("Web API: Proxying request to bot internal API at " + targetURL)
+
+		// Create HTTP client with timeout
+		client := &http.Client{
+			Timeout: 30 * time.Second,
+		}
+
+		// Make request to bot internal API
+		req, err := http.NewRequest("POST", targetURL, bytes.NewBuffer(jsonPayload))
+		if err != nil {
+			httpx.RespondError(w, http.StatusInternalServerError, "Failed to create request: "+err.Error())
+			return
+		}
+
+		req.Header.Set("Content-Type", "application/json")
+
+		// Send request to bot
+		resp, err := client.Do(req)
+		if err != nil {
+			httpx.RespondError(w, http.StatusServiceUnavailable, "Failed to reach bot internal API: "+err.Error())
+			return
+		}
+		defer resp.Body.Close()
+
+		// Read response body
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			httpx.RespondError(w, http.StatusInternalServerError, "Failed to read bot response: "+err.Error())
+			return
+		}
+
+		// Forward the response from bot to client
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(resp.StatusCode)
+		w.Write(body)
+
+		logging.Info("Web API: Successfully proxied request to bot internal API")
 	}
 }
