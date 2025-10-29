@@ -103,14 +103,12 @@ function Dashboard() {
           <Select
             value={selectedChannelId}
             onValueChange={setSelectedChannelId}
-            disabled={!selectedGuildId || channelsLoading || voiceChannels.length === 0}
+            disabled={channelsLoading || voiceChannels.length === 0}
           >
             <SelectTrigger id='channel'>
               <SelectValue
                 placeholder={
-                  !selectedGuildId
-                    ? 'Select a guild first'
-                    : channelsLoading
+                  channelsLoading
                     ? 'Loading channels...'
                     : voiceChannels.length === 0
                     ? 'No voice channels available'
@@ -151,7 +149,7 @@ function Dashboard() {
         <Button
           className='mt-4'
           type='submit'
-          disabled={!selectedGuildId || !selectedChannelId || addToQueue.isPending}
+          disabled={!selectedChannelId || addToQueue.isPending}
         >
           {addToQueue.isPending ? 'Adding...' : 'Add to Queue'}
         </Button>
