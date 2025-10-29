@@ -5,13 +5,11 @@ interface VoiceChannel {
   name: string;
 }
 
-export function useVoiceChannels(guildId: string | null) {
+export function useVoiceChannels() {
   return useQuery({
-    queryKey: ['voice-channels', guildId],
+    queryKey: ['voice-channels'],
     queryFn: async () => {
-      if (!guildId) return [];
-
-      const response = await fetch(`/api/guilds/${guildId}/channels`);
+      const response = await fetch(`/api/guilds/_/channels`);
       if (!response.ok) {
         throw new Error('Failed to fetch voice channels');
       }
@@ -21,7 +19,7 @@ export function useVoiceChannels(guildId: string | null) {
       }
       return data.channels as VoiceChannel[];
     },
-    enabled: !!guildId, // Only run if guildId is provided
+    enabled: true,
     staleTime: 1000 * 60 * 2, // 2 minutes
   });
 }

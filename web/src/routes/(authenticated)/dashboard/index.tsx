@@ -15,7 +15,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { useGuilds } from '@/hooks/use-guilds';
 import { useVoiceChannels } from '@/hooks/use-voice-channels';
 import { useHasDiscord } from '@/hooks/use-has-discord';
 import { useAddToQueue } from '@/hooks/use-add-to-queue';
@@ -48,17 +47,15 @@ function Dashboard() {
   if (!session || !hasDiscord) return null;
 
   function InputURL() {
-    const [selectedGuildId, setSelectedGuildId] = useState<string>('');
     const [selectedChannelId, setSelectedChannelId] = useState<string>('');
     const [message, setMessage] = useState('');
 
     // Use TanStack Query hooks
-    const { data: guilds = [], isLoading: guildsLoading, error: guildsError } = useGuilds();
     const {
       data: voiceChannels = [],
       isLoading: channelsLoading,
       error: channelsError,
-    } = useVoiceChannels(selectedGuildId);
+    } = useVoiceChannels();
     const addToQueue = useAddToQueue();
 
     const form = useForm({
@@ -70,24 +67,18 @@ function Dashboard() {
       },
     });
 
-    // Reset channel when guild changes
-    useEffect(() => {
-      setSelectedChannelId('');
-    }, [selectedGuildId]);
+    // nothing to reset per guild anymore (single-tenant)
 
     const handleSubmit = async (url: string) => {
       setMessage('');
 
-      if (!selectedGuildId || !selectedChannelId) {
-        setMessage('❌ Please select a guild and voice channel');
+      if (!selectedChannelId) {
+        setMessage('❌ Please select a voice channel');
         return;
       }
 
       try {
-        await addToQueue.mutateAsync({
-          voice_channel_id: selectedChannelId,
-          url,
-        });
+        await addToQueue.mutateAsync({ voice_channel_id: selectedChannelId, url });
 
         setMessage('✅ Song added to queue!');
         form.reset();
@@ -104,31 +95,7 @@ function Dashboard() {
         }}
         className='space-y-4'
       >
-        <div className='space-y-2'>
-          <Label htmlFor='guild'>Guild</Label>
-          {guildsError && (
-            <p className='text-sm text-red-500'>Failed to load guilds. Please reconnect Discord.</p>
-          )}
-          <Select
-            value={selectedGuildId}
-            onValueChange={setSelectedGuildId}
-            disabled={guildsLoading}
-          >
-            <SelectTrigger id='guild'>
-              <SelectValue placeholder={guildsLoading ? 'Loading guilds...' : 'Select a guild'} />
-            </SelectTrigger>
-            <SelectContent>
-              {guilds.map((guild) => (
-                <SelectItem
-                  key={guild.id}
-                  value={guild.id}
-                >
-                  {guild.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {/* Single-tenant: no guild selection */}
 
         <div className='space-y-2'>
           <Label htmlFor='channel'>Voice Channel</Label>

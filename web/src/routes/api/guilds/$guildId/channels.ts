@@ -17,10 +17,11 @@ export const Route = createFileRoute('/api/guilds/$guildId/channels')({
           return json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { guildId } = params;
-
+        // Prefer single-tenant env guild ID when set, else allow param fallback
+        const envGuildId = process.env.DISCORD_GUILD_ID;
+        const guildId = envGuildId && envGuildId.length > 0 ? envGuildId : params.guildId;
         if (!guildId) {
-          return json({ error: 'Missing guild_id' }, { status: 400 });
+          return json({ error: 'Missing DISCORD_GUILD_ID and guild_id' }, { status: 400 });
         }
 
         // Use bot token to fetch channels (bot has permission, not user OAuth token)
