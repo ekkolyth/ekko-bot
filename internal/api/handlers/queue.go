@@ -64,8 +64,13 @@ func QueueAdd() http.HandlerFunc {
 
         guildID := os.Getenv("DISCORD_GUILD_ID")
         if guildID == "" {
-            httpx.RespondError(write, http.StatusInternalServerError, "Missing DISCORD_GUILD_ID")
-            return
+            // Derive guild from provided voice_channel_id when not configured via env
+            ch, err := s.Channel(request.VoiceChannelID)
+            if err != nil || ch == nil || ch.GuildID == "" {
+                httpx.RespondError(write, http.StatusInternalServerError, "Unable to determine guild from voice_channel_id")
+                return
+            }
+            guildID = ch.GuildID
         }
 
         // Build context and call AddSong directly
