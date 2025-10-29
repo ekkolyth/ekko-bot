@@ -72,8 +72,9 @@ export const Route = createFileRoute('/api/queue/')({
           clearTimeout(timer);
 
           if (!response.ok) {
-            const err = await response.text().catch(() => '');
-            return json({ error: 'Bot API failed', detail: err }, { status: 502 });
+            const text = await response.text().catch(() => '');
+            // Preserve upstream status for clearer debugging
+            return json({ error: 'API request failed', detail: text }, { status: response.status });
           }
 
           const success = await response.json().catch(() => null);
