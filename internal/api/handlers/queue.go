@@ -1,14 +1,13 @@
 package handlers
 
 import (
-    "bytes"
-    "encoding/json"
-    "io"
     "net/http"
     "os"
-    "time"
 
+    "github.com/bwmarrin/discordgo"
     "github.com/ekkolyth/ekko-bot/internal/api/httpx"
+    appctx "github.com/ekkolyth/ekko-bot/internal/context"
+    "github.com/ekkolyth/ekko-bot/internal/discord"
     "github.com/ekkolyth/ekko-bot/internal/logging"
 )
 
@@ -17,6 +16,13 @@ type queueAdd struct {
 	DiscordTag     string `json:"discord_tag"`
 	VoiceChannelID string `json:"voice_channel_id"`
 	URL            string `json:"url"`
+}
+
+var discordSessionProvider func() any // set via SetDiscordSession
+
+func SetDiscordSession(session any) {
+    // store as untyped to keep handler package decoupled; cast on use
+    discordSessionProvider = func() any { return session }
 }
 
 func QueueAdd() http.HandlerFunc {
@@ -44,41 +50,43 @@ func QueueAdd() http.HandlerFunc {
             return
         }
 
-        // Proxy to Bot Internal API
-        botURL := os.Getenv("BOT_INTERNAL_API_URL")
-        if botURL == "" {
-            // default per plan
-            botURL = "http://localhost:1338"
+        // Use Discord session directly in API
+        if discordSessionProvider == nil {
+            httpx.RespondError(write, http.StatusInternalServerError, "Discord session not initialized")
+            return
         }
-        target := botURL + "/internal/queue"
 
-        payload, _ := json.Marshal(map[string]any{
-            "discord_user_id":  request.DiscordUserID,
-            "discord_tag":      request.DiscordTag,
-            "voice_channel_id": request.VoiceChannelID,
-            "url":              request.URL,
+        s, _ := discordSessionProvider().(*discordgo.Session)
+        if s == nil {
+            httpx.RespondError(write, http.StatusInternalServerError, "Discord session unavailable")
+            return
+        }
+
+        guildID := os.Getenv("DISCORD_GUILD_ID")
+        if guildID == "" {
+            httpx.RespondError(write, http.StatusInternalServerError, "Missing DISCORD_GUILD_ID")
+            return
+        }
+
+        // Build context and call AddSong directly
+        ctx := &appctx.Context{
+            SourceType:             appctx.SourceTypeWeb,
+            Session:                s,
+            GuildID:                guildID,
+            VoiceChannelID:         request.VoiceChannelID,
+            RequesterDiscordUserID: request.DiscordUserID,
+            RequesterTag:           request.DiscordTag,
+            Arguments:              map[string]string{"url": request.URL},
+            ArgumentsRaw:           make(map[string]any),
+        }
+
+        logging.Info("API queue.add discord_user_id=" + request.DiscordUserID + " discord_tag=" + request.DiscordTag + " guild_id=" + guildID + " voice_channel_id=" + request.VoiceChannelID)
+
+        discord.AddSong(ctx, false, request.URL)
+
+        httpx.RespondJSON(write, http.StatusCreated, map[string]any{
+            "ok":         true,
+            "youtubeUrl": request.URL,
         })
-
-        client := &http.Client{Timeout: 30 * time.Second}
-        req, err := http.NewRequest(http.MethodPost, target, bytes.NewReader(payload))
-        if err != nil {
-            httpx.RespondError(write, http.StatusBadGateway, "Failed to create proxy request")
-            return
-        }
-        req.Header.Set("Content-Type", "application/json")
-
-        resp, err := client.Do(req)
-        if err != nil {
-            httpx.RespondError(write, http.StatusBadGateway, "Bot API unreachable")
-            return
-        }
-        defer resp.Body.Close()
-
-        // Forward status & body
-        write.Header().Set("Content-Type", "application/json; charset=utf-8")
-        write.WriteHeader(resp.StatusCode)
-        if _, err := io.Copy(write, resp.Body); err != nil {
-            logging.Warning("Failed to forward bot response: " + err.Error())
-        }
     }
 }

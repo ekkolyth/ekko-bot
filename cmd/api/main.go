@@ -1,19 +1,21 @@
 package main
 
 import (
-	"context"
-	"log"
-	"net/http"
-	"os"
-	"os/signal"
-	"strconv"
-	"syscall"
-	"time"
+    "context"
+    "log"
+    "net/http"
+    "os"
+    "os/signal"
+    "strconv"
+    "syscall"
+    "time"
 
-	"github.com/ekkolyth/ekko-bot/internal/api/httpserver"
-	"github.com/ekkolyth/ekko-bot/internal/db"
-	"github.com/ekkolyth/ekko-bot/internal/logging"
-	"github.com/joho/godotenv"
+    "github.com/bwmarrin/discordgo"
+    "github.com/ekkolyth/ekko-bot/internal/api/handlers"
+    "github.com/ekkolyth/ekko-bot/internal/api/httpserver"
+    "github.com/ekkolyth/ekko-bot/internal/db"
+    "github.com/ekkolyth/ekko-bot/internal/logging"
+    "github.com/joho/godotenv"
 )
 
 var StartTime = time.Now()
@@ -35,7 +37,7 @@ func main() {
 		log.Fatal("❌ Invalid API_PORT value:", port)
 	}
 
-	// Initialize database connection (for guilds, tracks, queue, etc.)
+    // Initialize database connection (for guilds, tracks, queue, etc.)
 	ctx := context.Background()
 	dbService, err := db.NewService(ctx)
 	if err != nil {
@@ -44,6 +46,21 @@ func main() {
 	defer dbService.DB.Close()
 
 	logging.Info("✅ Database connection established")
+
+    // Initialize Discord session for API to perform actions
+    discordToken := os.Getenv("DISCORD_BOT_TOKEN")
+    if discordToken == "" {
+        log.Fatal("❌ DISCORD_BOT_TOKEN not set in .env file")
+    }
+    dg, err := discordgo.New("Bot " + discordToken)
+    if err != nil {
+        log.Fatal("❌ Error creating Discord session:", err)
+    }
+    if err := dg.Open(); err != nil {
+        log.Fatal("❌ Error opening Discord connection:", err)
+    }
+    defer dg.Close()
+    handlers.SetDiscordSession(dg)
 
 	router := httpserver.NewRouter(dbService)
 
