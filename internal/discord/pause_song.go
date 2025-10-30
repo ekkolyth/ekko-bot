@@ -13,14 +13,16 @@ func PauseSong(ctx *context.Context) {
 		return
 	}
 
+	queueKey := context.QueueKey(ctx.GetGuildID(), ctx.VoiceChannelID)
+
 	context.PauseMutex.Lock()
-	currentState := context.Paused[ctx.GetGuildID()]
-	context.Paused[ctx.GetGuildID()] = !currentState // Toggle pause state
+	currentState := context.Paused[queueKey]
+	context.Paused[queueKey] = !currentState // Toggle pause state
 	context.PauseMutex.Unlock()
 
 	// Signal the pause channel with the new state
 	context.PauseChMutex.Lock()
-	if ch, exists := context.PauseChs[ctx.GetGuildID()]; exists {
+	if ch, exists := context.PauseChs[queueKey]; exists {
 		select {
 		case ch <- !currentState: // Send the new state
 		default: // Channel is full, discard

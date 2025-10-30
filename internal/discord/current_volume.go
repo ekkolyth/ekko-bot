@@ -7,12 +7,14 @@ import (
 )
 
 func CurrentVolume(ctx *context.Context) {
+	queueKey := context.QueueKey(ctx.GetGuildID(), ctx.VoiceChannelID)
+
 	var currentVolume float64
 	context.VolumeMutex.Lock()
-	currentVolume, ok := context.Volume[ctx.GetGuildID()]
+	currentVolume, ok := context.Volume[queueKey]
 	if !ok {
 		currentVolume = 1.0 // Default volume if not set
-		context.Volume[ctx.GetGuildID()] = 1.0
+		context.Volume[queueKey] = 1.0
 	}
 	context.VolumeMutex.Unlock()
 	// Convert to percentage for display

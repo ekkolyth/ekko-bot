@@ -55,7 +55,13 @@ func NewRouter(dbService *db.Service) http.Handler {
     router.Route("/api", func(api chi.Router) {
         // Simplified queue endpoint (no guild_id in path)
         api.Route("/queue", func(queue chi.Router) {
+            queue.Get("/", handlers.QueueGet())
             queue.Post("/", handlers.QueueAdd())
+            queue.Post("/remove", handlers.QueueRemove())
+            queue.Post("/clear", handlers.QueueClear())
+            queue.Post("/pause", handlers.QueuePause())
+            queue.Post("/play", handlers.QueuePlay())
+            queue.Post("/skip", handlers.QueueSkip())
         })
     })
 

@@ -20,15 +20,17 @@ func SetVolume(ctx *context.Context) {
 		ctx.Reply("Invalid volume value. Please specify a number between 0 and 200.")
 		return
 	}
+	queueKey := context.QueueKey(ctx.GetGuildID(), ctx.VoiceChannelID)
+
 	var preservedVolume float64 = newVolume
 	// Normalize the volume to a range of 0.0 to 2.0
 	newVolume = newVolume / 100.0 // Convert percentage to a factor
 
 	context.VolumeMutex.Lock()
-	if _, ok := context.Volume[ctx.GetGuildID()]; !ok {
-		context.Volume[ctx.GetGuildID()] = 1.0 // Initialize to default if not set
+	if _, ok := context.Volume[queueKey]; !ok {
+		context.Volume[queueKey] = 1.0 // Initialize to default if not set
 	}
-	context.Volume[ctx.GetGuildID()] = newVolume
+	context.Volume[queueKey] = newVolume
 	context.VolumeMutex.Unlock()
 
 	ctx.Reply(fmt.Sprintf("Volume set to %.1f%%", preservedVolume))

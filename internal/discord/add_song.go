@@ -94,12 +94,38 @@ func AddSong(ctx *context.Context, search_mode bool, apiURL ...string) { // sear
 		}
 
 	}
+
+	queueKey := context.QueueKey(guildID, ctx.VoiceChannelID)
+
+	// Fetch video metadata in background
+	go func() {
+		videoInfo, err := media.GetVideoInfo(url)
+		if err == nil && videoInfo != nil {
+			// Cache the metadata
+			context.TrackMetadataCacheMutex.Lock()
+			if context.TrackMetadataCache[queueKey] == nil {
+				context.TrackMetadataCache[queueKey] = make(map[string]*context.TrackInfo)
+			}
+			context.TrackMetadataCache[queueKey][url] = &context.TrackInfo{
+				URL:       url,
+				Title:     videoInfo.Title,
+				Artist:    videoInfo.Artist,
+				Duration:  videoInfo.Duration,
+				Thumbnail: videoInfo.Thumbnail,
+				AddedBy:   ctx.RequesterTag,
+				AddedByID: ctx.RequesterDiscordUserID,
+			}
+			context.TrackMetadataCacheMutex.Unlock()
+			logging.Info("Cached metadata for: " + videoInfo.Title)
+		}
+	}()
+
 	context.QueueMutex.Lock()
-	context.Queue[guildID] = append(context.Queue[guildID], url)
+	context.Queue[queueKey] = append(context.Queue[queueKey], url)
 	context.QueueMutex.Unlock()
 
 	context.PlayingMutex.Lock()
-	isAlreadyPlaying := context.Playing[guildID]
+	isAlreadyPlaying := context.Playing[queueKey]
 	context.PlayingMutex.Unlock()
 
 	if !isAPICall {
@@ -111,8 +137,12 @@ func AddSong(ctx *context.Context, search_mode bool, apiURL ...string) { // sear
 	if !isAlreadyPlaying {
 		// Start processing the queue if the bot is idle
 		context.PlayingMutex.Lock()
-		context.Playing[guildID] = true
+		context.Playing[queueKey] = true
 		context.PlayingMutex.Unlock()
+		
+		logging.Info("Starting queue processing for queue: " + queueKey)
 		ProcessQueue(ctx)
+	} else {
+		logging.Info("Bot already playing in this channel, just added to queue: " + queueKey)
 	}
 }

@@ -7,6 +7,17 @@ import (
 	"layeh.com/gopus"
 )
 
+// TrackInfo holds metadata about a track
+type TrackInfo struct {
+	URL       string
+	Title     string
+	Artist    string
+	Duration  int
+	Thumbnail string
+	AddedBy   string
+	AddedByID string
+}
+
 func init() {
 	StartTime = time.Now()
 }
@@ -18,25 +29,39 @@ var (
 	// Set of disabled commands
 	DisabledCommands = make(map[string]bool)
 
-	// Guild ID -> Queue of URLs
+	// Queue Key (guild:voiceChannel) -> Queue of URLs
 	Queue        = make(map[string][]string)
 	QueueMutex   sync.Mutex
 
+	// Queue Key (guild:voiceChannel) -> Currently playing track URL
+	NowPlaying      = make(map[string]string)
+	NowPlayingMutex sync.Mutex
+
+	// Queue Key (guild:voiceChannel) -> Currently playing track metadata
+	NowPlayingInfo      = make(map[string]*TrackInfo)
+	NowPlayingInfoMutex sync.Mutex
+
+	// Queue Key (guild:voiceChannel) -> URL -> Track metadata cache
+	TrackMetadataCache      = make(map[string]map[string]*TrackInfo)
+	TrackMetadataCacheMutex sync.Mutex
+
+	// Queue Key (guild:voiceChannel) -> Is Playing
 	Playing      = make(map[string]bool)
 	PlayingMutex sync.Mutex
 
-	// Guild ID -> Pause state
+	// Queue Key (guild:voiceChannel) -> Pause state
 	Paused       = make(map[string]bool)
 	PauseMutex   sync.Mutex
 
-	// Guild ID -> Volume
+	// Queue Key (guild:voiceChannel) -> Volume
 	Volume       = make(map[string]float64)
 	VolumeMutex  sync.Mutex
 
+	// Queue Key (guild:voiceChannel) -> Stop channels
 	StopChannels = make(map[string]chan bool)
 	StopMutex    sync.Mutex
 
-	// Map of guild ID to pause channels
+	// Queue Key (guild:voiceChannel) -> Pause channels
 	PauseChs     = make(map[string]chan bool)
 	PauseChMutex sync.Mutex
 

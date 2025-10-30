@@ -18,7 +18,7 @@ import (
 
 // Discord voice server/channel.  voice websocket and udp socket
 // must already be setup before this will work.
-func StreamAudio(v *discordgo.VoiceConnection, url string, stop <-chan bool, pauseCh <-chan bool) {
+func StreamAudio(v *discordgo.VoiceConnection, url string, queueKey string, stop <-chan bool, pauseCh <-chan bool) {
 
 	if !httpx.IsValidURL(url) {
 		OnError("Invalid URL"+url, nil)
@@ -208,12 +208,12 @@ func StreamAudio(v *discordgo.VoiceConnection, url string, stop <-chan bool, pau
 		dataReceived = true
 
 		// Apply volume adjustment
-		// Use v.GuildID for per-guild volume
+		// Use queueKey for per-voice-channel volume
 		context.VolumeMutex.Lock()
-		currentVolume, ok := context.Volume[v.GuildID]
+		currentVolume, ok := context.Volume[queueKey]
 		if !ok {
 			currentVolume = 1.0
-			context.Volume[v.GuildID] = 1.0
+			context.Volume[queueKey] = 1.0
 		}
 		context.VolumeMutex.Unlock()
 
