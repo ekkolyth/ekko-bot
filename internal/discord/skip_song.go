@@ -11,11 +11,13 @@ func SkipSong(ctx *context.Context) {
 		return
 	}
 
+	queueKey := context.QueueKey(ctx.GetGuildID(), ctx.VoiceChannelID)
+
 	// Signal the current song to stop
 	context.StopMutex.Lock()
-	if stopChan, exists := context.StopChannels[ctx.GetGuildID()]; exists {
+	if stopChan, exists := context.StopChannels[queueKey]; exists {
 		close(stopChan)
-		delete(context.StopChannels, ctx.GetGuildID())
+		delete(context.StopChannels, queueKey)
 	}
 	context.StopMutex.Unlock()
 

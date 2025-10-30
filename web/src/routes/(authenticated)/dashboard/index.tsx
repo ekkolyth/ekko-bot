@@ -7,19 +7,14 @@ import { Field } from '@/components/ui/field';
 import { useForm } from '@tanstack/react-form';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useVoiceChannels } from '@/hooks/use-voice-channels';
 import { useHasDiscord } from '@/hooks/use-has-discord';
 import { useAddToQueue } from '@/hooks/use-add-to-queue';
-import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
-import { Play, Volume2 } from 'lucide-react';
+import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
+import { Music2, ChevronRight } from 'lucide-react';
+import { MusicPlayer } from '@/components/MusicPlayer';
+import { cn } from '@/lib/utils';
 
 export const Route = createFileRoute('/(authenticated)/dashboard/')({
   component: Dashboard,
@@ -29,6 +24,25 @@ function Dashboard() {
   const { data: session, isPending: sessionPending } = authClient.useSession();
   const navigate = useNavigate();
   const { data: hasDiscord, isPending: discordPending } = useHasDiscord();
+  
+  const [selectedChannelId, setSelectedChannelId] = useState<string | null>(null);
+  const [addUrlMessage, setAddUrlMessage] = useState('');
+
+  const {
+    data: voiceChannels = [],
+    isLoading: channelsLoading,
+    error: channelsError,
+  } = useVoiceChannels();
+  const addToQueue = useAddToQueue();
+
+  const form = useForm({
+    defaultValues: {
+      URL: '',
+    },
+    onSubmit: async ({ value }) => {
+      handleSubmit(value.URL);
+    },
+  });
 
   // Check for session
   useEffect(() => {
@@ -44,164 +58,156 @@ function Dashboard() {
     }
   }, [discordPending, hasDiscord, navigate]);
 
+  // Auto-select first channel when channels load
+  useEffect(() => {
+    if (!selectedChannelId && voiceChannels.length > 0) {
+      setSelectedChannelId(voiceChannels[0].id);
+    }
+  }, [voiceChannels, selectedChannelId]);
+
   if (sessionPending || discordPending) return <Spinner />;
 
   if (!session || !hasDiscord) return null;
 
-  function InputURL() {
-    const [selectedChannelId, setSelectedChannelId] = useState<string>('');
-    const [message, setMessage] = useState('');
+  const handleSubmit = async (url: string) => {
+    setAddUrlMessage('');
 
-    // Use TanStack Query hooks
-    const {
-      data: voiceChannels = [],
-      isLoading: channelsLoading,
-      error: channelsError,
-    } = useVoiceChannels();
-    const addToQueue = useAddToQueue();
+    if (!selectedChannelId) {
+      setAddUrlMessage('❌ Please select a voice channel');
+      return;
+    }
 
-    const form = useForm({
-      defaultValues: {
-        URL: '',
-      },
-      onSubmit: async ({ value }) => {
-        handleSubmit(value.URL);
-      },
-    });
+    try {
+      await addToQueue.mutateAsync({ voice_channel_id: selectedChannelId, url });
+      setAddUrlMessage('✅ Song added to queue!');
+      form.reset();
+      setTimeout(() => setAddUrlMessage(''), 3000);
+    } catch (error) {
+      setAddUrlMessage(`❌ Error: ${error instanceof Error ? error.message : String(error)}`);
+      setTimeout(() => setAddUrlMessage(''), 5000);
+    }
+  };
 
+  const selectedChannel = voiceChannels.find(ch => ch.id === selectedChannelId);
 
-    const handleSubmit = async (url: string) => {
-      setMessage('');
+  return (
+    <div className='container max-w-7xl mx-auto p-4 md:p-8'>
+      <div className='mb-6'>
+        <h1 className='text-3xl font-bold text-white mb-2'>Welcome, {session?.user.name}!</h1>
+        <p className='text-slate-400'>Control your music bot from here</p>
+      </div>
 
-      if (!selectedChannelId) {
-        setMessage('❌ Please select a voice channel');
-        return;
-      }
+      <div className='grid grid-cols-1 lg:grid-cols-12 gap-6'>
+        {/* Left Sidebar - Channel List & Add Song */}
+        <div className='lg:col-span-4 space-y-4'>
+          {/* Voice Channels Card */}
+          <Card className="bg-slate-900/80 border-slate-800">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Music2 className="w-5 h-5 text-purple-400" />
+                Voice Channels
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {channelsLoading ? (
+                <div className="text-center py-4 text-slate-400">Loading channels...</div>
+              ) : channelsError ? (
+                <div className="text-center py-4 text-red-400">Failed to load channels</div>
+              ) : voiceChannels.length === 0 ? (
+                <div className="text-center py-4 text-slate-400">No voice channels available</div>
+              ) : (
+                <div className="space-y-1">
+                  {voiceChannels.map((channel) => (
+                    <button
+                      key={channel.id}
+                      onClick={() => setSelectedChannelId(channel.id)}
+                      className={cn(
+                        "w-full text-left px-4 py-3 rounded-lg transition-all flex items-center justify-between group",
+                        selectedChannelId === channel.id
+                          ? "bg-purple-500/20 border border-purple-500/50 text-white"
+                          : "bg-slate-800/30 hover:bg-slate-800/50 border border-transparent text-slate-300"
+                      )}
+                    >
+                      <span className="font-medium">{channel.name}</span>
+                      <ChevronRight className={cn(
+                        "w-4 h-4 transition-transform",
+                        selectedChannelId === channel.id ? "text-purple-400" : "text-slate-500 group-hover:text-slate-400"
+                      )} />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
-      try {
-        await addToQueue.mutateAsync({ voice_channel_id: selectedChannelId, url });
-
-        setMessage('✅ Song added to queue!');
-        form.reset();
-      } catch (error) {
-        setMessage(`❌ Error: ${error instanceof Error ? error.message : String(error)}`);
-      }
-    };
-
-    return (
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          form.handleSubmit();
-        }}
-        className='space-y-4'
-      >
-        {/* Single-tenant: no guild selection */}
-
-        <div className='space-y-2'>
-          <Label htmlFor='channel'>Voice Channel</Label>
-          {channelsError && <p className='text-sm text-red-500'>Failed to load channels.</p>}
-          <Select
-            value={selectedChannelId}
-            onValueChange={setSelectedChannelId}
-            disabled={channelsLoading || voiceChannels.length === 0}
-          >
-            <SelectTrigger id='channel'>
-              <SelectValue
-                placeholder={
-                  channelsLoading
-                    ? 'Loading channels...'
-                    : voiceChannels.length === 0
-                      ? 'No voice channels available'
-                      : 'Select a voice channel'
-                }
-              />
-            </SelectTrigger>
-            <SelectContent>
-              {voiceChannels.map((channel) => (
-                <SelectItem
-                  key={channel.id}
-                  value={channel.id}
+          {/* Add to Queue Card */}
+          <Card className="bg-slate-900/80 border-slate-800">
+            <CardHeader>
+              <CardTitle className="text-white text-lg">Add to Queue</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  form.handleSubmit();
+                }}
+                className='space-y-4'
+              >
+                <form.Field name='URL'>
+                  {(field) => (
+                    <Field>
+                      <Label htmlFor='url' className="text-slate-300">YouTube URL</Label>
+                      <Input
+                        id='url'
+                        type='url'
+                        placeholder='https://www.youtube.com/watch?v=...'
+                        aria-description='Input to Enter YouTube URL'
+                        value={field.state.value}
+                        onChange={(event) => field.handleChange(event.target.value)}
+                        onBlur={field.handleBlur}
+                        required
+                        className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500"
+                      />
+                    </Field>
+                  )}
+                </form.Field>
+                <Button
+                  type='submit'
+                  disabled={!selectedChannelId || addToQueue.isPending}
+                  className="w-full bg-purple-600 hover:bg-purple-500"
                 >
-                  {channel.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+                  {addToQueue.isPending ? 'Adding...' : 'Add to Queue'}
+                </Button>
+
+                {addUrlMessage && (
+                  <div className='p-3 rounded-md bg-slate-800/50 text-sm text-slate-300'>
+                    {addUrlMessage}
+                  </div>
+                )}
+              </form>
+            </CardContent>
+          </Card>
         </div>
 
-        <form.Field name='URL'>
-          {(field) => (
-            <Field>
-              <Label htmlFor='url'>YouTube URL</Label>
-              <Input
-                id='url'
-                type='url'
-                placeholder='https://www.youtube.com/watch?v=...'
-                aria-description='Input to Enter YouTube URL'
-                value={field.state.value}
-                onChange={(event) => field.handleChange(event.target.value)}
-                onBlur={field.handleBlur}
-                required
-              />
-            </Field>
-          )}
-        </form.Field>
-        <Button
-          className='mt-4'
-          type='submit'
-          disabled={!selectedChannelId || addToQueue.isPending}
-        >
-          {addToQueue.isPending ? 'Adding...' : 'Add to Queue'}
-        </Button>
-
-        {message && <div className='p-3 rounded-md bg-muted text-sm'>{message}</div>}
-      </form>
-    );
-  }
-  return (
-    <div className='container p-8 space-y-4'>
-      <h1 className='text-2xl font-bold'>Welcome, {session?.user.name}!</h1>
-      <InputURL />
-      <Card className="bg-slate-900/80 border-slate-800">
-        <CardHeader>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                <Play className="w-6 h-6 text-purple-400" />
-              </div>
-              <div>
-                <CardTitle className="text-white">Now Playing</CardTitle>
-                <CardDescription>Music Bot Session</CardDescription>
-              </div>
-            </div>
-            <Volume2 className="w-5 h-5 text-slate-400" />
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            <div className="bg-slate-800/50 rounded-lg p-4 border border-purple-500/30">
-              <div className="text-white font-medium mb-1">Current Track</div>
-              <div className="text-slate-400 text-sm">Example Song Title</div>
-            </div>
-            <div className="space-y-2">
-              <div className="text-slate-400 text-sm font-medium">Queue (3 tracks)</div>
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="bg-slate-800/30 rounded p-3 text-sm text-slate-300"
-                >
-                  {i}. Upcoming track #{i}
+        {/* Right Side - Music Player */}
+        <div className='lg:col-span-8'>
+          {selectedChannelId && selectedChannel ? (
+            <MusicPlayer 
+              voiceChannelId={selectedChannelId} 
+              voiceChannelName={selectedChannel.name}
+            />
+          ) : (
+            <Card className="bg-slate-900/80 border-slate-800">
+              <CardContent className="py-16">
+                <div className="text-center text-slate-400">
+                  <Music2 className="w-16 h-16 mx-auto mb-4 text-slate-600" />
+                  <p className="text-lg">Select a voice channel to view the player</p>
                 </div>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
     </div>
-
-
-
-
   );
 }

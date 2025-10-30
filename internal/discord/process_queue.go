@@ -11,13 +11,26 @@ import (
 
 func ProcessQueue(ctx *context.Context) {
 	go func() {
+		queueKey := context.QueueKey(ctx.GetGuildID(), ctx.VoiceChannelID)
+		
 		for {
 		context.QueueMutex.Lock()
-		if len(context.Queue[ctx.GetGuildID()]) == 0 {
+		if len(context.Queue[queueKey]) == 0 {
 			// If the queue is empty, mark the bot as idle and leave the voice channel.
 			context.PlayingMutex.Lock()
-			context.Playing[ctx.GetGuildID()] = false
+			context.Playing[queueKey] = false
 			context.PlayingMutex.Unlock()
+
+			// Clear now playing
+			context.NowPlayingMutex.Lock()
+			delete(context.NowPlaying, queueKey)
+			context.NowPlayingMutex.Unlock()
+
+			// Clear now playing info
+			context.NowPlayingInfoMutex.Lock()
+			delete(context.NowPlayingInfo, queueKey)
+			context.NowPlayingInfoMutex.Unlock()
+
 			context.QueueMutex.Unlock()
 
 				// Wait a moment before disconnecting to avoid rapid connect/disconnect cycles
@@ -32,29 +45,43 @@ func ProcessQueue(ctx *context.Context) {
 			}
 
 		// Dequeue the next song
-		currentURL := context.Queue[ctx.GetGuildID()][0]
-		context.Queue[ctx.GetGuildID()] = context.Queue[ctx.GetGuildID()][1:]
-		songLength := len(context.Queue[ctx.GetGuildID()])
+		currentURL := context.Queue[queueKey][0]
+		context.Queue[queueKey] = context.Queue[queueKey][1:]
+		songLength := len(context.Queue[queueKey])
 		context.QueueMutex.Unlock()
 
-			logging.Info("Playing song, " + strconv.Itoa(songLength) + " more in queue ")
+		// Store the currently playing track
+		context.NowPlayingMutex.Lock()
+		context.NowPlaying[queueKey] = currentURL
+		context.NowPlayingMutex.Unlock()
+
+		// Store metadata if available
+		context.TrackMetadataCacheMutex.Lock()
+		if meta, exists := context.TrackMetadataCache[queueKey][currentURL]; exists {
+			context.NowPlayingInfoMutex.Lock()
+			context.NowPlayingInfo[queueKey] = meta
+			context.NowPlayingInfoMutex.Unlock()
+		}
+		context.TrackMetadataCacheMutex.Unlock()
+
+			logging.Info("Playing song, " + strconv.Itoa(songLength) + " more in queue: " + queueKey)
 			ctx.Reply(fmt.Sprintf("Now playing: %s", currentURL))
 
 		// Create a stop channel for this song
 		context.StopMutex.Lock()
 		stop := make(chan bool)
-		context.StopChannels[ctx.GetGuildID()] = stop
+		context.StopChannels[queueKey] = stop
 		context.StopMutex.Unlock()
 
 		// Create pause channel
 		context.PauseChMutex.Lock()
 		pauseCh := make(chan bool, 1) // Buffered channel
-		context.PauseChs[ctx.GetGuildID()] = pauseCh
+		context.PauseChs[queueKey] = pauseCh
 		context.PauseChMutex.Unlock()
 
 		// Initialize pause state
 		context.PauseMutex.Lock()
-		pauseCh <- context.Paused[ctx.GetGuildID()]
+		pauseCh <- context.Paused[queueKey]
 		context.PauseMutex.Unlock()
 
 			done := make(chan bool)
@@ -65,7 +92,7 @@ func ProcessQueue(ctx *context.Context) {
 
 		// Clean up pause channel
 		context.PauseChMutex.Lock()
-		delete(context.PauseChs, ctx.GetGuildID())
+		delete(context.PauseChs, queueKey)
 		context.PauseChMutex.Unlock()
 		}
 	}()
