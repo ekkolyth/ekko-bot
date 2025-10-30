@@ -1,143 +1,323 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-
+import { createFileRoute, Link } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import {
-  Zap,
-  Server,
-  Route as RouteIcon,
   Shield,
-  Waves,
-  Sparkles,
   Music,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+  Bot,
+  Command,
+  Bell,
+  Play,
+  Users,
+  Zap,
+  CheckCircle2,
+  ArrowRight,
+  Volume2,
+  Settings,
+  Sparkles,
+  ServerIcon,
+} from 'lucide-react'
 
-export const Route = createFileRoute("/")({
-  component: App,
-});
+export const Route = createFileRoute('/')({
+  component: HomePage,
+})
 
-function App() {
+function HomePage() {
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["healthz"],
+    queryKey: ['healthz'],
     queryFn: async () => {
-      const res = await fetch("/api/healthz");
-      if (!res.ok) throw new Error("Failed to fetch");
-      return res.json();
+      const res = await fetch('/api/healthz')
+      if (!res.ok) throw new Error('Failed to fetch')
+      return res.json()
     },
     enabled: false, // Don't auto-fetch, only when button is clicked
-  });
+  })
 
   const features = [
     {
-      icon: <Zap className="w-12 h-12 text-cyan-400" />,
-      title: "Powerful Server Functions",
-      description:
-        "Write server-side code that seamlessly integrates with your client components. Type-safe, secure, and simple.",
+      icon: Shield,
+      title: 'Admin & Moderator Automation',
+      description: 'Automate moderation tasks, manage roles, and keep your server safe with intelligent auto-moderation.',
+      color: 'text-blue-400',
+      bgColor: 'bg-blue-400/10',
     },
     {
-      icon: <Server className="w-12 h-12 text-cyan-400" />,
-      title: "Flexible Server Side Rendering",
-      description:
-        "Full-document SSR, streaming, and progressive enhancement out of the box. Control exactly what renders where.",
+      icon: Music,
+      title: 'Music Bot with Web UI',
+      description: 'Advanced music player with shared playlists, queue management, and a beautiful web dashboard for control.',
+      color: 'text-purple-400',
+      bgColor: 'bg-purple-400/10',
     },
     {
-      icon: <RouteIcon className="w-12 h-12 text-cyan-400" />,
-      title: "API Routes",
-      description:
-        "Build type-safe API endpoints alongside your application. No separate backend needed.",
+      icon: Bell,
+      title: 'Stream & Podcast Alerts',
+      description: 'Get instant notifications when your favorite creators go live on Twitch, YouTube, or release new podcast episodes.',
+      color: 'text-cyan-400',
+      bgColor: 'bg-cyan-400/10',
     },
     {
-      icon: <Shield className="w-12 h-12 text-cyan-400" />,
-      title: "Strongly Typed Everything",
-      description:
-        "End-to-end type safety from server to client. Catch errors before they reach production.",
+      icon: Command,
+      title: 'Custom Commands',
+      description: 'Create unlimited custom commands to automate workflows, respond to members, and personalize your server.',
+      color: 'text-green-400',
+      bgColor: 'bg-green-400/10',
     },
     {
-      icon: <Waves className="w-12 h-12 text-cyan-400" />,
-      title: "Full Streaming Support",
-      description:
-        "Stream data from server to client progressively. Perfect for AI applications and real-time updates.",
+      icon: Users,
+      title: 'Advanced User Management',
+      description: 'Powerful tools for managing members, roles, permissions, and server settings with granular control.',
+      color: 'text-orange-400',
+      bgColor: 'bg-orange-400/10',
     },
     {
-      icon: <Sparkles className="w-12 h-12 text-cyan-400" />,
-      title: "Next Generation Ready",
-      description:
-        "Built from the ground up for modern web applications. Deploy anywhere JavaScript runs.",
+      icon: Zap,
+      title: 'Lightning Fast',
+      description: 'Built for performance with low latency, instant responses, and reliable uptime you can count on.',
+      color: 'text-yellow-400',
+      bgColor: 'bg-yellow-400/10',
     },
-  ];
+  ]
+
+  const benefits = [
+    'Zero downtime deployment',
+    'Real-time queue synchronization',
+    'Web-based dashboard included',
+    'Unlimited custom commands',
+    'Multi-guild support',
+    'Privacy-focused architecture',
+  ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
-      <section className="relative py-20 px-6 text-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-purple-500/10"></div>
-        <div className="relative max-w-5xl mx-auto">
-          <div className="flex items-center justify-center gap-6 mb-6">
-            <img
-              src="/tanstack-circle-logo.png"
-              alt="TanStack Logo"
-              className="w-24 h-24 md:w-32 md:h-32"
-            />
-            <h1 className="text-6xl md:text-7xl font-bold text-white">
-              <span className="text-gray-300">TANSTACK</span>{" "}
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-                START
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+      {/* Hero Section */}
+      <section className="relative px-6 py-24 lg:py-32 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-cyan-600/20 blur-3xl" />
+        <div className="relative max-w-7xl mx-auto">
+          <div className="text-center max-w-4xl mx-auto">
+            <Badge className="mb-6 bg-blue-500/10 text-blue-400 border-blue-500/20 hover:bg-blue-500/20">
+              <Sparkles className="w-3 h-3 mr-2" />
+              All-in-One Discord Solution
+            </Badge>
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+              Level Up Your
+              <span className="block bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                Discord Server
               </span>
             </h1>
-          </div>
-          <p className="text-2xl md:text-3xl text-gray-300 mb-4 font-light">
-            The framework for next generation AI applications
-          </p>
-          <p className="text-lg text-gray-400 max-w-3xl mx-auto mb-8">
-            Full-stack framework powered by TanStack Router for React and Solid.
-            Build modern applications with server functions, streaming, and type
-            safety.
-          </p>
-          <div className="flex flex-col items-center gap-4">
-            <Button
-              onClick={() => refetch()}
-              disabled={isLoading}
-              className="px-8 py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg transition-colors shadow-lg shadow-cyan-500/50 disabled:opacity-50"
-            >
-              <Music className="w-4 h-4 mr-2" />
-              {isLoading ? "Calling API..." : "Test Music API"}
-            </Button>
-            {data && (
-              <div className="mt-4 p-4 bg-slate-800 rounded-lg max-w-2xl w-full">
-                <pre className="text-sm text-gray-300 whitespace-pre-wrap">
-                  {JSON.stringify(data, null, 2)}
-                </pre>
-              </div>
-            )}
-            {error && (
-              <div className="mt-4 p-4 bg-red-800 rounded-lg max-w-2xl w-full">
-                <pre className="text-sm text-red-300 whitespace-pre-wrap">Error: {error.message}</pre>
-              </div>
-            )}
-            <p className="text-gray-400 text-sm mt-2">
-              Test the music API endpoint by clicking the button above
+            <p className="text-xl md:text-2xl text-slate-300 mb-8 leading-relaxed max-w-2xl mx-auto">
+              Professional-grade moderation, music streaming, alert management, and automation?all in one powerful bot.
             </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+              <Button
+                size="lg"
+                className="text-lg px-8 py-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white shadow-lg shadow-blue-500/50"
+                asChild
+              >
+                <Link to="/auth/sign-in">
+                  Get Started Free
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="text-lg px-8 py-6 border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white"
+                asChild
+              >
+                <a href="#features">View Features</a>
+              </Button>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-8 text-sm text-slate-400 mb-8">
+              {benefits.map((benefit, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                  <span>{benefit}</span>
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-col items-center gap-4">
+              <Button
+                onClick={() => refetch()}
+                disabled={isLoading}
+                variant="outline"
+                className="px-6 py-3 border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white disabled:opacity-50"
+              >
+                <ServerIcon className="size-4 mr-2" />
+                {isLoading ? 'Checking API...' : 'API Healthcheck'}
+              </Button>
+              {data && (
+                <div className="mt-4 p-4 bg-slate-800/50 rounded-lg max-w-2xl w-full border border-slate-700">
+                  <pre className="text-sm text-gray-300 whitespace-pre-wrap">
+                    {JSON.stringify(data, null, 2)}
+                  </pre>
+                </div>
+              )}
+              {error && (
+                <div className="mt-4 p-4 bg-red-900/20 rounded-lg max-w-2xl w-full border border-red-800/50">
+                  <pre className="text-sm text-red-300 whitespace-pre-wrap">
+                    Error: {error.message}
+                  </pre>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="py-16 px-6 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature, index) => (
-            <div
-              key={index}
-              className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10"
-            >
-              <div className="mb-4">{feature.icon}</div>
-              <h3 className="text-xl font-semibold text-white mb-3">
-                {feature.title}
-              </h3>
-              <p className="text-gray-400 leading-relaxed">
-                {feature.description}
+      {/* Features Section */}
+      <section id="features" className="px-6 py-24 relative">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              Everything You Need
+            </h2>
+            <p className="text-xl text-slate-400 max-w-2xl mx-auto">
+              Powerful features designed for modern Discord communities
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {features.map((feature, index) => {
+              const Icon = feature.icon
+              return (
+                <Card
+                  key={index}
+                  className="bg-slate-900/50 border-slate-800 hover:border-slate-700 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10"
+                >
+                  <CardHeader>
+                    <div
+                      className={`w-12 h-12 rounded-lg ${feature.bgColor} flex items-center justify-center mb-4`}
+                    >
+                      <Icon className={`w-6 h-6 ${feature.color}`} />
+                    </div>
+                    <CardTitle className="text-white text-xl">{feature.title}</CardTitle>
+                    <CardDescription className="text-slate-400 text-base leading-relaxed">
+                      {feature.description}
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Music Feature Highlight */}
+      <section className="px-6 py-24 bg-gradient-to-r from-purple-900/20 to-blue-900/20 border-y border-slate-800">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <Badge className="mb-4 bg-purple-500/10 text-purple-400 border-purple-500/20">
+                <Music className="w-3 h-3 mr-2" />
+                Music Experience
+              </Badge>
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+                Control Music From Anywhere
+              </h2>
+              <p className="text-xl text-slate-300 mb-8 leading-relaxed">
+                Our web dashboard lets you manage your music queue, create shared playlists, and control playback from any device?no Discord commands needed.
               </p>
+              <div className="space-y-4 mb-8">
+                {[
+                  'Web-based queue management',
+                  'Shared playlist sessions',
+                  'Cross-platform control',
+                  'Real-time synchronization',
+                ].map((item, index) => (
+                  <div key={index} className="flex items-center gap-3 text-slate-300">
+                    <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    <span className="text-lg">{item}</span>
+                  </div>
+                ))}
+              </div>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-purple-500/50 text-purple-400 hover:bg-purple-500/10 hover:text-purple-300"
+                asChild
+              >
+                <Link to="/auth/sign-in">
+                  Try Web Dashboard
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Link>
+              </Button>
             </div>
-          ))}
+            <div className="relative">
+              <Card className="bg-slate-900/80 border-slate-800">
+                <CardHeader>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                        <Play className="w-6 h-6 text-purple-400" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-white">Now Playing</CardTitle>
+                        <CardDescription>Music Bot Session</CardDescription>
+                      </div>
+                    </div>
+                    <Volume2 className="w-5 h-5 text-slate-400" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="bg-slate-800/50 rounded-lg p-4 border border-purple-500/30">
+                      <div className="text-white font-medium mb-1">Current Track</div>
+                      <div className="text-slate-400 text-sm">Example Song Title</div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="text-slate-400 text-sm font-medium">Queue (3 tracks)</div>
+                      {[1, 2, 3].map((i) => (
+                        <div
+                          key={i}
+                          className="bg-slate-800/30 rounded p-3 text-sm text-slate-300"
+                        >
+                          {i}. Upcoming track #{i}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="px-6 py-24">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-cyan-600/20 rounded-2xl p-12 border border-slate-800">
+            <Bot className="w-16 h-16 text-blue-400 mx-auto mb-6" />
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              Ready to Transform Your Server?
+            </h2>
+            <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
+              Join thousands of communities using EkkoBot to automate, entertain, and engage their members.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button
+                size="lg"
+                className="text-lg px-8 py-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white shadow-lg shadow-blue-500/50"
+                asChild
+              >
+                <Link to="/auth/sign-in">
+                  Get Started Now
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="ghost"
+                className="text-lg px-8 py-6 text-slate-300 hover:text-white hover:bg-slate-800"
+              >
+                <Settings className="mr-2 w-5 h-5" />
+                View Documentation
+              </Button>
+            </div>
+          </div>
         </div>
       </section>
     </div>
-  );
+  )
 }
