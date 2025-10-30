@@ -2,6 +2,7 @@ package media
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/binary"
 	"io"
 	"os/exec"
@@ -31,7 +32,15 @@ func StreamAudio(v *discordgo.VoiceConnection, url string, stop <-chan bool, pau
 		"-o", "-",
 		url) // Get only audio, best quality
 
+	// Capture stderr for error logging
+	ytDlpStderr := &bytes.Buffer{}
+	ytDlpCmd.Stderr = ytDlpStderr
+
 	ffmpegCmd := exec.Command("ffmpeg", "-i", "pipe:0", "-f", "s16le", "-ar", strconv.Itoa(config.FrameRate), "-ac", strconv.Itoa(config.Channels), "pipe:1")
+
+	// Capture stderr for error logging
+	ffmpegStderr := &bytes.Buffer{}
+	ffmpegCmd.Stderr = ffmpegStderr
 
 	// Setup proper cleanup to ensure processes terminate
 	defer func() {
@@ -74,8 +83,23 @@ func StreamAudio(v *discordgo.VoiceConnection, url string, stop <-chan bool, pau
 	err = ffmpegCmd.Start()
 	if err != nil {
 		OnError("ffmpeg Start Error", err)
+		// Check for stderr output from yt-dlp
+		if ytDlpStderr.Len() > 0 {
+			OnError("yt-dlp stderr: "+ytDlpStderr.String(), nil)
+		}
 		return
 	}
+
+	// Monitor processes for errors in background
+	go func() {
+		if err := ytDlpCmd.Wait(); err != nil {
+			if ytDlpStderr.Len() > 0 {
+				OnError("yt-dlp failed: "+ytDlpStderr.String(), err)
+			} else {
+				OnError("yt-dlp process exited with error", err)
+			}
+		}
+	}()
 
 	// Pipe yt-dlp output to ffmpeg input
 	go func() {

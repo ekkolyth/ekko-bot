@@ -20,16 +20,24 @@ func (ctx *Context) ArgumentstoString() string {
 // Convert raw arguments to standard types (not sanitised)
 func (ctx *Context) standardiseArguments() {
 	switch ctx.CommandName {
-case "play": // url string
+case "play": // url string (also support old "song" parameter name)
+    var urlValue string
+    // Try "url" first (new format), then "song" (old format)
     if val, exists := ctx.getArgumentRaw("url"); exists {
         if strVal, ok := val.(string); ok {
-            ctx.Arguments["url"] = strVal
-        } else {
-            ctx.Arguments["url"] = ""
+            urlValue = strings.TrimSpace(strVal)
         }
-    } else {
-        ctx.Arguments["url"] = ""
+    } else if val, exists := ctx.getArgumentRaw("song"); exists {
+        // Support old command format that used "song" parameter
+        if strVal, ok := val.(string); ok {
+            urlValue = strings.TrimSpace(strVal)
+        }
     }
+    // Strip any leading "/play " prefix that Discord might include
+    if strings.HasPrefix(urlValue, "/play ") {
+        urlValue = strings.TrimPrefix(urlValue, "/play ")
+    }
+    ctx.Arguments["url"] = strings.TrimSpace(urlValue)
 	case "search": // query string
 		if val, exists := ctx.getArgumentRaw("query"); exists {
 			if strVal, ok := val.(string); ok {

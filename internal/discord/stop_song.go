@@ -15,6 +15,9 @@ func StopSong(ctx *context.Context) {
 		return
 	}
 
+	// Notify the user first (before goroutine that might affect context)
+	ctx.Reply("Stopped playback and cleared the queue.")
+
 	// Signal the current song to stop
 	context.StopMutex.Lock()
 	if stopChan, exists := context.StopChannels[ctx.GetGuildID()]; exists {
@@ -44,7 +47,4 @@ func StopSong(ctx *context.Context) {
 			logging.Error("Error disconnecting from voice channel: " + err.Error())
 		}
 	}()
-
-	// Notify the user
-	ctx.Reply("Stopped playback and cleared the queue.")
 }
