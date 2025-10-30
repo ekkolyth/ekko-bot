@@ -187,9 +187,9 @@ function HomePage() {
                 >
                   <CardHeader>
                     <div
-                      className={`w-12 h-12 rounded-lg ${feature.bgColor} flex items-center justify-center mb-4`}
+                      className={`size-12 rounded-lg ${feature.bgColor} flex items-center justify-center mb-4`}
                     >
-                      <Icon className={`w-6 h-6 ${feature.color}`} />
+                      <Icon className={`size-6 ${feature.color}`} />
                     </div>
                     <CardTitle className="text-white text-xl">{feature.title}</CardTitle>
                     <CardDescription className="text-slate-400 text-base leading-relaxed">
