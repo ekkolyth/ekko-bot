@@ -18,6 +18,8 @@ import { Label } from '@/components/ui/label';
 import { useVoiceChannels } from '@/hooks/use-voice-channels';
 import { useHasDiscord } from '@/hooks/use-has-discord';
 import { useAddToQueue } from '@/hooks/use-add-to-queue';
+import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
+import { Play, Volume2 } from 'lucide-react';
 
 export const Route = createFileRoute('/(authenticated)/dashboard/')({
   component: Dashboard,
@@ -67,7 +69,6 @@ function Dashboard() {
       },
     });
 
-    // nothing to reset per guild anymore (single-tenant)
 
     const handleSubmit = async (url: string) => {
       setMessage('');
@@ -111,8 +112,8 @@ function Dashboard() {
                   channelsLoading
                     ? 'Loading channels...'
                     : voiceChannels.length === 0
-                    ? 'No voice channels available'
-                    : 'Select a voice channel'
+                      ? 'No voice channels available'
+                      : 'Select a voice channel'
                 }
               />
             </SelectTrigger>
@@ -162,6 +163,45 @@ function Dashboard() {
     <div className='container p-8 space-y-4'>
       <h1 className='text-2xl font-bold'>Welcome, {session?.user.name}!</h1>
       <InputURL />
+      <Card className="bg-slate-900/80 border-slate-800">
+        <CardHeader>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                <Play className="w-6 h-6 text-purple-400" />
+              </div>
+              <div>
+                <CardTitle className="text-white">Now Playing</CardTitle>
+                <CardDescription>Music Bot Session</CardDescription>
+              </div>
+            </div>
+            <Volume2 className="w-5 h-5 text-slate-400" />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            <div className="bg-slate-800/50 rounded-lg p-4 border border-purple-500/30">
+              <div className="text-white font-medium mb-1">Current Track</div>
+              <div className="text-slate-400 text-sm">Example Song Title</div>
+            </div>
+            <div className="space-y-2">
+              <div className="text-slate-400 text-sm font-medium">Queue (3 tracks)</div>
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="bg-slate-800/30 rounded p-3 text-sm text-slate-300"
+                >
+                  {i}. Upcoming track #{i}
+                </div>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
+
+
+
+
   );
 }
