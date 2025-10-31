@@ -20,6 +20,7 @@ import { Route as AuthConnectRouteImport } from './routes/auth/connect'
 import { Route as ApiQueueIndexRouteImport } from './routes/api/queue/index'
 import { Route as ApiHealthzIndexRouteImport } from './routes/api/healthz/index'
 import { Route as ApiGuildsIndexRouteImport } from './routes/api/guilds/index'
+import { Route as authenticatedMusicIndexRouteImport } from './routes/(authenticated)/music/index'
 import { Route as authenticatedDashboardIndexRouteImport } from './routes/(authenticated)/dashboard/index'
 import { Route as ApiAuthHasDiscordRouteImport } from './routes/api/auth/has-discord'
 import { Route as ApiAuthDeleteAutoCreatedAccountRouteImport } from './routes/api/auth/delete-auto-created-account'
@@ -85,6 +86,11 @@ const ApiGuildsIndexRoute = ApiGuildsIndexRouteImport.update({
   id: '/api/guilds/',
   path: '/api/guilds/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const authenticatedMusicIndexRoute = authenticatedMusicIndexRouteImport.update({
+  id: '/music/',
+  path: '/music/',
+  getParentRoute: () => authenticatedRouteRoute,
 } as any)
 const authenticatedDashboardIndexRoute =
   authenticatedDashboardIndexRouteImport.update({
@@ -159,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/delete-auto-created-account': typeof ApiAuthDeleteAutoCreatedAccountRoute
   '/api/auth/has-discord': typeof ApiAuthHasDiscordRoute
   '/dashboard': typeof authenticatedDashboardIndexRoute
+  '/music': typeof authenticatedMusicIndexRoute
   '/api/guilds': typeof ApiGuildsIndexRoute
   '/api/healthz': typeof ApiHealthzIndexRoute
   '/api/queue': typeof ApiQueueIndexRoute
@@ -182,6 +189,7 @@ export interface FileRoutesByTo {
   '/api/auth/delete-auto-created-account': typeof ApiAuthDeleteAutoCreatedAccountRoute
   '/api/auth/has-discord': typeof ApiAuthHasDiscordRoute
   '/dashboard': typeof authenticatedDashboardIndexRoute
+  '/music': typeof authenticatedMusicIndexRoute
   '/api/guilds': typeof ApiGuildsIndexRoute
   '/api/healthz': typeof ApiHealthzIndexRoute
   '/api/queue': typeof ApiQueueIndexRoute
@@ -207,6 +215,7 @@ export interface FileRoutesById {
   '/api/auth/delete-auto-created-account': typeof ApiAuthDeleteAutoCreatedAccountRoute
   '/api/auth/has-discord': typeof ApiAuthHasDiscordRoute
   '/(authenticated)/dashboard/': typeof authenticatedDashboardIndexRoute
+  '/(authenticated)/music/': typeof authenticatedMusicIndexRoute
   '/api/guilds/': typeof ApiGuildsIndexRoute
   '/api/healthz/': typeof ApiHealthzIndexRoute
   '/api/queue/': typeof ApiQueueIndexRoute
@@ -232,6 +241,7 @@ export interface FileRouteTypes {
     | '/api/auth/delete-auto-created-account'
     | '/api/auth/has-discord'
     | '/dashboard'
+    | '/music'
     | '/api/guilds'
     | '/api/healthz'
     | '/api/queue'
@@ -255,6 +265,7 @@ export interface FileRouteTypes {
     | '/api/auth/delete-auto-created-account'
     | '/api/auth/has-discord'
     | '/dashboard'
+    | '/music'
     | '/api/guilds'
     | '/api/healthz'
     | '/api/queue'
@@ -279,6 +290,7 @@ export interface FileRouteTypes {
     | '/api/auth/delete-auto-created-account'
     | '/api/auth/has-discord'
     | '/(authenticated)/dashboard/'
+    | '/(authenticated)/music/'
     | '/api/guilds/'
     | '/api/healthz/'
     | '/api/queue/'
@@ -388,6 +400,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiGuildsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(authenticated)/music/': {
+      id: '/(authenticated)/music/'
+      path: '/music'
+      fullPath: '/music'
+      preLoaderRoute: typeof authenticatedMusicIndexRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
     '/(authenticated)/dashboard/': {
       id: '/(authenticated)/dashboard/'
       path: '/dashboard'
@@ -470,10 +489,12 @@ declare module '@tanstack/react-router' {
 
 interface authenticatedRouteRouteChildren {
   authenticatedDashboardIndexRoute: typeof authenticatedDashboardIndexRoute
+  authenticatedMusicIndexRoute: typeof authenticatedMusicIndexRoute
 }
 
 const authenticatedRouteRouteChildren: authenticatedRouteRouteChildren = {
   authenticatedDashboardIndexRoute: authenticatedDashboardIndexRoute,
+  authenticatedMusicIndexRoute: authenticatedMusicIndexRoute,
 }
 
 const authenticatedRouteRouteWithChildren =

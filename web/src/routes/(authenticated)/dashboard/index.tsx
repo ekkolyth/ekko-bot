@@ -1,78 +1,32 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { Card } from '@/components/ui/card'
+import { createFileRoute } from '@tanstack/react-router'
+import { Music } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
 import { authClient } from '@/lib/auth/client'
-import { Card, CardContent } from '@/components/ui/card'
-import { Music2 } from 'lucide-react'
-import { useState } from 'react'
-import { MusicPlayer } from './_components/MusicPlayer'
-import { VoiceChannelSelect } from './_components/VoiceChannels'
-import { AddToQueue } from './_components/AddToQueue'
-import { useVoiceChannels } from '@/hooks/use-voice-channels'
 
 export const Route = createFileRoute('/(authenticated)/dashboard/')({
-  component: Dashboard,
-  beforeLoad: async () => {
-    const session = await authClient.getSession()
-    if (!session) {
-      throw redirect({ to: '/auth/sign-in' })
-    }
-
-    const response = await fetch('/api/auth/has-discord')
-    if (response.ok) {
-      const data = await response.json()
-      if (!data.hasDiscord) {
-        throw redirect({ to: '/auth/connect' })
-      }
-    }
-  },
+  component: RouteComponent,
 })
 
-function Dashboard() {
+function RouteComponent() {
   const { data: session } = authClient.useSession()
-  const [selectedChannelId, setSelectedChannelId] = useState<string | null>(null)
-
-  const {
-    data: voiceChannels = [],
-  } = useVoiceChannels()
-
-  const selectedChannel = voiceChannels.find((ch) => ch.id === selectedChannelId)
 
   return (
-    <div className="container max-w-7xl mx-auto p-4 md:p-8">
+    <div className='p-8'>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Welcome, {session?.user.name}!</h1>
-        <p className="text-slate-400">Control your music bot from here</p>
+        <h1 className="text-3xl font-bold mb-2 text-foreground">Welcome, {session?.user.name}!</h1>
       </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Sidebar - Channel List & Add Song */}
-        <div className="lg:col-span-4 space-y-4">
-          <VoiceChannelSelect
-            selectedChannelId={selectedChannelId}
-            onSelect={setSelectedChannelId}
-          />
-
-        </div>
-
-        {/* Right Side - Music Player */}
-        <div className="lg:col-span-8">
-          <AddToQueue selectedChannelId={selectedChannelId} />
-          {selectedChannelId && selectedChannel ? (
-            <MusicPlayer
-              voiceChannelId={selectedChannelId}
-              voiceChannelName={selectedChannel.name}
-            />
-          ) : (
-            <Card className="bg-card border-border">
-              <CardContent className="py-16">
-                <div className="text-center text-muted-foreground">
-                  <Music2 className="w-16 h-16 mx-auto mb-4" />
-                  <p className="text-lg">Select a voice channel to view the player</p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      </div>
+      <Link to='/music'>
+        <Card className='bg-card p-8'>
+          <div className='flex flex-row gap-2 items-center'>
+            <div className='p-2 rounded-md border border-border'>
+              <Music className='size-5' />
+            </div>
+            <h1 className='text-2xl font-semibold'>Listen to Music</h1>
+          </div>
+          <p className=''>Enjoy your favorite tunes from YouTube.</p>
+        </Card>
+      </Link>
     </div>
   )
 }
