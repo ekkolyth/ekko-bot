@@ -29,7 +29,7 @@ export const Route = createFileRoute('/(authenticated)/dashboard/')({
     if (response.ok) {
       const data = await response.json();
       if (!data.hasDiscord) {
-        throw redirect({ to: '/auth/connect-discord' });
+        throw redirect({ to: '/auth/connect' });
       }
     }
   },
@@ -77,7 +77,7 @@ function Dashboard() {
     }
   };
 
-  const selectedChannel = voiceChannels.find(ch => ch.id === selectedChannelId);
+  const selectedChannel = voiceChannels.find((ch) => ch.id === selectedChannelId);
 
   return (
     <div className='container max-w-7xl mx-auto p-4 md:p-8'>
@@ -90,38 +90,42 @@ function Dashboard() {
         {/* Left Sidebar - Channel List & Add Song */}
         <div className='lg:col-span-4 space-y-4'>
           {/* Voice Channels Card */}
-          <Card className="bg-slate-900/80 border-slate-800">
+          <Card className='bg-slate-900/80 border-slate-800'>
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Music2 className="w-5 h-5 text-purple-400" />
+              <CardTitle className='text-white flex items-center gap-2'>
+                <Music2 className='w-5 h-5 text-purple-400' />
                 Voice Channels
               </CardTitle>
             </CardHeader>
             <CardContent>
               {channelsLoading ? (
-                <div className="text-center py-4 text-slate-400">Loading channels...</div>
+                <div className='text-center py-4 text-slate-400'>Loading channels...</div>
               ) : channelsError ? (
-                <div className="text-center py-4 text-red-400">Failed to load channels</div>
+                <div className='text-center py-4 text-red-400'>Failed to load channels</div>
               ) : voiceChannels.length === 0 ? (
-                <div className="text-center py-4 text-slate-400">No voice channels available</div>
+                <div className='text-center py-4 text-slate-400'>No voice channels available</div>
               ) : (
-                <div className="space-y-1">
+                <div className='space-y-1'>
                   {voiceChannels.map((channel) => (
                     <button
                       key={channel.id}
                       onClick={() => setSelectedChannelId(channel.id)}
                       className={cn(
-                        "w-full text-left px-4 py-3 rounded-lg transition-all flex items-center justify-between group",
+                        'w-full text-left px-4 py-3 rounded-lg transition-all flex items-center justify-between group',
                         selectedChannelId === channel.id
-                          ? "bg-purple-500/20 border border-purple-500/50 text-white"
-                          : "bg-slate-800/30 hover:bg-slate-800/50 border border-transparent text-slate-300"
+                          ? 'bg-purple-500/20 border border-purple-500/50 text-white'
+                          : 'bg-slate-800/30 hover:bg-slate-800/50 border border-transparent text-slate-300'
                       )}
                     >
-                      <span className="font-medium">{channel.name}</span>
-                      <ChevronRight className={cn(
-                        "w-4 h-4 transition-transform",
-                        selectedChannelId === channel.id ? "text-purple-400" : "text-slate-500 group-hover:text-slate-400"
-                      )} />
+                      <span className='font-medium'>{channel.name}</span>
+                      <ChevronRight
+                        className={cn(
+                          'w-4 h-4 transition-transform',
+                          selectedChannelId === channel.id
+                            ? 'text-purple-400'
+                            : 'text-slate-500 group-hover:text-slate-400'
+                        )}
+                      />
                     </button>
                   ))}
                 </div>
@@ -130,9 +134,9 @@ function Dashboard() {
           </Card>
 
           {/* Add to Queue Card */}
-          <Card className="bg-slate-900/80 border-slate-800">
+          <Card className='bg-slate-900/80 border-slate-800'>
             <CardHeader>
-              <CardTitle className="text-white text-lg">Add to Queue</CardTitle>
+              <CardTitle className='text-white text-lg'>Add to Queue</CardTitle>
             </CardHeader>
             <CardContent>
               <form
@@ -145,7 +149,12 @@ function Dashboard() {
                 <form.Field name='URL'>
                   {(field) => (
                     <Field>
-                      <Label htmlFor='url' className="text-slate-300">YouTube URL</Label>
+                      <Label
+                        htmlFor='url'
+                        className='text-slate-300'
+                      >
+                        YouTube URL
+                      </Label>
                       <Input
                         id='url'
                         type='url'
@@ -155,7 +164,7 @@ function Dashboard() {
                         onChange={(event) => field.handleChange(event.target.value)}
                         onBlur={field.handleBlur}
                         required
-                        className="bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500"
+                        className='bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500'
                       />
                     </Field>
                   )}
@@ -163,7 +172,7 @@ function Dashboard() {
                 <Button
                   type='submit'
                   disabled={!selectedChannelId || addToQueue.isPending}
-                  className="w-full bg-purple-600 hover:bg-purple-500"
+                  className='w-full bg-purple-600 hover:bg-purple-500'
                 >
                   {addToQueue.isPending ? 'Adding...' : 'Add to Queue'}
                 </Button>
@@ -181,16 +190,16 @@ function Dashboard() {
         {/* Right Side - Music Player */}
         <div className='lg:col-span-8'>
           {selectedChannelId && selectedChannel ? (
-            <MusicPlayer 
-              voiceChannelId={selectedChannelId} 
+            <MusicPlayer
+              voiceChannelId={selectedChannelId}
               voiceChannelName={selectedChannel.name}
             />
           ) : (
-            <Card className="bg-slate-900/80 border-slate-800">
-              <CardContent className="py-16">
-                <div className="text-center text-slate-400">
-                  <Music2 className="w-16 h-16 mx-auto mb-4 text-slate-600" />
-                  <p className="text-lg">Select a voice channel to view the player</p>
+            <Card className='bg-slate-900/80 border-slate-800'>
+              <CardContent className='py-16'>
+                <div className='text-center text-slate-400'>
+                  <Music2 className='w-16 h-16 mx-auto mb-4 text-slate-600' />
+                  <p className='text-lg'>Select a voice channel to view the player</p>
                 </div>
               </CardContent>
             </Card>

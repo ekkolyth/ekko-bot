@@ -12,10 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteRouteImport } from './routes/auth/route'
 import { Route as authenticatedRouteRouteImport } from './routes/(authenticated)/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthVerifyRouteImport } from './routes/auth/verify'
+import { Route as AuthVerifyDiscordLinkRouteImport } from './routes/auth/verify-discord-link'
+import { Route as AuthVerifyDiscordRouteImport } from './routes/auth/verify-discord'
 import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
-import { Route as AuthLinkRouteImport } from './routes/auth/link'
 import { Route as AuthConnectRouteImport } from './routes/auth/connect'
 import { Route as ApiQueueIndexRouteImport } from './routes/api/queue/index'
 import { Route as ApiHealthzIndexRouteImport } from './routes/api/healthz/index'
@@ -46,9 +46,14 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthVerifyRoute = AuthVerifyRouteImport.update({
-  id: '/verify',
-  path: '/verify',
+const AuthVerifyDiscordLinkRoute = AuthVerifyDiscordLinkRouteImport.update({
+  id: '/verify-discord-link',
+  path: '/verify-discord-link',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthVerifyDiscordRoute = AuthVerifyDiscordRouteImport.update({
+  id: '/verify-discord',
+  path: '/verify-discord',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 const AuthSignUpRoute = AuthSignUpRouteImport.update({
@@ -59,11 +64,6 @@ const AuthSignUpRoute = AuthSignUpRouteImport.update({
 const AuthSignInRoute = AuthSignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
-const AuthLinkRoute = AuthLinkRouteImport.update({
-  id: '/link',
-  path: '/link',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 const AuthConnectRoute = AuthConnectRouteImport.update({
@@ -150,10 +150,10 @@ export interface FileRoutesByFullPath {
   '/': typeof authenticatedRouteRouteWithChildren
   '/auth': typeof AuthRouteRouteWithChildren
   '/auth/connect': typeof AuthConnectRoute
-  '/auth/link': typeof AuthLinkRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
-  '/auth/verify': typeof AuthVerifyRoute
+  '/auth/verify-discord': typeof AuthVerifyDiscordRoute
+  '/auth/verify-discord-link': typeof AuthVerifyDiscordLinkRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/check-password-account': typeof ApiAuthCheckPasswordAccountRoute
   '/api/auth/delete-auto-created-account': typeof ApiAuthDeleteAutoCreatedAccountRoute
@@ -173,10 +173,10 @@ export interface FileRoutesByTo {
   '/': typeof authenticatedRouteRouteWithChildren
   '/auth': typeof AuthRouteRouteWithChildren
   '/auth/connect': typeof AuthConnectRoute
-  '/auth/link': typeof AuthLinkRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
-  '/auth/verify': typeof AuthVerifyRoute
+  '/auth/verify-discord': typeof AuthVerifyDiscordRoute
+  '/auth/verify-discord-link': typeof AuthVerifyDiscordLinkRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/check-password-account': typeof ApiAuthCheckPasswordAccountRoute
   '/api/auth/delete-auto-created-account': typeof ApiAuthDeleteAutoCreatedAccountRoute
@@ -198,10 +198,10 @@ export interface FileRoutesById {
   '/(authenticated)': typeof authenticatedRouteRouteWithChildren
   '/auth': typeof AuthRouteRouteWithChildren
   '/auth/connect': typeof AuthConnectRoute
-  '/auth/link': typeof AuthLinkRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
-  '/auth/verify': typeof AuthVerifyRoute
+  '/auth/verify-discord': typeof AuthVerifyDiscordRoute
+  '/auth/verify-discord-link': typeof AuthVerifyDiscordLinkRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/check-password-account': typeof ApiAuthCheckPasswordAccountRoute
   '/api/auth/delete-auto-created-account': typeof ApiAuthDeleteAutoCreatedAccountRoute
@@ -223,10 +223,10 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/auth/connect'
-    | '/auth/link'
     | '/auth/sign-in'
     | '/auth/sign-up'
-    | '/auth/verify'
+    | '/auth/verify-discord'
+    | '/auth/verify-discord-link'
     | '/api/auth/$'
     | '/api/auth/check-password-account'
     | '/api/auth/delete-auto-created-account'
@@ -246,10 +246,10 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/auth/connect'
-    | '/auth/link'
     | '/auth/sign-in'
     | '/auth/sign-up'
-    | '/auth/verify'
+    | '/auth/verify-discord'
+    | '/auth/verify-discord-link'
     | '/api/auth/$'
     | '/api/auth/check-password-account'
     | '/api/auth/delete-auto-created-account'
@@ -270,10 +270,10 @@ export interface FileRouteTypes {
     | '/(authenticated)'
     | '/auth'
     | '/auth/connect'
-    | '/auth/link'
     | '/auth/sign-in'
     | '/auth/sign-up'
-    | '/auth/verify'
+    | '/auth/verify-discord'
+    | '/auth/verify-discord-link'
     | '/api/auth/$'
     | '/api/auth/check-password-account'
     | '/api/auth/delete-auto-created-account'
@@ -332,11 +332,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth/verify': {
-      id: '/auth/verify'
-      path: '/verify'
-      fullPath: '/auth/verify'
-      preLoaderRoute: typeof AuthVerifyRouteImport
+    '/auth/verify-discord-link': {
+      id: '/auth/verify-discord-link'
+      path: '/verify-discord-link'
+      fullPath: '/auth/verify-discord-link'
+      preLoaderRoute: typeof AuthVerifyDiscordLinkRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/auth/verify-discord': {
+      id: '/auth/verify-discord'
+      path: '/verify-discord'
+      fullPath: '/auth/verify-discord'
+      preLoaderRoute: typeof AuthVerifyDiscordRouteImport
       parentRoute: typeof AuthRouteRoute
     }
     '/auth/sign-up': {
@@ -351,13 +358,6 @@ declare module '@tanstack/react-router' {
       path: '/sign-in'
       fullPath: '/auth/sign-in'
       preLoaderRoute: typeof AuthSignInRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
-    '/auth/link': {
-      id: '/auth/link'
-      path: '/link'
-      fullPath: '/auth/link'
-      preLoaderRoute: typeof AuthLinkRouteImport
       parentRoute: typeof AuthRouteRoute
     }
     '/auth/connect': {
@@ -481,18 +481,18 @@ const authenticatedRouteRouteWithChildren =
 
 interface AuthRouteRouteChildren {
   AuthConnectRoute: typeof AuthConnectRoute
-  AuthLinkRoute: typeof AuthLinkRoute
   AuthSignInRoute: typeof AuthSignInRoute
   AuthSignUpRoute: typeof AuthSignUpRoute
-  AuthVerifyRoute: typeof AuthVerifyRoute
+  AuthVerifyDiscordRoute: typeof AuthVerifyDiscordRoute
+  AuthVerifyDiscordLinkRoute: typeof AuthVerifyDiscordLinkRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthConnectRoute: AuthConnectRoute,
-  AuthLinkRoute: AuthLinkRoute,
   AuthSignInRoute: AuthSignInRoute,
   AuthSignUpRoute: AuthSignUpRoute,
-  AuthVerifyRoute: AuthVerifyRoute,
+  AuthVerifyDiscordRoute: AuthVerifyDiscordRoute,
+  AuthVerifyDiscordLinkRoute: AuthVerifyDiscordLinkRoute,
 }
 
 const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
