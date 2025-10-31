@@ -1,14 +1,14 @@
 package handlers
 
 import (
-    "net/http"
-    "os"
+	"net/http"
+	"os"
 
-    "github.com/bwmarrin/discordgo"
-    "github.com/ekkolyth/ekko-bot/internal/api/httpx"
-    appctx "github.com/ekkolyth/ekko-bot/internal/context"
-    "github.com/ekkolyth/ekko-bot/internal/discord"
-    "github.com/ekkolyth/ekko-bot/internal/logging"
+	"github.com/bwmarrin/discordgo"
+	"github.com/ekkolyth/ekko-bot/internal/api/httpx"
+	appctx "github.com/ekkolyth/ekko-bot/internal/context"
+	"github.com/ekkolyth/ekko-bot/internal/discord"
+	"github.com/ekkolyth/ekko-bot/internal/logging"
 )
 
 // getGuildID reads and validates DISCORD_GUILD_ID from environment
@@ -18,11 +18,11 @@ func getGuildID() (string, string) {
 	if guildID == "" {
 		return "", "Missing DISCORD_GUILD_ID environment variable"
 	}
-	
+
 	if !httpx.ValidDiscordSnowflake(guildID) {
 		return "", "Invalid DISCORD_GUILD_ID: must be a valid Discord snowflake (numeric, not \"_\")"
 	}
-	
+
 	return guildID, ""
 }
 
@@ -111,7 +111,7 @@ func QueueGet() http.HandlerFunc {
         // Convert to tracks - include now playing as position 0 if it exists
         tracks := make([]queueTrack, 0)
         position := 0
-        
+
         // Add currently playing track first
         if nowPlayingURL != "" {
             track := queueTrack{
@@ -147,7 +147,7 @@ func QueueGet() http.HandlerFunc {
             tracks = append(tracks, track)
             position++
         }
-        
+
         // Add queued tracks
         for _, url := range queueURLs {
             track := queueTrack{
@@ -244,7 +244,7 @@ func QueueAdd() http.HandlerFunc {
             ArgumentsRaw:           make(map[string]any),
         }
 
-        logging.Info("API queue.add discord_user_id=" + request.DiscordUserID + " discord_tag=" + request.DiscordTag + " guild_id=" + guildID + " voice_channel_id=" + request.VoiceChannelID)
+        logging.Api("queue.add user:" + request.DiscordTag+ request.DiscordUserID + " discord_tag=")
 
         discord.AddSong(ctx, false, request.URL)
 
@@ -292,7 +292,7 @@ func QueueRemove() http.HandlerFunc {
         defer appctx.QueueMutex.Unlock()
 
         queue := appctx.Queue[queueKey]
-        
+
         // Adjust position: if there's a now playing track, frontend position 0 is that track,
         // so frontend position N maps to queue position N-1
         queuePosition := request.Position
