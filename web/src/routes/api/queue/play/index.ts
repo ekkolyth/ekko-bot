@@ -8,7 +8,7 @@ export const Route = createFileRoute('/api/queue/play/')({
     handlers: {
       POST: async ({ request }: { request: Request }) => {
         if (!baseURL) {
-          return json({ error: 'Server Error: BOT_API_URL not set' }, { status: 500 });
+          return json({ error: 'Server Error: API_URL not set' }, { status: 500 });
         }
 
         const session = await auth.api.getSession({ headers: request.headers });
@@ -16,7 +16,9 @@ export const Route = createFileRoute('/api/queue/play/')({
           return json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const requestBody = (await request.json().catch(() => null)) as { voice_channel_id: string } | null;
+        const requestBody = (await request.json().catch(() => null)) as {
+          voice_channel_id: string;
+        } | null;
         if (!requestBody || !requestBody.voice_channel_id) {
           return json({ error: 'Missing voice_channel_id' }, { status: 400 });
         }
@@ -45,4 +47,3 @@ export const Route = createFileRoute('/api/queue/play/')({
     },
   },
 });
-

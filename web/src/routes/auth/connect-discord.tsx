@@ -1,34 +1,30 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 import { authClient } from '@/lib/auth/client';
-import { useEffect } from 'react';
 import { Card, CardHeader, CardContent, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useHasDiscord } from '@/hooks/use-has-discord';
 
 export const Route = createFileRoute('/auth/connect-discord')({
   component: ConnectDiscord,
+  beforeLoad: async () => {
+    const session = await authClient.getSession();
+
+    // If not logged in, redirect to sign-in
+    if (!session) {
+      throw redirect({ to: '/auth/sign-in' });
+    }
+
+    // Check if Discord is already connected
+    const response = await fetch('/api/auth/has-discord');
+    if (response.ok) {
+      const data = await response.json();
+      if (data.hasDiscord) {
+        throw redirect({ to: '/dashboard' });
+      }
+    }
+  },
 });
 
 function ConnectDiscord() {
-  const { data: session, isPending } = authClient.useSession();
-  const navigate = useNavigate();
-  const { data: hasDiscord, isPending: discordPending } = useHasDiscord();
-
-  // Check if Discord is already connected
-  useEffect(() => {
-    if (!discordPending && hasDiscord) {
-      // Already connected, go to dashboard
-      navigate({ to: '/dashboard' });
-    }
-  }, [hasDiscord, discordPending, navigate]);
-
-  // If not logged in, redirect to sign-in
-  useEffect(() => {
-    if (!isPending && !session) {
-      navigate({ to: '/auth/sign-in' });
-    }
-  }, [session, isPending, navigate]);
-
   const handleConnectDiscord = async () => {
     await authClient.signIn.social({
       provider: 'discord',
@@ -36,20 +32,12 @@ function ConnectDiscord() {
     });
   };
 
-  if (isPending || discordPending) {
-    return (
-      <div className='flex w-full h-screen justify-center items-center'>
-        <p>Loading...</p>
-      </div>
-    );
-  }
-
   return (
     <div className='flex w-full h-screen justify-center items-center'>
       <Card className='max-w-md p-6'>
-        <CardHeader>Connect Your Discord Account</CardHeader>
+        <CardHeader>Link your Discord account</CardHeader>
         <CardDescription className='mb-4'>
-          To use the music bot, you need to connect your Discord account.
+          To use the music bot, you need to link your Discord account.
         </CardDescription>
         <CardContent className='px-0'>
           <Button
@@ -57,7 +45,7 @@ function ConnectDiscord() {
             type='button'
             className='w-full discord-button'
           >
-            Connect Discord Account
+            Sign In with Discord
           </Button>
         </CardContent>
       </Card>

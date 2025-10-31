@@ -20,6 +20,8 @@ import { Route as ApiHealthzIndexRouteImport } from './routes/api/healthz/index'
 import { Route as ApiGuildsIndexRouteImport } from './routes/api/guilds/index'
 import { Route as authenticatedDashboardIndexRouteImport } from './routes/(authenticated)/dashboard/index'
 import { Route as ApiAuthHasDiscordRouteImport } from './routes/api/auth/has-discord'
+import { Route as ApiAuthDeleteAutoCreatedAccountRouteImport } from './routes/api/auth/delete-auto-created-account'
+import { Route as ApiAuthCheckPasswordAccountRouteImport } from './routes/api/auth/check-password-account'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiQueueSkipIndexRouteImport } from './routes/api/queue/skip/index'
 import { Route as ApiQueueRemoveIndexRouteImport } from './routes/api/queue/remove/index'
@@ -84,6 +86,18 @@ const ApiAuthHasDiscordRoute = ApiAuthHasDiscordRouteImport.update({
   path: '/api/auth/has-discord',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAuthDeleteAutoCreatedAccountRoute =
+  ApiAuthDeleteAutoCreatedAccountRouteImport.update({
+    id: '/api/auth/delete-auto-created-account',
+    path: '/api/auth/delete-auto-created-account',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAuthCheckPasswordAccountRoute =
+  ApiAuthCheckPasswordAccountRouteImport.update({
+    id: '/api/auth/check-password-account',
+    path: '/api/auth/check-password-account',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -129,6 +143,8 @@ export interface FileRoutesByFullPath {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/auth/verify-discord': typeof AuthVerifyDiscordRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/auth/check-password-account': typeof ApiAuthCheckPasswordAccountRoute
+  '/api/auth/delete-auto-created-account': typeof ApiAuthDeleteAutoCreatedAccountRoute
   '/api/auth/has-discord': typeof ApiAuthHasDiscordRoute
   '/dashboard': typeof authenticatedDashboardIndexRoute
   '/api/guilds': typeof ApiGuildsIndexRoute
@@ -149,6 +165,8 @@ export interface FileRoutesByTo {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/auth/verify-discord': typeof AuthVerifyDiscordRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/auth/check-password-account': typeof ApiAuthCheckPasswordAccountRoute
+  '/api/auth/delete-auto-created-account': typeof ApiAuthDeleteAutoCreatedAccountRoute
   '/api/auth/has-discord': typeof ApiAuthHasDiscordRoute
   '/dashboard': typeof authenticatedDashboardIndexRoute
   '/api/guilds': typeof ApiGuildsIndexRoute
@@ -170,6 +188,8 @@ export interface FileRoutesById {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/auth/verify-discord': typeof AuthVerifyDiscordRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/auth/check-password-account': typeof ApiAuthCheckPasswordAccountRoute
+  '/api/auth/delete-auto-created-account': typeof ApiAuthDeleteAutoCreatedAccountRoute
   '/api/auth/has-discord': typeof ApiAuthHasDiscordRoute
   '/(authenticated)/dashboard/': typeof authenticatedDashboardIndexRoute
   '/api/guilds/': typeof ApiGuildsIndexRoute
@@ -192,6 +212,8 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/auth/verify-discord'
     | '/api/auth/$'
+    | '/api/auth/check-password-account'
+    | '/api/auth/delete-auto-created-account'
     | '/api/auth/has-discord'
     | '/dashboard'
     | '/api/guilds'
@@ -212,6 +234,8 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/auth/verify-discord'
     | '/api/auth/$'
+    | '/api/auth/check-password-account'
+    | '/api/auth/delete-auto-created-account'
     | '/api/auth/has-discord'
     | '/dashboard'
     | '/api/guilds'
@@ -232,6 +256,8 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/auth/verify-discord'
     | '/api/auth/$'
+    | '/api/auth/check-password-account'
+    | '/api/auth/delete-auto-created-account'
     | '/api/auth/has-discord'
     | '/(authenticated)/dashboard/'
     | '/api/guilds/'
@@ -249,6 +275,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiAuthCheckPasswordAccountRoute: typeof ApiAuthCheckPasswordAccountRoute
+  ApiAuthDeleteAutoCreatedAccountRoute: typeof ApiAuthDeleteAutoCreatedAccountRoute
   ApiAuthHasDiscordRoute: typeof ApiAuthHasDiscordRoute
   authenticatedDashboardIndexRoute: typeof authenticatedDashboardIndexRoute
   ApiGuildsIndexRoute: typeof ApiGuildsIndexRoute
@@ -341,6 +369,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthHasDiscordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/auth/delete-auto-created-account': {
+      id: '/api/auth/delete-auto-created-account'
+      path: '/api/auth/delete-auto-created-account'
+      fullPath: '/api/auth/delete-auto-created-account'
+      preLoaderRoute: typeof ApiAuthDeleteAutoCreatedAccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/check-password-account': {
+      id: '/api/auth/check-password-account'
+      path: '/api/auth/check-password-account'
+      fullPath: '/api/auth/check-password-account'
+      preLoaderRoute: typeof ApiAuthCheckPasswordAccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -415,6 +457,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRouteRoute: AuthRouteRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiAuthCheckPasswordAccountRoute: ApiAuthCheckPasswordAccountRoute,
+  ApiAuthDeleteAutoCreatedAccountRoute: ApiAuthDeleteAutoCreatedAccountRoute,
   ApiAuthHasDiscordRoute: ApiAuthHasDiscordRoute,
   authenticatedDashboardIndexRoute: authenticatedDashboardIndexRoute,
   ApiGuildsIndexRoute: ApiGuildsIndexRoute,

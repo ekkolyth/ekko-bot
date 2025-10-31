@@ -14,7 +14,7 @@ export const Route = createFileRoute('/api/queue/')({
     handlers: {
       GET: async ({ request }: { request: Request }) => {
         if (!baseURL) {
-          return json({ error: 'Server Error: BOT_API_URL not set' }, { status: 500 });
+          return json({ error: 'Server Error: API_URL not set' }, { status: 500 });
         }
 
         const session = await auth.api.getSession({ headers: request.headers });
@@ -31,7 +31,9 @@ export const Route = createFileRoute('/api/queue/')({
         }
 
         try {
-          const apiURL = `${baseURL}/api/queue?voice_channel_id=${encodeURIComponent(voiceChannelId)}`;
+          const apiURL = `${baseURL}/api/queue?voice_channel_id=${encodeURIComponent(
+            voiceChannelId
+          )}`;
           const response = await fetch(apiURL, {
             method: 'GET',
             headers: {
@@ -52,8 +54,8 @@ export const Route = createFileRoute('/api/queue/')({
       },
       POST: async ({ request }: { request: Request }) => {
         if (!baseURL) {
-          console.log('Server Error: BOT_API_URL not set');
-          return json({ error: 'Server Error: BOT_API_URL not set' }, { status: 500 });
+          console.log('Server Error: API_URL not set');
+          return json({ error: 'Server Error: API_URL not set' }, { status: 500 });
         }
 
         const session = await auth.api.getSession({ headers: request.headers });

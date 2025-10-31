@@ -51,7 +51,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body className='dark'>
         <Providers>
-          <Header />
           {children}
         </Providers>
         <TanStackDevtools
