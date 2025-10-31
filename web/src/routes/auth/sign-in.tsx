@@ -66,7 +66,7 @@ function SignIn() {
       <div className='relative hidden lg:flex lg:w-1/2 opacity-50'>
         <div className='relative h-full w-full'>
           <img
-            src='/cute.webp'
+            src='/login.jpg'
             alt='Ekko Bot'
             className='object-cover h-full w-full'
           />
