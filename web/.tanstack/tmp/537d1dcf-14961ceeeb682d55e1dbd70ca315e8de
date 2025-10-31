@@ -1,0 +1,13 @@
+import { createFileRoute } from '@tanstack/react-router'
+
+export const Route = createFileRoute(
+  '/(authenticated)/dashboard/_components/VoiceChannels',
+)({
+  component: RouteComponent,
+})
+
+function RouteComponent() {
+  return (
+    <div>Hello "/(authenticated)/dashboard/_components/VoiceChannels"!</div>
+  )
+}
