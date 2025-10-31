@@ -74,20 +74,22 @@ function SignIn() {
 
           {/* Logo */}
           <div className='absolute top-8 left-8 flex items-center gap-2 text-white'>
-            <div className='flex h-6 w-6 items-center justify-center rounded-sm bg-white'>
-              <div className='bg-primary h-2 w-2 rounded-full' />
-            </div>
-            <span className='text-xl font-semibold'>Ekko Bot</span>
+            <Link to='/' className='flex flex-row items-center gap-2'>
+              <div className='flex h-6 w-6 items-center justify-center rounded-sm bg-white'>
+                <div className='bg-primary h-2 w-2 rounded-full' />
+              </div>
+              <span className='text-xl font-semibold'>Ekko Bot</span>
+            </Link>
           </div>
 
           {/* Testimonial */}
           <div className='absolute right-8 bottom-8 left-8 text-white'>
             <blockquote className='mb-4 text-2xl font-medium'>
-              &quot;Ekko Bot makes managing music in Discord seamless and fun.&quot;
+              Day? Throwing? Crazy.
             </blockquote>
             <div>
-              <div className='font-medium'>Alex Jordan</div>
-              <div className='text-sm opacity-90'>Community Manager</div>
+              <div className='font-medium'>Literally Everyone</div>
+              <div className='text-sm opacity-90'>Trust.</div>
             </div>
           </div>
         </div>
@@ -105,9 +107,9 @@ function SignIn() {
           </div>
 
           <div className='space-y-2 text-center'>
-            <h1 className='text-foreground text-2xl font-bold'>Welcome back to Ekko Bot</h1>
+            <h1 className='text-foreground text-2xl font-bold'>Welcome back!</h1>
             <p className='text-muted-foreground'>
-              Sign in to continue managing your Discord music experience.
+              Please Sign In to continue to your Dashboard.
             </p>
           </div>
 
@@ -179,7 +181,7 @@ function SignIn() {
             <Button
               type='button'
               variant='outline'
-              className='w-full py-3'
+              className='w-full py-3 text-foreground'
               onClick={handleDiscordLogin}
               disabled={isSubmitting}
             >
