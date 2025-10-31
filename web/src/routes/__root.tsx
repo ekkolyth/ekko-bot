@@ -10,13 +10,6 @@ import appCss from '../styles.css?url'
 export const Route = createRootRoute({
   head: () => {
     const betterAuthUrl = process.env.BETTER_AUTH_URL;
-    
-    if (!betterAuthUrl) {
-      throw new Error(
-        'BETTER_AUTH_URL environment variable is required but not set. ' +
-        'Please set BETTER_AUTH_URL in your environment variables.'
-      );
-    }
 
     return {
       meta: [

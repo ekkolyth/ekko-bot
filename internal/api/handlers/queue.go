@@ -11,6 +11,21 @@ import (
     "github.com/ekkolyth/ekko-bot/internal/logging"
 )
 
+// getGuildID reads and validates DISCORD_GUILD_ID from environment
+// Returns the guild ID and an error message if validation fails (empty string = no error)
+func getGuildID() (string, string) {
+	guildID := os.Getenv("DISCORD_GUILD_ID")
+	if guildID == "" {
+		return "", "Missing DISCORD_GUILD_ID environment variable"
+	}
+	
+	if !httpx.ValidDiscordSnowflake(guildID) {
+		return "", "Invalid DISCORD_GUILD_ID: must be a valid Discord snowflake (numeric, not \"_\")"
+	}
+	
+	return guildID, ""
+}
+
 type queueAdd struct {
 	DiscordUserID  string `json:"discord_user_id"`
 	DiscordTag     string `json:"discord_tag"`
@@ -53,9 +68,9 @@ func QueueGet() http.HandlerFunc {
             return
         }
 
-        guildID := os.Getenv("DISCORD_GUILD_ID")
-        if guildID == "" {
-            httpx.RespondError(write, http.StatusInternalServerError, "Missing DISCORD_GUILD_ID")
+        guildID, errMsg := getGuildID()
+        if errMsg != "" {
+            httpx.RespondError(write, http.StatusInternalServerError, errMsg)
             return
         }
 
@@ -211,9 +226,9 @@ func QueueAdd() http.HandlerFunc {
             return
         }
 
-        guildID := os.Getenv("DISCORD_GUILD_ID")
-        if guildID == "" {
-            httpx.RespondError(write, http.StatusInternalServerError, "Missing DISCORD_GUILD_ID")
+        guildID, errMsg := getGuildID()
+        if errMsg != "" {
+            httpx.RespondError(write, http.StatusInternalServerError, errMsg)
             return
         }
 
@@ -253,9 +268,9 @@ func QueueRemove() http.HandlerFunc {
             return
         }
 
-        guildID := os.Getenv("DISCORD_GUILD_ID")
-        if guildID == "" {
-            httpx.RespondError(write, http.StatusInternalServerError, "Missing DISCORD_GUILD_ID")
+        guildID, errMsg := getGuildID()
+        if errMsg != "" {
+            httpx.RespondError(write, http.StatusInternalServerError, errMsg)
             return
         }
 
@@ -309,9 +324,9 @@ func QueueClear() http.HandlerFunc {
             return
         }
 
-        guildID := os.Getenv("DISCORD_GUILD_ID")
-        if guildID == "" {
-            httpx.RespondError(write, http.StatusInternalServerError, "Missing DISCORD_GUILD_ID")
+        guildID, errMsg := getGuildID()
+        if errMsg != "" {
+            httpx.RespondError(write, http.StatusInternalServerError, errMsg)
             return
         }
 
@@ -338,9 +353,9 @@ func QueuePause() http.HandlerFunc {
             return
         }
 
-        guildID := os.Getenv("DISCORD_GUILD_ID")
-        if guildID == "" {
-            httpx.RespondError(write, http.StatusInternalServerError, "Missing DISCORD_GUILD_ID")
+        guildID, errMsg := getGuildID()
+        if errMsg != "" {
+            httpx.RespondError(write, http.StatusInternalServerError, errMsg)
             return
         }
 
@@ -390,9 +405,9 @@ func QueuePlay() http.HandlerFunc {
             return
         }
 
-        guildID := os.Getenv("DISCORD_GUILD_ID")
-        if guildID == "" {
-            httpx.RespondError(write, http.StatusInternalServerError, "Missing DISCORD_GUILD_ID")
+        guildID, errMsg := getGuildID()
+        if errMsg != "" {
+            httpx.RespondError(write, http.StatusInternalServerError, errMsg)
             return
         }
 
@@ -434,9 +449,9 @@ func QueueSkip() http.HandlerFunc {
             return
         }
 
-        guildID := os.Getenv("DISCORD_GUILD_ID")
-        if guildID == "" {
-            httpx.RespondError(write, http.StatusInternalServerError, "Missing DISCORD_GUILD_ID")
+        guildID, errMsg := getGuildID()
+        if errMsg != "" {
+            httpx.RespondError(write, http.StatusInternalServerError, errMsg)
             return
         }
 

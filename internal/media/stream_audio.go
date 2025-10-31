@@ -7,6 +7,7 @@ import (
 	"io"
 	"os/exec"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -42,17 +43,28 @@ func StreamAudio(v *discordgo.VoiceConnection, url string, queueKey string, stop
 	ffmpegStderr := &bytes.Buffer{}
 	ffmpegCmd.Stderr = ffmpegStderr
 
-	// Setup proper cleanup to ensure processes terminate
-	defer func() {
+	// Track if processes have been cleaned up to avoid double Wait()
+	var processesCleaned bool
+	var cleanupMutex sync.Mutex
+	
+	cleanupProcesses := func() {
+		cleanupMutex.Lock()
+		defer cleanupMutex.Unlock()
+		if processesCleaned {
+			return
+		}
+		processesCleaned = true
+		
 		if ytDlpCmd.Process != nil {
 			ytDlpCmd.Process.Kill()
-			ytDlpCmd.Wait()
 		}
 		if ffmpegCmd.Process != nil {
 			ffmpegCmd.Process.Kill()
-			ffmpegCmd.Wait()
 		}
-	}()
+	}
+	
+	// Setup proper cleanup to ensure processes terminate
+	defer cleanupProcesses()
 
 	// Connect yt-dlp output to ffmpeg input
 	ytDlpOut, err := ytDlpCmd.StdoutPipe()
@@ -90,13 +102,28 @@ func StreamAudio(v *discordgo.VoiceConnection, url string, queueKey string, stop
 		return
 	}
 
-	// Monitor processes for errors in background
+	// Monitor yt-dlp process for errors in background
+	ytDlpWaitDone := make(chan bool, 1)
 	go func() {
+		defer func() { ytDlpWaitDone <- true }()
 		if err := ytDlpCmd.Wait(); err != nil {
 			if ytDlpStderr.Len() > 0 {
 				OnError("yt-dlp failed: "+ytDlpStderr.String(), err)
 			} else {
 				OnError("yt-dlp process exited with error", err)
+			}
+		}
+	}()
+	
+	// Monitor ffmpeg process for errors in background
+	ffmpegWaitDone := make(chan bool, 1)
+	go func() {
+		defer func() { ffmpegWaitDone <- true }()
+		if err := ffmpegCmd.Wait(); err != nil {
+			if ffmpegStderr.Len() > 0 {
+				OnError("ffmpeg failed: "+ffmpegStderr.String(), err)
+			} else {
+				OnError("ffmpeg process exited with error", err)
 			}
 		}
 	}()
@@ -113,19 +140,13 @@ func StreamAudio(v *discordgo.VoiceConnection, url string, queueKey string, stop
 	// Set up reading from ffmpeg output
 	ffmpegbuf := bufio.NewReaderSize(ffmpegOut, config.FfmpegBufferSize)
 
-	// Handle stopping ffmpeg process if needed
+	// Handle stopping processes if needed
 	go func() {
 		select {
 		case <-stop:
-			err := ytDlpCmd.Process.Kill()
-			if err != nil {
-				OnError("Error killing yt-dlp process", err)
-			}
-			err = ffmpegCmd.Process.Kill()
-			if err != nil {
-				OnError("Error killing ffmpeg process", err)
-			}
+			cleanupProcesses()
 		case <-time.After(3 * time.Hour): // Fallback timeout
+			cleanupProcesses()
 		}
 	}()
 
@@ -140,13 +161,20 @@ func StreamAudio(v *discordgo.VoiceConnection, url string, queueKey string, stop
 
 	// Stop speaking when done (voice overlay feature)
 	defer func() {
+		cleanupProcesses()
+		// Wait for Wait() calls to complete to avoid waitid errors
+		select {
+		case <-ytDlpWaitDone:
+		case <-time.After(1 * time.Second):
+		}
+		select {
+		case <-ffmpegWaitDone:
+		case <-time.After(1 * time.Second):
+		}
 		err := v.Speaking(false)
 		if err != nil {
 			OnError("Couldn't stop speaking", err)
 		}
-		// Make sure processes are cleaned up
-		ytDlpCmd.Process.Kill()
-		ffmpegCmd.Process.Kill()
 	}()
 
 	send := make(chan []int16, 2)
