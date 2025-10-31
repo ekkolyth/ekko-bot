@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteRouteImport } from './routes/auth/route'
+import { Route as authenticatedRouteRouteImport } from './routes/(authenticated)/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthVerifyDiscordLinkRouteImport } from './routes/auth/verify-discord-link'
 import { Route as AuthVerifyDiscordRouteImport } from './routes/auth/verify-discord'
@@ -34,6 +35,10 @@ import { Route as ApiGuildsGuildIdChannelsRouteImport } from './routes/api/guild
 const AuthRouteRoute = AuthRouteRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authenticatedRouteRoute = authenticatedRouteRouteImport.update({
+  id: '/(authenticated)',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -83,9 +88,9 @@ const ApiGuildsIndexRoute = ApiGuildsIndexRouteImport.update({
 } as any)
 const authenticatedDashboardIndexRoute =
   authenticatedDashboardIndexRouteImport.update({
-    id: '/(authenticated)/dashboard/',
+    id: '/dashboard/',
     path: '/dashboard/',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => authenticatedRouteRoute,
   } as any)
 const ApiAuthHasDiscordRoute = ApiAuthHasDiscordRouteImport.update({
   id: '/api/auth/has-discord',
@@ -142,7 +147,7 @@ const ApiGuildsGuildIdChannelsRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof authenticatedRouteRouteWithChildren
   '/auth': typeof AuthRouteRouteWithChildren
   '/auth/connect-discord': typeof AuthConnectDiscordRoute
   '/auth/sign-in': typeof AuthSignInRoute
@@ -165,7 +170,7 @@ export interface FileRoutesByFullPath {
   '/api/queue/skip': typeof ApiQueueSkipIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/': typeof authenticatedRouteRouteWithChildren
   '/auth': typeof AuthRouteRouteWithChildren
   '/auth/connect-discord': typeof AuthConnectDiscordRoute
   '/auth/sign-in': typeof AuthSignInRoute
@@ -190,6 +195,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/(authenticated)': typeof authenticatedRouteRouteWithChildren
   '/auth': typeof AuthRouteRouteWithChildren
   '/auth/connect-discord': typeof AuthConnectDiscordRoute
   '/auth/sign-in': typeof AuthSignInRoute
@@ -261,6 +267,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/(authenticated)'
     | '/auth'
     | '/auth/connect-discord'
     | '/auth/sign-in'
@@ -285,12 +292,12 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  authenticatedRouteRoute: typeof authenticatedRouteRouteWithChildren
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiAuthCheckPasswordAccountRoute: typeof ApiAuthCheckPasswordAccountRoute
   ApiAuthDeleteAutoCreatedAccountRoute: typeof ApiAuthDeleteAutoCreatedAccountRoute
   ApiAuthHasDiscordRoute: typeof ApiAuthHasDiscordRoute
-  authenticatedDashboardIndexRoute: typeof authenticatedDashboardIndexRoute
   ApiGuildsIndexRoute: typeof ApiGuildsIndexRoute
   ApiHealthzIndexRoute: typeof ApiHealthzIndexRoute
   ApiQueueIndexRoute: typeof ApiQueueIndexRoute
@@ -309,6 +316,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(authenticated)': {
+      id: '/(authenticated)'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof authenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -379,7 +393,7 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof authenticatedDashboardIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof authenticatedRouteRoute
     }
     '/api/auth/has-discord': {
       id: '/api/auth/has-discord'
@@ -454,6 +468,17 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface authenticatedRouteRouteChildren {
+  authenticatedDashboardIndexRoute: typeof authenticatedDashboardIndexRoute
+}
+
+const authenticatedRouteRouteChildren: authenticatedRouteRouteChildren = {
+  authenticatedDashboardIndexRoute: authenticatedDashboardIndexRoute,
+}
+
+const authenticatedRouteRouteWithChildren =
+  authenticatedRouteRoute._addFileChildren(authenticatedRouteRouteChildren)
+
 interface AuthRouteRouteChildren {
   AuthConnectDiscordRoute: typeof AuthConnectDiscordRoute
   AuthSignInRoute: typeof AuthSignInRoute
@@ -476,12 +501,12 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  authenticatedRouteRoute: authenticatedRouteRouteWithChildren,
   AuthRouteRoute: AuthRouteRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiAuthCheckPasswordAccountRoute: ApiAuthCheckPasswordAccountRoute,
   ApiAuthDeleteAutoCreatedAccountRoute: ApiAuthDeleteAutoCreatedAccountRoute,
   ApiAuthHasDiscordRoute: ApiAuthHasDiscordRoute,
-  authenticatedDashboardIndexRoute: authenticatedDashboardIndexRoute,
   ApiGuildsIndexRoute: ApiGuildsIndexRoute,
   ApiHealthzIndexRoute: ApiHealthzIndexRoute,
   ApiQueueIndexRoute: ApiQueueIndexRoute,
