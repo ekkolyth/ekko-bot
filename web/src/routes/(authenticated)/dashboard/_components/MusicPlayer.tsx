@@ -2,12 +2,11 @@ import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { useQueue } from '@/hooks/use-queue';
 import { useQueueActions } from '@/hooks/use-queue-actions';
-import { 
-  Play, 
-  Pause, 
-  SkipForward, 
-  Trash2, 
-  ExternalLink,
+import {
+  Play,
+  Pause,
+  SkipForward,
+  Trash2,
   Volume2,
   ListX,
   Link as LinkIcon
@@ -82,9 +81,9 @@ export function MusicPlayer({ voiceChannelId, voiceChannelName }: MusicPlayerPro
   // Show loading only on initial load, not on refetches
   if (isLoading && !queue) {
     return (
-      <Card className="bg-slate-900/80 border-slate-800">
+      <Card className="bg-card border-border">
         <CardContent className="py-8">
-          <div className="text-center text-slate-400">Loading player...</div>
+          <div className="text-center text-muted-foreground">Loading player...</div>
         </CardContent>
       </Card>
     );
@@ -103,43 +102,34 @@ export function MusicPlayer({ voiceChannelId, voiceChannelName }: MusicPlayerPro
   const upcomingTracks = queueData.tracks.slice(1);
 
   return (
-    <Card className="bg-slate-900/80 border-slate-800">
+    <Card className="bg-card border-border">
       <CardHeader>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
-              {queueData.is_playing && !queueData.is_paused ? (
-                <Play className="w-6 h-6 text-purple-400" />
-              ) : (
-                <Pause className="w-6 h-6 text-slate-400" />
-              )}
-            </div>
-            <div>
-              <CardTitle className="text-white">{voiceChannelName}</CardTitle>
-              <CardDescription>
-                {queueData.tracks.length === 0 
-                  ? 'Nothing playing' 
-                  : queueData.is_playing && !queueData.is_paused 
-                    ? 'Now Playing' 
-                    : 'Paused'}
-              </CardDescription>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 text-slate-400">
-            <Volume2 className="w-5 h-5" />
-            <span className="text-sm">{Math.round((queueData.volume || 0) * 100)}%</span>
-          </div>
-        </div>
+        <CardTitle className="flex items-center gap-2">
+          {queueData.is_playing && !queueData.is_paused ? (
+            <Play className="size-5 text-primary" />
+          ) : (
+            <Pause className="size-5 text-muted-foreground" />
+          )}
+          {voiceChannelName}
+        </CardTitle>
+        <CardDescription className="flex items-center gap-2">
+          <Volume2 className="size-4" />
+          {Math.round((queueData.volume || 0) * 100)}% • {' '}
+          {queueData.tracks.length === 0
+            ? 'Nothing playing'
+            : queueData.is_playing && !queueData.is_paused
+              ? 'Now Playing'
+              : 'Paused'}
+        </CardDescription>
 
         {/* Player Controls */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap mt-4">
           {queueData.is_playing && !queueData.is_paused ? (
             <Button
               size="sm"
               variant="outline"
               onClick={handlePause}
               disabled={actions.pause.isPending}
-              className="border-slate-700 text-slate-300 hover:bg-slate-800"
             >
               <Pause className="w-4 h-4 mr-2" />
               Pause
@@ -150,19 +140,17 @@ export function MusicPlayer({ voiceChannelId, voiceChannelName }: MusicPlayerPro
               variant="outline"
               onClick={handlePlay}
               disabled={actions.play.isPending || queueData.tracks.length === 0}
-              className="border-slate-700 text-slate-300 hover:bg-slate-800"
             >
               <Play className="w-4 h-4 mr-2" />
               Play
             </Button>
           )}
-          
+
           <Button
             size="sm"
             variant="outline"
             onClick={handleSkip}
             disabled={actions.skip.isPending || queueData.tracks.length === 0}
-            className="border-slate-700 text-slate-300 hover:bg-slate-800"
           >
             <SkipForward className="w-4 h-4 mr-2" />
             Skip
@@ -173,7 +161,6 @@ export function MusicPlayer({ voiceChannelId, voiceChannelName }: MusicPlayerPro
             variant="outline"
             onClick={handleClear}
             disabled={actions.clear.isPending || queueData.tracks.length === 0}
-            className="border-slate-700 text-slate-300 hover:bg-slate-800"
           >
             <ListX className="w-4 h-4 mr-2" />
             Clear Queue
@@ -181,56 +168,56 @@ export function MusicPlayer({ voiceChannelId, voiceChannelName }: MusicPlayerPro
         </div>
 
         {actionMessage && (
-          <div className="mt-2 p-2 rounded-md bg-slate-800/50 text-sm text-slate-300">
+          <div className="mt-2 p-2 rounded-md bg-muted/50 text-sm">
             {actionMessage}
           </div>
         )}
       </CardHeader>
-      
+
       <CardContent>
         {queueData.tracks.length === 0 ? (
-          <div className="text-center py-8 text-slate-400">
+          <div className="text-center py-8 text-muted-foreground">
             Queue is empty. Add some tracks to get started!
           </div>
         ) : (
           <div className="space-y-3">
             {/* Current Track */}
             {currentTrack && (
-              <div className="bg-slate-800/50 rounded-lg p-4 border border-purple-500/30">
+              <div className="bg-muted/50 rounded-lg p-4 border">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
-                      <div className="text-white font-medium">Now Playing</div>
+                      <div className="font-medium">Now Playing</div>
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => window.open(currentTrack.url, '_blank')}
-                        className="text-purple-400 hover:text-purple-300 h-6 w-6 p-0"
+                        className="h-6 w-6 p-0"
                         title="Open YouTube video"
                       >
                         <LinkIcon className="w-4 h-4" />
                       </Button>
                     </div>
-                    <div className="text-slate-200 text-base font-semibold mb-1">
+                    <div className="text-base font-semibold mb-1">
                       {currentTrack.title}
                     </div>
                     {currentTrack.artist && (
-                      <div className="text-slate-400 text-sm mb-1">
+                      <div className="text-muted-foreground text-sm mb-1">
                         {currentTrack.artist}
                       </div>
                     )}
                     {currentTrack.added_by !== 'Unknown' && (
-                      <div className="text-slate-500 text-xs mt-2">
+                      <div className="text-muted-foreground text-xs mt-2">
                         Added by {currentTrack.added_by}
                       </div>
                     )}
-                    <div className="text-slate-500 text-xs mt-1">
+                    <div className="text-muted-foreground text-xs mt-1">
                       Use Skip to move to next track
                     </div>
                   </div>
                   {currentTrack.thumbnail && (
-                    <img 
-                      src={currentTrack.thumbnail} 
+                    <img
+                      src={currentTrack.thumbnail}
                       alt={currentTrack.title}
                       className="w-20 h-20 rounded object-cover"
                     />
@@ -242,34 +229,34 @@ export function MusicPlayer({ voiceChannelId, voiceChannelName }: MusicPlayerPro
             {/* Upcoming Tracks */}
             {upcomingTracks.length > 0 && (
               <div className="space-y-2">
-                <div className="text-slate-400 text-sm font-medium">
+                <div className="text-muted-foreground text-sm font-medium">
                   Up Next ({upcomingTracks.length} {upcomingTracks.length === 1 ? 'track' : 'tracks'})
                 </div>
                 {upcomingTracks.map((track) => (
                   <div
                     key={track.position}
-                    className="bg-slate-800/30 rounded p-3 hover:bg-slate-800/50 transition-colors"
+                    className="bg-muted/30 rounded p-3 hover:bg-muted/50 transition-colors"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
-                        <div className="text-slate-300 text-sm font-medium mb-1">
+                        <div className="text-sm font-medium mb-1">
                           {track.position}. {track.title}
                         </div>
                         {track.artist && (
-                          <div className="text-slate-400 text-xs mb-1">
+                          <div className="text-muted-foreground text-xs mb-1">
                             {track.artist}
                           </div>
                         )}
                         {track.added_by !== 'Unknown' && (
-                          <div className="text-slate-500 text-xs">
+                          <div className="text-muted-foreground text-xs">
                             Added by {track.added_by}
                           </div>
                         )}
                       </div>
                       <div className="flex gap-1 items-start">
                         {track.thumbnail && (
-                          <img 
-                            src={track.thumbnail} 
+                          <img
+                            src={track.thumbnail}
                             alt={track.title}
                             className="w-12 h-12 rounded object-cover"
                           />
@@ -278,7 +265,7 @@ export function MusicPlayer({ voiceChannelId, voiceChannelName }: MusicPlayerPro
                           size="sm"
                           variant="ghost"
                           onClick={() => window.open(track.url, '_blank')}
-                          className="text-slate-400 hover:text-slate-300 h-8 w-8 p-0"
+                          className="h-8 w-8 p-0"
                           title="Open YouTube video"
                         >
                           <LinkIcon className="w-4 h-4" />
@@ -288,7 +275,7 @@ export function MusicPlayer({ voiceChannelId, voiceChannelName }: MusicPlayerPro
                           variant="ghost"
                           onClick={() => handleRemove(track.position)}
                           disabled={actions.remove.isPending}
-                          className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 w-8 p-0"
+                          className="text-destructive hover:text-destructive h-8 w-8 p-0"
                           title="Remove from queue"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -305,4 +292,3 @@ export function MusicPlayer({ voiceChannelId, voiceChannelName }: MusicPlayerPro
     </Card>
   );
 }
-
