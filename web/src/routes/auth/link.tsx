@@ -3,7 +3,7 @@ import { authClient } from '@/lib/auth/client';
 import { Spinner } from '@/components/ui/spinner';
 import { useEffect } from 'react';
 
-export const Route = createFileRoute('/auth/verify-discord-link')({
+export const Route = createFileRoute('/auth/link')({
   component: VerifyDiscordLink,
 });
 
@@ -23,7 +23,7 @@ function VerifyDiscordLink() {
         await authClient.getSession();
 
         // Wait for Discord link to propagate to database
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
         if (!mounted) return;
 
@@ -47,7 +47,7 @@ function VerifyDiscordLink() {
 
       // After all retries, if still no Discord, go back to connect page
       if (mounted) {
-        navigate({ to: '/auth/connect-discord', replace: true });
+        navigate({ to: '/auth/connect', replace: true });
       }
     };
 
@@ -65,4 +65,3 @@ function VerifyDiscordLink() {
     </div>
   );
 }
-

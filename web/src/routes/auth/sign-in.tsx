@@ -39,10 +39,10 @@ function SignIn() {
             if (data.hasDiscord) {
               navigate({ to: '/dashboard' });
             } else {
-              navigate({ to: '/auth/connect-discord' });
+              navigate({ to: '/auth/connect' });
             }
           } else {
-            navigate({ to: '/auth/connect-discord' });
+            navigate({ to: '/auth/connect' });
           }
         },
         onError: (ctx) => {
@@ -56,7 +56,7 @@ function SignIn() {
   const handleDiscordLogin = async () => {
     await authClient.signIn.social({
       provider: 'discord',
-      callbackURL: '/auth/verify-discord',
+      callbackURL: '/auth/verify',
     });
   };
 
