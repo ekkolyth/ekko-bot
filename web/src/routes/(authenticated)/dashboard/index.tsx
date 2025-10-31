@@ -1,15 +1,13 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 import { authClient } from '@/lib/auth/client';
 import { Spinner } from '@/components/ui/spinner';
-import { useNavigate } from '@tanstack/react-router';
 import { Input } from '@/components/ui/input';
 import { Field } from '@/components/ui/field';
 import { useForm } from '@tanstack/react-form';
 import { Button } from '@/components/ui/button';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { useVoiceChannels } from '@/hooks/use-voice-channels';
-import { useHasDiscord } from '@/hooks/use-has-discord';
 import { useAddToQueue } from '@/hooks/use-add-to-queue';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Music2, ChevronRight } from 'lucide-react';
@@ -18,13 +16,27 @@ import { cn } from '@/lib/utils';
 
 export const Route = createFileRoute('/(authenticated)/dashboard/')({
   component: Dashboard,
+  beforeLoad: async () => {
+    const session = await authClient.getSession();
+
+    // Check for session
+    if (!session) {
+      throw redirect({ to: '/auth/sign-in' });
+    }
+
+    // Check if Discord is connected
+    const response = await fetch('/api/auth/has-discord');
+    if (response.ok) {
+      const data = await response.json();
+      if (!data.hasDiscord) {
+        throw redirect({ to: '/auth/connect-discord' });
+      }
+    }
+  },
 });
 
 function Dashboard() {
-  const { data: session, isPending: sessionPending } = authClient.useSession();
-  const navigate = useNavigate();
-  const { data: hasDiscord, isPending: discordPending } = useHasDiscord();
-  
+  const { data: session } = authClient.useSession();
   const [selectedChannelId, setSelectedChannelId] = useState<string | null>(null);
   const [addUrlMessage, setAddUrlMessage] = useState('');
 
@@ -44,30 +56,7 @@ function Dashboard() {
     },
   });
 
-  // Check for session
-  useEffect(() => {
-    if (!sessionPending && !session) {
-      navigate({ to: '/auth/sign-in' });
-    }
-  }, [sessionPending, session, navigate]);
-
-  // Check if Discord is connected
-  useEffect(() => {
-    if (!discordPending && hasDiscord === false) {
-      navigate({ to: '/auth/connect-discord' });
-    }
-  }, [discordPending, hasDiscord, navigate]);
-
-  // Auto-select first channel when channels load
-  useEffect(() => {
-    if (!selectedChannelId && voiceChannels.length > 0) {
-      setSelectedChannelId(voiceChannels[0].id);
-    }
-  }, [voiceChannels, selectedChannelId]);
-
-  if (sessionPending || discordPending) return <Spinner />;
-
-  if (!session || !hasDiscord) return null;
+  if (channelsLoading) return <Spinner />;
 
   const handleSubmit = async (url: string) => {
     setAddUrlMessage('');

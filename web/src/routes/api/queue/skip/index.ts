@@ -8,7 +8,7 @@ export const Route = createFileRoute('/api/queue/skip/')({
     handlers: {
       POST: async ({ request }: { request: Request }) => {
         if (!baseURL) {
-          return json({ error: 'Server Error: BOT_API_URL not set' }, { status: 500 });
+          return json({ error: 'Server Error: API_URL not set' }, { status: 500 });
         }
 
         const session = await auth.api.getSession({ headers: request.headers });
@@ -39,4 +39,3 @@ export const Route = createFileRoute('/api/queue/skip/')({
     },
   },
 });
-

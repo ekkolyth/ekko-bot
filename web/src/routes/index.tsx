@@ -19,6 +19,7 @@ import {
   Sparkles,
   ServerIcon,
 } from 'lucide-react'
+import Header from '@/components/Header'
 
 export const Route = createFileRoute('/')({
   component: HomePage,
@@ -91,6 +92,7 @@ function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+      <Header />
       {/* Hero Section */}
       <section className="relative px-6 py-24 lg:py-32 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-cyan-600/20 blur-3xl" />

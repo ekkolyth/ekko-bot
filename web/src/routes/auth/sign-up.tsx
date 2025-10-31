@@ -1,7 +1,11 @@
-import { createFileRoute, useSearch } from '@tanstack/react-router';
+import { createFileRoute, useSearch, Link } from '@tanstack/react-router';
 import { authClient } from '@/lib/auth/client';
 import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export const Route = createFileRoute('/auth/sign-up')({
   component: SignUp,
@@ -19,9 +23,11 @@ function SignUp() {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage(null);
 
     const { data, error } = await authClient.signUp.email(
       {
@@ -35,12 +41,11 @@ function SignUp() {
           setLoading(true);
         },
         onSuccess: () => {
-          // Redirect to Discord connection page after signup
           navigate({ to: '/auth/connect-discord' });
         },
         onError: (ctx) => {
           setLoading(false);
-          alert(ctx.error.message);
+          setErrorMessage(ctx.error.message ?? 'Sign-up failed. Please try again.');
         },
       }
     );
@@ -54,102 +59,148 @@ function SignUp() {
   };
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gray-50 px-4'>
-      <div className='max-w-md w-full space-y-8'>
-        <div>
-          <h2 className='mt-6 text-center text-3xl font-extrabold text-gray-900'>
-            Create your account
-          </h2>
-          <p className='mt-2 text-center text-sm text-gray-600'>
-            Or{' '}
-            <a
-              href='/auth/sign-in'
-              className='font-medium text-blue-600 hover:text-blue-500'
-            >
-              sign in to your existing account
-            </a>
-          </p>
-          {search.message && (
-            <div className='mt-4 p-3 rounded-md bg-yellow-50 border border-yellow-200'>
-              <p className='text-sm text-yellow-800'>{search.message}</p>
-            </div>
-          )}
-        </div>
+    <div className="bg-muted/20 flex min-h-screen">
+      {/* Left side - Image */}
+      <div className="relative hidden lg:flex lg:w-1/2 opacity-50">
+        <div className="relative h-full w-full">
+          <img
+            src="/cute.webp"
+            alt="Ekko Bot"
+            className="object-cover h-full w-full"
+          />
+          <div className="absolute inset-0 bg-black/20" />
 
-        <form
-          className='mt-8 space-y-6'
-          onSubmit={handleSubmit}
-        >
-          <div className='rounded-md shadow-sm -space-y-px'>
+          {/* Logo */}
+          <div className="absolute top-8 left-8 flex items-center gap-2 text-white">
+            <div className="flex h-6 w-6 items-center justify-center rounded-sm bg-white">
+              <div className="bg-primary h-2 w-2 rounded-full" />
+            </div>
+            <span className="text-xl font-semibold">Ekko Bot</span>
+          </div>
+
+          {/* Testimonial */}
+          <div className="absolute right-8 bottom-8 left-8 text-white">
+            <blockquote className="mb-4 text-2xl font-medium">
+              &quot;Ekko Bot makes managing music in Discord seamless and fun.&quot;
+            </blockquote>
             <div>
-              <label
-                htmlFor='name'
-                className='sr-only'
+              <div className="font-medium">Alex Jordan</div>
+              <div className="text-sm opacity-90">
+                Community Manager
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right side - Sign up form */}
+      <div className="flex w-full items-center justify-center p-8 lg:w-1/2">
+        <div className="w-full max-w-md space-y-8">
+          {/* Mobile logo */}
+          <div className="mb-8 flex items-center justify-center gap-2 lg:hidden">
+            <div className="bg-primary flex h-6 w-6 items-center justify-center rounded-sm">
+              <div className="bg-primary-foreground h-2 w-2 rounded-full" />
+            </div>
+            <span className="text-xl font-semibold">Ekko Bot</span>
+          </div>
+
+          <div className="space-y-2 text-center">
+            <h1 className="text-foreground text-2xl font-bold">
+              Create your account
+            </h1>
+            <p className="text-muted-foreground">
+              Join Ekko Bot to manage your Discord music experience with ease.
+            </p>
+          </div>
+
+          {search.message && (
+            <Alert>
+              <AlertDescription>{search.message}</AlertDescription>
+            </Alert>
+          )}
+
+          {errorMessage && (
+            <Alert variant="destructive">
+              <AlertDescription>{errorMessage}</AlertDescription>
+            </Alert>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <Label
+                htmlFor="name"
+                className="text-foreground text-sm font-medium"
               >
-                Full name
-              </label>
-              <input
-                id='name'
-                name='name'
-                type='text'
-                required
+                Full Name
+              </Label>
+              <Input
+                id="name"
+                type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className='appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm'
-                placeholder='Full name'
+                className="w-full"
+                required
+                disabled={loading}
               />
             </div>
-            <div>
-              <label
-                htmlFor='email'
-                className='sr-only'
+
+            <div className="space-y-2">
+              <Label
+                htmlFor="email"
+                className="text-foreground text-sm font-medium"
               >
-                Email address
-              </label>
-              <input
-                id='email'
-                name='email'
-                type='email'
-                autoComplete='email'
-                required
+                Email
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className='appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm'
-                placeholder='Email address'
+                className="w-full"
+                required
+                disabled={loading}
               />
             </div>
-            <div>
-              <label
-                htmlFor='password'
-                className='sr-only'
+
+            <div className="space-y-2">
+              <Label
+                htmlFor="password"
+                className="text-foreground text-sm font-medium"
               >
                 Password
-              </label>
-              <input
-                id='password'
-                name='password'
-                type='password'
-                autoComplete='new-password'
-                required
+              </Label>
+              <Input
+                id="password"
+                type="password"
+                autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className='appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm'
-                placeholder='Password'
+                className="w-full"
+                required
                 minLength={8}
+                disabled={loading}
               />
+              <p className="text-muted-foreground text-xs">
+                Must be at least 8 characters
+              </p>
             </div>
-          </div>
 
-          <div>
-            <button
-              type='submit'
-              disabled={loading}
-              className='group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed'
-            >
-              {loading ? 'Creating account...' : 'Sign up'}
-            </button>
-          </div>
-        </form>
+            <Button type="submit" className="w-full py-3" disabled={loading}>
+              {loading ? 'Creating account...' : 'Sign Up'}
+            </Button>
+
+            <p className="text-muted-foreground text-center text-sm">
+              Already have an account?{' '}
+              <Link
+                to="/auth/sign-in"
+                className="text-primary hover:text-primary/80 font-medium"
+              >
+                Sign in
+              </Link>
+            </p>
+          </form>
+        </div>
       </div>
     </div>
   );
