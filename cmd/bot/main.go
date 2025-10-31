@@ -1,24 +1,26 @@
 package main
 
 import (
-    "os"
-    "os/exec"
-    "strings"
+	"os"
+	"os/exec"
+	"strings"
 
-    "github.com/ekkolyth/ekko-bot/internal/context"
-    "github.com/ekkolyth/ekko-bot/internal/discord"
-    "github.com/ekkolyth/ekko-bot/internal/handlers"
-    "github.com/ekkolyth/ekko-bot/internal/logging"
+	"github.com/ekkolyth/ekko-bot/internal/context"
+	"github.com/ekkolyth/ekko-bot/internal/discord"
+	"github.com/ekkolyth/ekko-bot/internal/handlers"
+	"github.com/ekkolyth/ekko-bot/internal/logging"
 
-    "github.com/bwmarrin/discordgo"
-    "github.com/joho/godotenv"
+	"github.com/bwmarrin/discordgo"
+	"github.com/joho/godotenv"
 )
 
 func setup() {
 
-	//Check .env
-	if err := godotenv.Load(); err != nil {
-		logging.Fatal("Error loading .env file", err)
+	// Check .env file (optional - env vars may be provided by docker-compose)
+	if _, err := os.Stat(".env"); err == nil {
+		if err := godotenv.Load(); err != nil {
+			logging.Fatal("Error loading .env file", err)
+		}
 	}
 	//Check Discord Token
 	context.Token = os.Getenv("DISCORD_BOT_TOKEN")

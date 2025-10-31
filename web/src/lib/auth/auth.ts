@@ -21,7 +21,6 @@ export const auth = betterAuth({
       clientId: process.env.DISCORD_CLIENT_ID as string,
       clientSecret: process.env.DISCORD_CLIENT_SECRET as string,
       permissions: 2048 | 16384,
-      // Request necessary scopes for guild and channel access
       scope: ['identify', 'guilds', 'guilds.members.read'],
     },
   },
@@ -38,7 +37,16 @@ export const auth = betterAuth({
     schema: authSchema,
   }),
   secret: process.env.BETTER_AUTH_SECRET!,
-  baseURL: process.env.BETTER_AUTH_URL!,
+  baseURL: (() => {
+    const url = process.env.BETTER_AUTH_URL;
+    if (!url) {
+      throw new Error(
+        'BETTER_AUTH_URL environment variable is required but not set. ' +
+        'Please set BETTER_AUTH_URL in your environment variables.'
+      );
+    }
+    return url;
+  })(),
 });
 
 // Export db for use in other parts of the app

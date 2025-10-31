@@ -1,6 +1,7 @@
 package logging
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/ekkolyth/ekko-bot/internal/config"
@@ -24,8 +25,9 @@ func Fatal(message string, error error) {
 	log.Fatal(config.CLI_RED + "[FATAL]" + config.CLI_RESET + message)
 }
 
-func Info(message string) {
-	log.Println(config.CLI_BLUE + "[INFO]:" + config.CLI_RESET + message)
+func Info(message string, args ...any) {
+	output := fmt.Sprintf(message, args...)
+	log.Println(config.CLI_BLUE + "[INFO]:" + config.CLI_RESET + output)
 }
 
 func Warning(message string) {
