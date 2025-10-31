@@ -72,10 +72,12 @@ function SignUp() {
 
           {/* Logo */}
           <div className='absolute top-8 left-8 flex items-center gap-2 text-white'>
-            <div className='flex h-6 w-6 items-center justify-center rounded-sm bg-white'>
-              <div className='bg-primary h-2 w-2 rounded-full' />
-            </div>
-            <span className='text-xl font-semibold'>Ekko Bot</span>
+            <Link to='/' className='flex flex-row items-center gap-2'>
+              <div className='flex h-6 w-6 items-center justify-center rounded-sm bg-white'>
+                <div className='bg-primary h-2 w-2 rounded-full' />
+              </div>
+              <span className='text-xl font-semibold'>Ekko Bot</span>
+            </Link>
           </div>
 
           {/* Testimonial */}
