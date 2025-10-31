@@ -54,6 +54,7 @@ RUN apt-get update && \
       ffmpeg \
       libopus0 \
       opus-tools \
+      python3 \
       curl \
       ca-certificates && \
     rm -rf /var/lib/apt/lists/*

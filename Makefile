@@ -111,3 +111,6 @@ docker/tag:
 		exit 1; \
 	fi
 	docker tag $(IMAGE_NAME):$(IMAGE_TAG) $(IMAGE_NAME):$(NEW_TAG)
+
+docker/push:
+	docker push ekkolyth/ekko-bot:dev
