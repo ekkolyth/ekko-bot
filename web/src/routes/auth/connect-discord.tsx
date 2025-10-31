@@ -28,7 +28,7 @@ function ConnectDiscord() {
   const handleConnectDiscord = async () => {
     await authClient.signIn.social({
       provider: 'discord',
-      callbackURL: '/dashboard',
+      callbackURL: '/auth/verify-discord-link',
     });
   };
 
