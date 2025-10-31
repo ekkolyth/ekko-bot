@@ -1,13 +1,16 @@
-# Set Environment Variables
+# Environment Variables
 BOT_BINARY_NAME=bot-server
 API_BINARY_NAME=api-server
 OUTPUT_DIR=bin
 
-# Use the Go Compiler
+# Docker
+IMAGE_NAME ?= ekkolyth/ekko-bot
+IMAGE_TAG ?= dev
+
+# Use Go
 GOBUILD=go build
 GO_SOURCE_HASH:=$(shell find . -name "*.go" | sort | xargs cat | sha1sum | cut -c1-8)
 
-# Load environment variables if present (don't fail if missing)
 -include .env
 export
 
@@ -28,7 +31,6 @@ clean:
 	rm -f $(OUTPUT_DIR)/$(BOT_BINARY_NAME)
 	rm -f $(OUTPUT_DIR)/$(API_BINARY_NAME)
 
-# Install web dependencies if needed
 install:
 	@if [ ! -d "web/node_modules" ]; then \
 		echo "Installing web dependencies..."; \
@@ -50,7 +52,7 @@ version:
 test:
 	@echo "DB_URL=$(DB_URL)"
 
-# Database migration commands
+# Database
 db/up:
 	@echo "Running database migrations..."
 	goose -dir sql/migrations up
@@ -67,7 +69,7 @@ db/status:
 	@echo "Checking migration status..."
 	goose -dir sql/migrations status
 
-# SQLC code generation
+# SQLC
 db/generate:
 	@echo "Generating SQLC code..."
 	sqlc generate --file internal/db/sqlc.yaml
@@ -91,5 +93,21 @@ drizzle/migrate:
 	cd web && npx drizzle-kit migrate
 
 drizzle/push:
-	@echo "Running Drizzle Push..."
+	@echo "Pushing Drizzle schema to database..."
 	cd web && npx drizzle-kit push
+
+drizzle/studio:
+	@echo "Starting Drizzle Studio..."
+	cd web && npx drizzle-kit studio
+
+# Docker
+
+docker/build:
+	docker build --platform linux/amd64 --build-arg BETTER_AUTH_URL=$(BETTER_AUTH_URL) -t $(IMAGE_NAME):$(IMAGE_TAG) .
+
+docker/tag:
+	@if [ -z "$(NEW_TAG)" ]; then \
+		echo "Usage: make docker-tag NEW_TAG=v0.1.0"; \
+		exit 1; \
+	fi
+	docker tag $(IMAGE_NAME):$(IMAGE_TAG) $(IMAGE_NAME):$(NEW_TAG)

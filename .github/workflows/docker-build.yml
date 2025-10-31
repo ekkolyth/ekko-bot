@@ -1,0 +1,140 @@
+name: Docker Build and Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Docker Hub (optional)
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+      continue-on-error: true
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: |
+          ekkolyth/ekko-bot
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=sha,prefix={{branch}}-
+
+    - name: Build Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile
+        push: false
+        load: true
+        tags: ekko-bot:test
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Test Docker image
+      run: |
+        echo "Testing if image was built successfully..."
+        docker images ekko-bot:test
+        
+        echo "Checking image size..."
+        docker images ekko-bot:test --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"
+        
+        echo "Inspecting image..."
+        docker inspect ekko-bot:test > /dev/null
+
+    - name: Push to Docker Hub (main branch only)
+      if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+      continue-on-error: true
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: ekko
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: ekko_bot
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23'
+
+    - name: Run Go tests
+      run: go test -v ./...
+      continue-on-error: true
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: latest
+
+    - name: Install web dependencies
+      run: |
+        cd web
+        pnpm install --frozen-lockfile
+
+    - name: Run web tests
+      run: |
+        cd web
+        pnpm test
+      continue-on-error: true
+
+    - name: Build Go binaries
+      run: |
+        go mod download
+        make build
+
+    - name: Verify binaries
+      run: |
+        ls -lh bin/
+        file bin/bot-server
+        file bin/api-server
+

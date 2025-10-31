@@ -1,0 +1,31 @@
+# General Behavior
+
+- Don't generate readme files
+- Don't rename my variables unless I ask you to
+- Do not create functionality or perform any tasks that I did not explicitly ask you to do
+- Do not suggest other actions you could do for me
+- Do not create tests ever, unless I explicitly ask for them
+- I prefer short, readable variable names over single letter conventional/idiotmatic patterns eg. prefer "ctx" over "c", "convertString" over "StrConv", etc.
+- Avoid implicit behavior or "magic" when possible (with the exception of inferred Typescript types)
+- If the requested change is ambiguous, ALWAYS ASK a clarifying question before modifying files.
+- When updating code, do not refactor unrelated parts.
+
+# Typescript
+
+- No "any" allowed, ever
+- Use Shadcn UI components with Tailwind v4 (no config file).
+
+# Go
+
+- Use explicit struct field names.
+
+# UI / Design
+
+- Minimal, calm UI.
+
+# Comments & Docs
+
+- Use brief comments to explicitly explain what code blocks are doing
+- No "Call outs" eg. "using tanstack query for easy caching" - I know why we're using the tools we're using and why we're doing what we're doing. Keep it to something like "Make API Request" and nothing more
+- Only add comments to explain intent, not the obvious.
+- If code or logic is complex, add a simple, top-level reasoning block.

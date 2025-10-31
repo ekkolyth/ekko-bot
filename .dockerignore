@@ -1,0 +1,61 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+!README.md
+DASHBOARD_IMPLEMENTATION.md
+DISCORD_AUTH_FLOW.md
+BOT_API_REFACTOR_PLAN.md
+FUTURE.md
+IGNORETHISBOT.md
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Build artifacts
+bin/
+web/dist/
+web/.output/
+web/node_modules/
+web/.vinxi/
+web/.vite/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Test files
+*_test.go
+**/*_test.go
+web/src/**/*.test.ts
+web/src/**/*.test.tsx
+web/src/**/*.spec.ts
+web/src/**/*.spec.tsx
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+.cache/
+
+# CI/CD
+.github/
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-build-test.sh
+
