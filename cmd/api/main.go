@@ -13,6 +13,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/ekkolyth/ekko-bot/internal/api/handlers"
 	"github.com/ekkolyth/ekko-bot/internal/api/httpserver"
+	"github.com/ekkolyth/ekko-bot/internal/cache"
+	appctx "github.com/ekkolyth/ekko-bot/internal/context"
 	"github.com/ekkolyth/ekko-bot/internal/db"
 	"github.com/ekkolyth/ekko-bot/internal/logging"
 	"github.com/joho/godotenv"
@@ -39,8 +41,17 @@ func main() {
 		log.Fatal("Invalid API_PORT value:", port)
 	}
 
-	// DB init
 	ctx := context.Background()
+
+	// Redis init
+	redisClient, err := cache.InitRedis()
+	if err != nil {
+		log.Fatal("Failed to connect to redis:", err)
+	}
+	appctx.SetQueueStore(appctx.NewRedisQueueStore(redisClient))
+	defer cache.CloseRedis(ctx)
+
+	// DB init
 	dbService, err := db.NewService(ctx)
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)

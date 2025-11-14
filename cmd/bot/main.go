@@ -1,10 +1,12 @@
 package main
 
 import (
+	stdctx "context"
 	"os"
 	"os/exec"
 	"strings"
 
+	"github.com/ekkolyth/ekko-bot/internal/cache"
 	"github.com/ekkolyth/ekko-bot/internal/context"
 	"github.com/ekkolyth/ekko-bot/internal/discord"
 	"github.com/ekkolyth/ekko-bot/internal/handlers"
@@ -50,6 +52,14 @@ func setup() {
 
 func main() {
 	setup()
+
+	redisClient, err := cache.InitRedis()
+	if err != nil {
+		logging.Fatal("Failed to connect to redis", err)
+	}
+	context.SetQueueStore(context.NewRedisQueueStore(redisClient))
+	defer cache.CloseRedis(stdctx.Background())
+
 	dg, err := discordgo.New("Bot " + context.Token)
 	if err != nil {
 		logging.Fatal("Error creating Discord session", err)
@@ -66,7 +76,7 @@ func main() {
 		logging.Fatal("Error opening connection", err)
 	}
 	defer dg.Close()
-    logging.Info("Version: " + context.GoSourceHash)
-    logging.Info("Bot is running. Press CTRL-C to exit.")
-    select {} // block forever
+	logging.Info("Version: " + context.GoSourceHash)
+	logging.Info("Bot is running. Press CTRL-C to exit.")
+	select {} // block forever
 }

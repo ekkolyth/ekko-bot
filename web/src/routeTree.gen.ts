@@ -31,6 +31,7 @@ import { Route as ApiQueueRemoveIndexRouteImport } from './routes/api/queue/remo
 import { Route as ApiQueuePlayIndexRouteImport } from './routes/api/queue/play/index'
 import { Route as ApiQueuePauseIndexRouteImport } from './routes/api/queue/pause/index'
 import { Route as ApiQueueClearIndexRouteImport } from './routes/api/queue/clear/index'
+import { Route as ApiGuildsCurrentVoiceRouteImport } from './routes/api/guilds/current/voice'
 import { Route as ApiGuildsGuildIdChannelsRouteImport } from './routes/api/guilds/$guildId/channels'
 
 const AuthRouteRoute = AuthRouteRouteImport.update({
@@ -145,6 +146,11 @@ const ApiQueueClearIndexRoute = ApiQueueClearIndexRouteImport.update({
   path: '/api/queue/clear/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGuildsCurrentVoiceRoute = ApiGuildsCurrentVoiceRouteImport.update({
+  id: '/api/guilds/current/voice',
+  path: '/api/guilds/current/voice',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiGuildsGuildIdChannelsRoute =
   ApiGuildsGuildIdChannelsRouteImport.update({
     id: '/api/guilds/$guildId/channels',
@@ -170,6 +176,7 @@ export interface FileRoutesByFullPath {
   '/api/healthz': typeof ApiHealthzIndexRoute
   '/api/queue': typeof ApiQueueIndexRoute
   '/api/guilds/$guildId/channels': typeof ApiGuildsGuildIdChannelsRoute
+  '/api/guilds/current/voice': typeof ApiGuildsCurrentVoiceRoute
   '/api/queue/clear': typeof ApiQueueClearIndexRoute
   '/api/queue/pause': typeof ApiQueuePauseIndexRoute
   '/api/queue/play': typeof ApiQueuePlayIndexRoute
@@ -194,6 +201,7 @@ export interface FileRoutesByTo {
   '/api/healthz': typeof ApiHealthzIndexRoute
   '/api/queue': typeof ApiQueueIndexRoute
   '/api/guilds/$guildId/channels': typeof ApiGuildsGuildIdChannelsRoute
+  '/api/guilds/current/voice': typeof ApiGuildsCurrentVoiceRoute
   '/api/queue/clear': typeof ApiQueueClearIndexRoute
   '/api/queue/pause': typeof ApiQueuePauseIndexRoute
   '/api/queue/play': typeof ApiQueuePlayIndexRoute
@@ -220,6 +228,7 @@ export interface FileRoutesById {
   '/api/healthz/': typeof ApiHealthzIndexRoute
   '/api/queue/': typeof ApiQueueIndexRoute
   '/api/guilds/$guildId/channels': typeof ApiGuildsGuildIdChannelsRoute
+  '/api/guilds/current/voice': typeof ApiGuildsCurrentVoiceRoute
   '/api/queue/clear/': typeof ApiQueueClearIndexRoute
   '/api/queue/pause/': typeof ApiQueuePauseIndexRoute
   '/api/queue/play/': typeof ApiQueuePlayIndexRoute
@@ -246,6 +255,7 @@ export interface FileRouteTypes {
     | '/api/healthz'
     | '/api/queue'
     | '/api/guilds/$guildId/channels'
+    | '/api/guilds/current/voice'
     | '/api/queue/clear'
     | '/api/queue/pause'
     | '/api/queue/play'
@@ -270,6 +280,7 @@ export interface FileRouteTypes {
     | '/api/healthz'
     | '/api/queue'
     | '/api/guilds/$guildId/channels'
+    | '/api/guilds/current/voice'
     | '/api/queue/clear'
     | '/api/queue/pause'
     | '/api/queue/play'
@@ -295,6 +306,7 @@ export interface FileRouteTypes {
     | '/api/healthz/'
     | '/api/queue/'
     | '/api/guilds/$guildId/channels'
+    | '/api/guilds/current/voice'
     | '/api/queue/clear/'
     | '/api/queue/pause/'
     | '/api/queue/play/'
@@ -314,6 +326,7 @@ export interface RootRouteChildren {
   ApiHealthzIndexRoute: typeof ApiHealthzIndexRoute
   ApiQueueIndexRoute: typeof ApiQueueIndexRoute
   ApiGuildsGuildIdChannelsRoute: typeof ApiGuildsGuildIdChannelsRoute
+  ApiGuildsCurrentVoiceRoute: typeof ApiGuildsCurrentVoiceRoute
   ApiQueueClearIndexRoute: typeof ApiQueueClearIndexRoute
   ApiQueuePauseIndexRoute: typeof ApiQueuePauseIndexRoute
   ApiQueuePlayIndexRoute: typeof ApiQueuePlayIndexRoute
@@ -477,6 +490,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiQueueClearIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/guilds/current/voice': {
+      id: '/api/guilds/current/voice'
+      path: '/api/guilds/current/voice'
+      fullPath: '/api/guilds/current/voice'
+      preLoaderRoute: typeof ApiGuildsCurrentVoiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/guilds/$guildId/channels': {
       id: '/api/guilds/$guildId/channels'
       path: '/api/guilds/$guildId/channels'
@@ -532,6 +552,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiHealthzIndexRoute: ApiHealthzIndexRoute,
   ApiQueueIndexRoute: ApiQueueIndexRoute,
   ApiGuildsGuildIdChannelsRoute: ApiGuildsGuildIdChannelsRoute,
+  ApiGuildsCurrentVoiceRoute: ApiGuildsCurrentVoiceRoute,
   ApiQueueClearIndexRoute: ApiQueueClearIndexRoute,
   ApiQueuePauseIndexRoute: ApiQueuePauseIndexRoute,
   ApiQueuePlayIndexRoute: ApiQueuePlayIndexRoute,

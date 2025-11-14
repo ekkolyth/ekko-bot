@@ -1,12 +1,13 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { authClient } from '@/lib/auth/client'
 import { Card, CardContent } from '@/components/ui/card'
 import { Music2 } from 'lucide-react'
-import { useState } from 'react'
-import { MusicPlayer } from './_components/MusicPlayer'
-import { VoiceChannelSelect } from './_components/VoiceChannels'
-import { AddToQueue } from './_components/AddToQueue'
+import { useEffect } from 'react'
+import { MusicPlayer } from './-components/MusicPlayer'
+import { AddToQueue } from './-components/AddToQueue'
 import { useVoiceChannels } from '@/hooks/use-voice-channels'
+import { useHasDiscord } from '@/hooks/use-has-discord'
+import { Empty } from '@/components/ui/empty'
 
 export const Route = createFileRoute('/(authenticated)/music/')({
   component: Dashboard,
@@ -16,55 +17,75 @@ export const Route = createFileRoute('/(authenticated)/music/')({
       throw redirect({ to: '/auth/sign-in' })
     }
 
-    const response = await fetch('/api/auth/has-discord')
-    if (response.ok) {
-      const data = await response.json()
-      if (!data.hasDiscord) {
-        throw redirect({ to: '/auth/connect' })
+    if (typeof window !== 'undefined') {
+      const response = await fetch('/api/auth/has-discord')
+      if (response.ok) {
+        const data = await response.json()
+        if (!data.hasDiscord) {
+          throw redirect({ to: '/auth/connect' })
+        }
       }
     }
   },
 })
 
 function Dashboard() {
-  const { data: session } = authClient.useSession()
-  const [selectedChannelId, setSelectedChannelId] = useState<string | null>(null)
+  const navigate = useNavigate()
 
-  const {
-    data: voiceChannels = [],
-  } = useVoiceChannels()
+  const { data: currentVoiceChannel, isLoading: channelLoading } = useVoiceChannels()
+  const { data: hasDiscord, isLoading: hasDiscordLoading } = useHasDiscord()
 
-  const selectedChannel = voiceChannels.find((ch) => ch.id === selectedChannelId)
+  useEffect(() => {
+    if (!hasDiscordLoading && hasDiscord === false) {
+      navigate({ to: '/auth/connect', replace: true })
+    }
+  }, [hasDiscord, hasDiscordLoading, navigate])
+
+  if (hasDiscordLoading || hasDiscord === false) {
+    return (
+      <div className="container max-w-7xl mx-auto p-4 md:p-8">
+        <Card className="bg-card border-border">
+          <CardContent className="py-16 text-center text-muted-foreground">
+            Checking Discord link...
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  const activeChannelId = currentVoiceChannel?.id ?? null
+  const activeChannelName = currentVoiceChannel?.name ?? ''
 
   return (
     <div className="container max-w-7xl mx-auto p-4 md:p-8">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Sidebar - Channel List & Add Song */}
-        <div className="lg:col-span-4 space-y-4">
-          <VoiceChannelSelect
-            selectedChannelId={selectedChannelId}
-            onSelect={setSelectedChannelId}
-          />
-
-        </div>
-
-        {/* Right Side - Music Player */}
-        <div className="lg:col-span-8">
-          <AddToQueue selectedChannelId={selectedChannelId} />
-          {selectedChannelId && selectedChannel ? (
-            <MusicPlayer
-              voiceChannelId={selectedChannelId}
-              voiceChannelName={selectedChannel.name}
-            />
-          ) : (
+        <div className="lg:col-span-12 space-y-4">
+          {channelLoading ? (
             <Card className="bg-card border-border">
-              <CardContent className="py-16">
-                <div className="text-center text-muted-foreground">
-                  <Music2 className="w-16 h-16 mx-auto mb-4" />
-                  <p className="text-lg">Select a voice channel to view the player</p>
-                </div>
+              <CardContent className="py-12 text-center text-muted-foreground">
+                Detecting voice channel...
               </CardContent>
             </Card>
+          ) : !activeChannelId ? (
+            <Empty className="border border-dashed">
+              <Music2 className="w-12 h-12 text-muted-foreground mb-4" />
+              <p className="text-lg font-medium">Join a voice channel</p>
+              <p className="text-muted-foreground">
+                Join a Discord voice channel to view and control the queue.
+              </p>
+            </Empty>
+          ) : (
+            <>
+              <AddToQueue
+                selectedChannelId={activeChannelId}
+                voiceChannelName={activeChannelName}
+              />
+              <MusicPlayer
+                voiceChannelId={activeChannelId}
+                voiceChannelName={activeChannelName}
+              />
+            </>
           )}
         </div>
       </div>

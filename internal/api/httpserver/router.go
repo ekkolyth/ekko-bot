@@ -27,9 +27,9 @@ func NewRouter(dbService *db.Service) http.Handler {
 
 	// cors
 	router.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   allowedOrigins,
-		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{
+		AllowedOrigins: allowedOrigins,
+		AllowedMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowedHeaders: []string{
 			"Accept",
 			"Accept-Language",
 			"Content-Type",
@@ -37,13 +37,13 @@ func NewRouter(dbService *db.Service) http.Handler {
 			"Origin",
 			"Referer",
 		},
-		ExposedHeaders:   []string{  "Location",
+		ExposedHeaders: []string{"Location",
 			"X-Request-ID",
 			"Retry-After",
 			"RateLimit-Limit",
 			"RateLimit-Remaining",
 			"RateLimit-Reset",
-			"X-Guild-ID",},
+			"X-Guild-ID"},
 		AllowCredentials: false,
 		MaxAge:           1800, // 1 Hour
 	}))
@@ -51,40 +51,31 @@ func NewRouter(dbService *db.Service) http.Handler {
 	// Healthcheck
 	router.Get("/api/healthz", handlers.Health)
 
-    //
-    router.Route("/api", func(api chi.Router) {
-        // Simplified queue endpoint (no guild_id in path)
-        api.Route("/queue", func(queue chi.Router) {
-            queue.Get("/", handlers.QueueGet())
-            queue.Post("/", handlers.QueueAdd())
-            queue.Post("/remove", handlers.QueueRemove())
-            queue.Post("/clear", handlers.QueueClear())
-            queue.Post("/pause", handlers.QueuePause())
-            queue.Post("/play", handlers.QueuePlay())
-            queue.Post("/skip", handlers.QueueSkip())
-        })
-    })
+	router.Route("/api", func(api chi.Router) {
+		api.Get("/voice-channel", handlers.VoiceChannelCurrent())
+
+		api.Route("/queue", func(queue chi.Router) {
+			queue.Get("/", handlers.QueueGet())
+			queue.Post("/", handlers.QueueAdd())
+			queue.Post("/remove", handlers.QueueRemove())
+			queue.Post("/clear", handlers.QueueClear())
+			queue.Post("/pause", handlers.QueuePause())
+			queue.Post("/play", handlers.QueuePlay())
+			queue.Post("/skip", handlers.QueueSkip())
+		})
+	})
 
 	return router
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 func envList(key string) []string {
-  v := os.Getenv(key)
-  if v == "" { return nil }
-  parts := strings.Split(v, ",")
-  for i := range parts { parts[i] = strings.TrimSpace(parts[i]) }
-  return parts
+	v := os.Getenv(key)
+	if v == "" {
+		return nil
+	}
+	parts := strings.Split(v, ",")
+	for i := range parts {
+		parts[i] = strings.TrimSpace(parts[i])
+	}
+	return parts
 }

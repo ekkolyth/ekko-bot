@@ -7,17 +7,33 @@ import (
 )
 
 func CurrentVolume(ctx *context.Context) {
-	queueKey := context.QueueKey(ctx.GetGuildID(), ctx.VoiceChannelID)
+	if !ensureVoiceChannelID(ctx) {
+		ctx.Reply("Could not determine your voice channel.")
+		return
+	}
 
-	var currentVolume float64
+	queueKey := context.QueueKey(ctx.GetGuildID(), ctx.VoiceChannelID)
+	store := context.GetQueueStore()
+	if store == nil {
+		ctx.Reply("Queue store unavailable.")
+		return
+	}
+
 	context.VolumeMutex.Lock()
 	currentVolume, ok := context.Volume[queueKey]
-	if !ok {
-		currentVolume = 1.0 // Default volume if not set
-		context.Volume[queueKey] = 1.0
-	}
 	context.VolumeMutex.Unlock()
-	// Convert to percentage for display
-	currentVolume = currentVolume * 100.0 // Convert factor back to percentage
+
+	if !ok {
+		value, err := store.GetVolume(queueKey)
+		if err != nil {
+			value = 1.0
+		}
+		context.VolumeMutex.Lock()
+		context.Volume[queueKey] = value
+		context.VolumeMutex.Unlock()
+		currentVolume = value
+	}
+
+	currentVolume = currentVolume * 100.0
 	ctx.Reply(fmt.Sprintf("Current volume is %.1f%%", currentVolume))
 }

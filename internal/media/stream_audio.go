@@ -46,7 +46,7 @@ func StreamAudio(v *discordgo.VoiceConnection, url string, queueKey string, stop
 	// Track if processes have been cleaned up to avoid double Wait()
 	var processesCleaned bool
 	var cleanupMutex sync.Mutex
-	
+
 	cleanupProcesses := func() {
 		cleanupMutex.Lock()
 		defer cleanupMutex.Unlock()
@@ -54,7 +54,7 @@ func StreamAudio(v *discordgo.VoiceConnection, url string, queueKey string, stop
 			return
 		}
 		processesCleaned = true
-		
+
 		if ytDlpCmd.Process != nil {
 			ytDlpCmd.Process.Kill()
 		}
@@ -62,7 +62,7 @@ func StreamAudio(v *discordgo.VoiceConnection, url string, queueKey string, stop
 			ffmpegCmd.Process.Kill()
 		}
 	}
-	
+
 	// Setup proper cleanup to ensure processes terminate
 	defer cleanupProcesses()
 
@@ -114,7 +114,7 @@ func StreamAudio(v *discordgo.VoiceConnection, url string, queueKey string, stop
 			}
 		}
 	}()
-	
+
 	// Monitor ffmpeg process for errors in background
 	ffmpegWaitDone := make(chan bool, 1)
 	go func() {
@@ -213,7 +213,6 @@ func StreamAudio(v *discordgo.VoiceConnection, url string, queueKey string, stop
 		}
 		audiobuf := make([]int16, config.FrameSize*config.Channels)
 
-
 		// Process audio normally
 		err = binary.Read(ffmpegbuf, binary.LittleEndian, &audiobuf)
 		if err == io.EOF || err == io.ErrUnexpectedEOF {
@@ -235,15 +234,22 @@ func StreamAudio(v *discordgo.VoiceConnection, url string, queueKey string, stop
 
 		dataReceived = true
 
-		// Apply volume adjustment
-		// Use queueKey for per-voice-channel volume
+		// Apply volume adjustment with Redis-backed defaults
 		context.VolumeMutex.Lock()
 		currentVolume, ok := context.Volume[queueKey]
+		context.VolumeMutex.Unlock()
+
 		if !ok {
 			currentVolume = 1.0
-			context.Volume[queueKey] = 1.0
+			if store := context.GetQueueStore(); store != nil {
+				if storedValue, err := store.GetVolume(queueKey); err == nil {
+					currentVolume = storedValue
+				}
+			}
+			context.VolumeMutex.Lock()
+			context.Volume[queueKey] = currentVolume
+			context.VolumeMutex.Unlock()
 		}
-		context.VolumeMutex.Unlock()
 
 		for i := range audiobuf {
 			// Calculate new value and clamp to int16 range to prevent distortion

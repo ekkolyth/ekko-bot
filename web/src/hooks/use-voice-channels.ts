@@ -7,19 +7,15 @@ interface VoiceChannel {
 
 export function useVoiceChannels() {
   return useQuery({
-    queryKey: ['voice-channels'],
+    queryKey: ['voice-channel-current'],
     queryFn: async () => {
-      const response = await fetch(`/api/guilds/_/channels`);
+      const response = await fetch(`/api/guilds/current/voice`);
       if (!response.ok) {
-        throw new Error('Failed to fetch voice channels');
+        throw new Error('Failed to detect current voice channel');
       }
       const data = await response.json();
-      if (!data.ok) {
-        throw new Error(data.error || 'Failed to fetch voice channels');
-      }
-      return data.channels as VoiceChannel[];
+      return (data.channel ?? null) as VoiceChannel | null;
     },
-    enabled: true,
-    staleTime: 1000 * 60 * 2, // 2 minutes
+    staleTime: 1000 * 5,
   });
 }

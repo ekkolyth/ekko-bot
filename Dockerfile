@@ -41,6 +41,7 @@ COPY web/pnpm-lock.yaml web/package.json ./
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile
 
 COPY web/ ./
+ENV NODE_ENV=production
 RUN pnpm build
 
 ###########################################
@@ -54,6 +55,7 @@ RUN apt-get update && \
       ffmpeg \
       libopus0 \
       opus-tools \
+      redis-server \
       python3 \
       curl \
       ca-certificates && \
@@ -87,6 +89,12 @@ set -euo pipefail
 API_PORT="${API_PORT:-1337}"
 WEB_PORT="${WEB_PORT:-3000}"
 API_URL="${API_URL:-http://localhost:${API_PORT}}"
+REDIS_URL="${REDIS_URL:-redis://127.0.0.1:6379/0}"
+
+redis-server --save "" --appendonly no --bind 127.0.0.1 --port 6379 &
+until redis-cli -h 127.0.0.1 ping >/dev/null 2>&1; do
+  sleep 0.2
+done
 
 shutdown() {
   kill $(jobs -p) 2>/dev/null || true
