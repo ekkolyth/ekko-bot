@@ -60,4 +60,8 @@ var (
 
 	// short hash of all go source files for version command
 	GoSourceHash string
+
+	// Guild ID -> User ID -> Voice Channel ID
+	UserVoiceChannels = make(map[string]map[string]string)
+	UserVoiceMutex    sync.RWMutex
 )

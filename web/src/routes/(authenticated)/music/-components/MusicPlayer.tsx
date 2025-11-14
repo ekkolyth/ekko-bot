@@ -6,6 +6,7 @@ import {
   Play,
   Pause,
   SkipForward,
+  StopCircle,
   Trash2,
   Volume2,
   ListX,
@@ -49,6 +50,17 @@ export function MusicPlayer({ voiceChannelId, voiceChannelName }: MusicPlayerPro
     try {
       await actions.skip.mutateAsync({ voice_channel_id: voiceChannelId });
       setActionMessage('✅ Skipped');
+      setTimeout(() => setActionMessage(''), 2000);
+    } catch (error) {
+      setActionMessage(`❌ Error: ${error instanceof Error ? error.message : String(error)}`);
+      setTimeout(() => setActionMessage(''), 3000);
+    }
+  };
+
+  const handleStop = async () => {
+    try {
+      await actions.stop.mutateAsync({ voice_channel_id: voiceChannelId });
+      setActionMessage('✅ Stopped');
       setTimeout(() => setActionMessage(''), 2000);
     } catch (error) {
       setActionMessage(`❌ Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -155,6 +167,16 @@ export function MusicPlayer({ voiceChannelId, voiceChannelName }: MusicPlayerPro
           >
             <SkipForward className="w-4 h-4 mr-2" />
             Skip
+          </Button>
+
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleStop}
+            disabled={actions.stop.isPending || safeTracks.length === 0}
+          >
+            <StopCircle className="w-4 h-4 mr-2" />
+            Stop
           </Button>
 
           <Button

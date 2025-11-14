@@ -26,6 +26,7 @@ import { Route as ApiAuthHasDiscordRouteImport } from './routes/api/auth/has-dis
 import { Route as ApiAuthDeleteAutoCreatedAccountRouteImport } from './routes/api/auth/delete-auto-created-account'
 import { Route as ApiAuthCheckPasswordAccountRouteImport } from './routes/api/auth/check-password-account'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiQueueStopIndexRouteImport } from './routes/api/queue/stop/index'
 import { Route as ApiQueueSkipIndexRouteImport } from './routes/api/queue/skip/index'
 import { Route as ApiQueueRemoveIndexRouteImport } from './routes/api/queue/remove/index'
 import { Route as ApiQueuePlayIndexRouteImport } from './routes/api/queue/play/index'
@@ -121,6 +122,11 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiQueueStopIndexRoute = ApiQueueStopIndexRouteImport.update({
+  id: '/api/queue/stop/',
+  path: '/api/queue/stop/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiQueueSkipIndexRoute = ApiQueueSkipIndexRouteImport.update({
   id: '/api/queue/skip/',
   path: '/api/queue/skip/',
@@ -182,6 +188,7 @@ export interface FileRoutesByFullPath {
   '/api/queue/play': typeof ApiQueuePlayIndexRoute
   '/api/queue/remove': typeof ApiQueueRemoveIndexRoute
   '/api/queue/skip': typeof ApiQueueSkipIndexRoute
+  '/api/queue/stop': typeof ApiQueueStopIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof authenticatedRouteRouteWithChildren
@@ -207,6 +214,7 @@ export interface FileRoutesByTo {
   '/api/queue/play': typeof ApiQueuePlayIndexRoute
   '/api/queue/remove': typeof ApiQueueRemoveIndexRoute
   '/api/queue/skip': typeof ApiQueueSkipIndexRoute
+  '/api/queue/stop': typeof ApiQueueStopIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -234,6 +242,7 @@ export interface FileRoutesById {
   '/api/queue/play/': typeof ApiQueuePlayIndexRoute
   '/api/queue/remove/': typeof ApiQueueRemoveIndexRoute
   '/api/queue/skip/': typeof ApiQueueSkipIndexRoute
+  '/api/queue/stop/': typeof ApiQueueStopIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -261,6 +270,7 @@ export interface FileRouteTypes {
     | '/api/queue/play'
     | '/api/queue/remove'
     | '/api/queue/skip'
+    | '/api/queue/stop'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -286,6 +296,7 @@ export interface FileRouteTypes {
     | '/api/queue/play'
     | '/api/queue/remove'
     | '/api/queue/skip'
+    | '/api/queue/stop'
   id:
     | '__root__'
     | '/'
@@ -312,6 +323,7 @@ export interface FileRouteTypes {
     | '/api/queue/play/'
     | '/api/queue/remove/'
     | '/api/queue/skip/'
+    | '/api/queue/stop/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -332,6 +344,7 @@ export interface RootRouteChildren {
   ApiQueuePlayIndexRoute: typeof ApiQueuePlayIndexRoute
   ApiQueueRemoveIndexRoute: typeof ApiQueueRemoveIndexRoute
   ApiQueueSkipIndexRoute: typeof ApiQueueSkipIndexRoute
+  ApiQueueStopIndexRoute: typeof ApiQueueStopIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -455,6 +468,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/queue/stop/': {
+      id: '/api/queue/stop/'
+      path: '/api/queue/stop'
+      fullPath: '/api/queue/stop'
+      preLoaderRoute: typeof ApiQueueStopIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/queue/skip/': {
       id: '/api/queue/skip/'
       path: '/api/queue/skip'
@@ -558,6 +578,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiQueuePlayIndexRoute: ApiQueuePlayIndexRoute,
   ApiQueueRemoveIndexRoute: ApiQueueRemoveIndexRoute,
   ApiQueueSkipIndexRoute: ApiQueueSkipIndexRoute,
+  ApiQueueStopIndexRoute: ApiQueueStopIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

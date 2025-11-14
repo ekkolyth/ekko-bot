@@ -62,6 +62,7 @@ func NewRouter(dbService *db.Service) http.Handler {
 			queue.Post("/pause", handlers.QueuePause())
 			queue.Post("/play", handlers.QueuePlay())
 			queue.Post("/skip", handlers.QueueSkip())
+			queue.Post("/stop", handlers.QueueStop())
 		})
 	})
 
