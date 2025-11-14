@@ -11,9 +11,10 @@ import { Plus } from 'lucide-react';
 interface AddToQueueProps {
   selectedChannelId: string | null;
   onSuccess?: () => void;
+  voiceChannelName?: string;
 }
 
-export function AddToQueue({ selectedChannelId, onSuccess }: AddToQueueProps) {
+export function AddToQueue({ selectedChannelId, onSuccess, voiceChannelName }: AddToQueueProps) {
   const [addUrlMessage, setAddUrlMessage] = useState('');
   const addToQueue = useAddToQueue();
 
@@ -45,7 +46,7 @@ export function AddToQueue({ selectedChannelId, onSuccess }: AddToQueueProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Plus className="size-5 text-primary" />
-          Add to Queue
+          {voiceChannelName ? `Add to ${voiceChannelName}` : 'Add to Queue'}
         </CardTitle>
       </CardHeader>
       <CardContent>

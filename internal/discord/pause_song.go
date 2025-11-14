@@ -5,28 +5,36 @@ import (
 )
 
 func PauseSong(ctx *context.Context) {
-	// Regardless of pause or resume, flip the state
-
-	// Check if the bot is in a voice channel
 	if !BotInChannel(ctx) {
 		ctx.Reply("Not in a voice channel.")
 		return
 	}
 
+	if !ensureVoiceChannelID(ctx) {
+		ctx.Reply("Could not determine your voice channel.")
+		return
+	}
+
 	queueKey := context.QueueKey(ctx.GetGuildID(), ctx.VoiceChannelID)
+	store := context.GetQueueStore()
+	if store == nil {
+		ctx.Reply("Queue store unavailable.")
+		return
+	}
 
 	context.PauseMutex.Lock()
 	currentState := context.Paused[queueKey]
-	context.Paused[queueKey] = !currentState // Toggle pause state
+	newState := !currentState
+	context.Paused[queueKey] = newState
 	context.PauseMutex.Unlock()
 
-	// Signal the pause channel with the new state
+	_ = store.SetPaused(queueKey, newState)
+
 	context.PauseChMutex.Lock()
 	if ch, exists := context.PauseChs[queueKey]; exists {
 		select {
-		case ch <- !currentState: // Send the new state
-		default: // Channel is full, discard
-			// This prevents blocking if the channel is full
+		case ch <- newState:
+		default:
 		}
 	}
 	context.PauseChMutex.Unlock()

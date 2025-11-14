@@ -98,8 +98,9 @@ export function MusicPlayer({ voiceChannelId, voiceChannelName }: MusicPlayerPro
     volume: 0.5,
   };
 
-  const currentTrack = queueData.tracks[0];
-  const upcomingTracks = queueData.tracks.slice(1);
+  const safeTracks = Array.isArray(queueData.tracks) ? queueData.tracks : [];
+  const currentTrack = safeTracks[0];
+  const upcomingTracks = safeTracks.slice(1);
 
   return (
     <Card className="bg-card border-border">
@@ -115,7 +116,7 @@ export function MusicPlayer({ voiceChannelId, voiceChannelName }: MusicPlayerPro
         <CardDescription className="flex items-center gap-2">
           <Volume2 className="size-4" />
           {Math.round((queueData.volume || 0) * 100)}% • {' '}
-          {queueData.tracks.length === 0
+          {safeTracks.length === 0
             ? 'Nothing playing'
             : queueData.is_playing && !queueData.is_paused
               ? 'Now Playing'
@@ -139,7 +140,7 @@ export function MusicPlayer({ voiceChannelId, voiceChannelName }: MusicPlayerPro
               size="sm"
               variant="outline"
               onClick={handlePlay}
-              disabled={actions.play.isPending || queueData.tracks.length === 0}
+              disabled={actions.play.isPending || safeTracks.length === 0}
             >
               <Play className="w-4 h-4 mr-2" />
               Play
@@ -150,7 +151,7 @@ export function MusicPlayer({ voiceChannelId, voiceChannelName }: MusicPlayerPro
             size="sm"
             variant="outline"
             onClick={handleSkip}
-            disabled={actions.skip.isPending || queueData.tracks.length === 0}
+            disabled={actions.skip.isPending || safeTracks.length === 0}
           >
             <SkipForward className="w-4 h-4 mr-2" />
             Skip
@@ -160,7 +161,7 @@ export function MusicPlayer({ voiceChannelId, voiceChannelName }: MusicPlayerPro
             size="sm"
             variant="outline"
             onClick={handleClear}
-            disabled={actions.clear.isPending || queueData.tracks.length === 0}
+            disabled={actions.clear.isPending || safeTracks.length === 0}
           >
             <ListX className="w-4 h-4 mr-2" />
             Clear Queue
@@ -175,7 +176,7 @@ export function MusicPlayer({ voiceChannelId, voiceChannelName }: MusicPlayerPro
       </CardHeader>
 
       <CardContent>
-        {queueData.tracks.length === 0 ? (
+        {safeTracks.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             Queue is empty. Add some tracks to get started!
           </div>

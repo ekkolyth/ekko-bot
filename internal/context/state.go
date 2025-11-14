@@ -24,14 +24,10 @@ func init() {
 
 var (
 	// from .env
-	Token        string
+	Token string
 
 	// Set of disabled commands
 	DisabledCommands = make(map[string]bool)
-
-	// Queue Key (guild:voiceChannel) -> Queue of URLs
-	Queue        = make(map[string][]string)
-	QueueMutex   sync.Mutex
 
 	// Queue Key (guild:voiceChannel) -> Currently playing track URL
 	NowPlaying      = make(map[string]string)
@@ -41,21 +37,13 @@ var (
 	NowPlayingInfo      = make(map[string]*TrackInfo)
 	NowPlayingInfoMutex sync.Mutex
 
-	// Queue Key (guild:voiceChannel) -> URL -> Track metadata cache
-	TrackMetadataCache      = make(map[string]map[string]*TrackInfo)
-	TrackMetadataCacheMutex sync.Mutex
-
-	// Queue Key (guild:voiceChannel) -> Is Playing
-	Playing      = make(map[string]bool)
-	PlayingMutex sync.Mutex
-
 	// Queue Key (guild:voiceChannel) -> Pause state
-	Paused       = make(map[string]bool)
-	PauseMutex   sync.Mutex
+	Paused     = make(map[string]bool)
+	PauseMutex sync.Mutex
 
 	// Queue Key (guild:voiceChannel) -> Volume
-	Volume       = make(map[string]float64)
-	VolumeMutex  sync.Mutex
+	Volume      = make(map[string]float64)
+	VolumeMutex sync.Mutex
 
 	// Queue Key (guild:voiceChannel) -> Stop channels
 	StopChannels = make(map[string]chan bool)
@@ -65,7 +53,7 @@ var (
 	PauseChs     = make(map[string]chan bool)
 	PauseChMutex sync.Mutex
 
-	OpusEncoder  *gopus.Encoder
+	OpusEncoder *gopus.Encoder
 
 	// Time when the bot started
 	StartTime time.Time

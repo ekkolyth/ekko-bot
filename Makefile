@@ -7,12 +7,25 @@ OUTPUT_DIR=bin
 IMAGE_NAME ?= ekkolyth/ekko-bot
 IMAGE_TAG ?= dev
 
+# Local Redis for dev
+REDIS_CONTAINER_NAME ?= ekko-redis-dev
+REDIS_IMAGE ?= redis:7-alpine
+
 # Use Go
 GOBUILD=go build
 GO_SOURCE_HASH:=$(shell find . -name "*.go" | sort | xargs cat | sha1sum | cut -c1-8)
 
 -include .env
 export
+
+ifndef REDIS_PORT
+REDIS_PORT := 6379
+endif
+export REDIS_PORT
+
+ifndef REDIS_URL
+export REDIS_URL := redis://127.0.0.1:$(REDIS_PORT)/0
+endif
 
 all: build
 
@@ -37,14 +50,47 @@ install:
 		cd web && pnpm install; \
 	fi
 
-go: build
+go: redis/start build
 	@echo "Starting bot server, API server, and web UI..."
 	@echo "Press Ctrl+C to stop all servers"
-	@trap 'kill %1 %2 %3; exit 0' INT; \
+	@cleanup() { \
+		kill %1 %2 %3 2>/dev/null || true; \
+		$(MAKE) -s redis/stop >/dev/null 2>&1 || true; \
+		exit 0; \
+	}; \
+	trap cleanup INT; \
 	./$(OUTPUT_DIR)/$(BOT_BINARY_NAME) & \
 	./$(OUTPUT_DIR)/$(API_BINARY_NAME) & \
 	cd web && pnpm dev & \
-	wait
+	wait; \
+	cleanup
+
+redis/start:
+	@if [ -z "$$(docker ps -q -f name=$(REDIS_CONTAINER_NAME))" ]; then \
+		if [ -z "$$(docker ps -aq -f name=$(REDIS_CONTAINER_NAME))" ]; then \
+			echo "Starting Redis container $(REDIS_CONTAINER_NAME) on port $(REDIS_PORT)..."; \
+			if [ -n "$(REDIS_PASSWORD)" ]; then \
+				docker run -d --name $(REDIS_CONTAINER_NAME) -p $(REDIS_PORT):6379 $(REDIS_IMAGE) \
+					redis-server --save "" --appendonly no --requirepass $(REDIS_PASSWORD); \
+			else \
+				docker run -d --name $(REDIS_CONTAINER_NAME) -p $(REDIS_PORT):6379 $(REDIS_IMAGE) \
+					redis-server --save "" --appendonly no; \
+			fi \
+		else \
+			echo "Starting existing Redis container $(REDIS_CONTAINER_NAME)..."; \
+			docker start $(REDIS_CONTAINER_NAME) >/dev/null; \
+		fi \
+	else \
+		echo "Redis container $(REDIS_CONTAINER_NAME) already running."; \
+	fi
+
+redis/stop:
+	@if [ -n "$$(docker ps -q -f name=$(REDIS_CONTAINER_NAME))" ]; then \
+		echo "Stopping Redis container $(REDIS_CONTAINER_NAME)..."; \
+		docker stop $(REDIS_CONTAINER_NAME) >/dev/null; \
+	else \
+		echo "Redis container $(REDIS_CONTAINER_NAME) is not running."; \
+	fi
 
 version:
 	@echo "Version: $(GO_SOURCE_HASH)"

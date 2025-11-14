@@ -14,6 +14,12 @@ func AddSong(ctx *context.Context, search_mode bool, apiURL ...string) { // sear
 	var guildID string
 	var isAPICall bool
 
+	store := context.GetQueueStore()
+	if store == nil {
+		ctx.Reply("Queue store unavailable")
+		return
+	}
+
 	// Determine if this is an API call or Discord command
 	if len(apiURL) > 0 {
 		// API call - use provided URL
@@ -98,35 +104,48 @@ func AddSong(ctx *context.Context, search_mode bool, apiURL ...string) { // sear
 	queueKey := context.QueueKey(guildID, ctx.VoiceChannelID)
 
 	// Fetch video metadata in background
-	go func() {
+	go func(requesterTag, requesterID string) {
 		videoInfo, err := media.GetVideoInfo(url)
 		if err == nil && videoInfo != nil {
-			// Cache the metadata
-			context.TrackMetadataCacheMutex.Lock()
-			if context.TrackMetadataCache[queueKey] == nil {
-				context.TrackMetadataCache[queueKey] = make(map[string]*context.TrackInfo)
-			}
-			context.TrackMetadataCache[queueKey][url] = &context.TrackInfo{
+			meta := &context.TrackInfo{
 				URL:       url,
 				Title:     videoInfo.Title,
 				Artist:    videoInfo.Artist,
 				Duration:  videoInfo.Duration,
 				Thumbnail: videoInfo.Thumbnail,
-				AddedBy:   ctx.RequesterTag,
-				AddedByID: ctx.RequesterDiscordUserID,
+				AddedBy:   requesterTag,
+				AddedByID: requesterID,
 			}
-			context.TrackMetadataCacheMutex.Unlock()
-			logging.Info("Cached metadata for: " + videoInfo.Title)
+			if saveErr := store.SaveMetadata(queueKey, url, meta); saveErr != nil {
+				logging.Error("Failed to cache metadata: " + saveErr.Error())
+			} else {
+				logging.Info("Cached metadata for: " + videoInfo.Title)
+			}
 		}
-	}()
+	}(ctx.RequesterTag, ctx.RequesterDiscordUserID)
 
-	context.QueueMutex.Lock()
-	context.Queue[queueKey] = append(context.Queue[queueKey], url)
-	context.QueueMutex.Unlock()
+	queueTrack := &context.TrackInfo{
+		URL:       url,
+		Title:     url,
+		Artist:    "",
+		Duration:  0,
+		Thumbnail: "",
+		AddedBy:   ctx.RequesterTag,
+		AddedByID: ctx.RequesterDiscordUserID,
+	}
 
-	context.PlayingMutex.Lock()
-	isAlreadyPlaying := context.Playing[queueKey]
-	context.PlayingMutex.Unlock()
+	if err := store.Append(queueKey, queueTrack); err != nil {
+		logging.Error("Failed to enqueue track: " + err.Error())
+		ctx.Reply("Failed to add song to queue.")
+		return
+	}
+
+	isAlreadyPlaying, err := store.IsPlaying(queueKey)
+	if err != nil {
+		logging.Error("Failed to read queue state: " + err.Error())
+		ctx.Reply("Unable to read queue state.")
+		return
+	}
 
 	if !isAPICall {
 		ctx.Reply("Added to queue.")
@@ -135,11 +154,7 @@ func AddSong(ctx *context.Context, search_mode bool, apiURL ...string) { // sear
 	}
 
 	if !isAlreadyPlaying {
-		// Start processing the queue if the bot is idle
-		context.PlayingMutex.Lock()
-		context.Playing[queueKey] = true
-		context.PlayingMutex.Unlock()
-		
+		_ = store.SetPlaying(queueKey, true)
 		logging.Info("Starting queue processing for queue: " + queueKey)
 		ProcessQueue(ctx)
 	} else {

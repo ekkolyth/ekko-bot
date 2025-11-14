@@ -15,10 +15,20 @@ func StopSong(ctx *context.Context) {
 		return
 	}
 
+	if !ensureVoiceChannelID(ctx) {
+		ctx.Reply("Could not determine your voice channel.")
+		return
+	}
+
 	// Notify the user first (before goroutine that might affect context)
 	ctx.Reply("Stopped playback and cleared the queue.")
 
 	queueKey := context.QueueKey(ctx.GetGuildID(), ctx.VoiceChannelID)
+	store := context.GetQueueStore()
+	if store == nil {
+		ctx.Reply("Queue store unavailable.")
+		return
+	}
 
 	// Signal the current song to stop
 	context.StopMutex.Lock()
@@ -29,14 +39,15 @@ func StopSong(ctx *context.Context) {
 	context.StopMutex.Unlock()
 
 	// Clear the queue for the guild
-	context.QueueMutex.Lock()
-	context.Queue[queueKey] = []string{}
-	context.QueueMutex.Unlock()
+	if err := store.Clear(queueKey); err != nil {
+		logging.Error("Failed to clear queue: " + err.Error())
+	}
 
 	// Clear now playing
 	context.NowPlayingMutex.Lock()
 	delete(context.NowPlaying, queueKey)
 	context.NowPlayingMutex.Unlock()
+	_ = store.ClearNowPlaying(queueKey)
 
 	// Clear now playing info
 	context.NowPlayingInfoMutex.Lock()
@@ -44,14 +55,19 @@ func StopSong(ctx *context.Context) {
 	context.NowPlayingInfoMutex.Unlock()
 
 	// Clear metadata cache for this queue
-	context.TrackMetadataCacheMutex.Lock()
-	delete(context.TrackMetadataCache, queueKey)
-	context.TrackMetadataCacheMutex.Unlock()
+	if err := store.ClearMetadata(queueKey); err != nil {
+		logging.Error("Failed to clear metadata cache: " + err.Error())
+	}
+
+	context.PauseMutex.Lock()
+	delete(context.Paused, queueKey)
+	context.PauseMutex.Unlock()
+	_ = store.SetPaused(queueKey, false)
 
 	// Mark the bot as not playing
-	context.PlayingMutex.Lock()
-	context.Playing[queueKey] = false
-	context.PlayingMutex.Unlock()
+	if err := store.SetPlaying(queueKey, false); err != nil {
+		logging.Error("Failed to update playing state: " + err.Error())
+	}
 
 	// Wait a moment for processes to terminate cleanly
 	// then disconnect from the voice channel

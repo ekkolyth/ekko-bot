@@ -11,6 +11,11 @@ func SkipSong(ctx *context.Context) {
 		return
 	}
 
+	if !ensureVoiceChannelID(ctx) {
+		ctx.Reply("Could not determine your voice channel.")
+		return
+	}
+
 	queueKey := context.QueueKey(ctx.GetGuildID(), ctx.VoiceChannelID)
 
 	// Signal the current song to stop

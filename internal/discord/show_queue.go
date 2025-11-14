@@ -8,20 +8,41 @@ import (
 )
 
 func ShowQueue(ctx *context.Context) {
+	if !ensureVoiceChannelID(ctx) {
+		ctx.Reply("Could not determine your voice channel.")
+		return
+	}
+
 	queueKey := context.QueueKey(ctx.GetGuildID(), ctx.VoiceChannelID)
+	store := context.GetQueueStore()
+	if store == nil {
+		ctx.Reply("Queue store unavailable.")
+		return
+	}
 
-	context.QueueMutex.Lock()
-	defer context.QueueMutex.Unlock()
+	tracks, err := store.Snapshot(queueKey)
+	if err != nil {
+		ctx.Reply("Failed to load queue.")
+		return
+	}
 
-	if len(context.Queue[queueKey]) == 0 {
+	if len(tracks) == 0 {
 		ctx.Reply("Queue is empty.")
 		return
 	}
 
-	// Make a formatted list of songs, "[N] URL""
 	var formattedQueue []string
-	for i, song := range context.Queue[queueKey] {
-		formattedQueue = append(formattedQueue, fmt.Sprintf("[%d] %s", i+1, song))
+	for i, track := range tracks {
+		display := track.Title
+		if display == "" || display == track.URL {
+			meta, metaErr := store.LookupMetadata(queueKey, track.URL)
+			if metaErr == nil && meta != nil && meta.Title != "" {
+				display = meta.Title
+			} else {
+				display = track.URL
+			}
+		}
+		formattedQueue = append(formattedQueue, fmt.Sprintf("[%d] %s", i+1, display))
 	}
 
 	ctx.Reply("Current queue:\n" + strings.Join(formattedQueue, "\n"))

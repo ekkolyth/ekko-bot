@@ -2,7 +2,6 @@ package discord
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/ekkolyth/ekko-bot/internal/context"
@@ -10,90 +9,99 @@ import (
 )
 
 func ProcessQueue(ctx *context.Context) {
+	store := context.GetQueueStore()
+	if store == nil {
+		logging.Error("Queue store unavailable for processing")
+		return
+	}
+
 	go func() {
 		queueKey := context.QueueKey(ctx.GetGuildID(), ctx.VoiceChannelID)
-		
+
 		for {
-		context.QueueMutex.Lock()
-		if len(context.Queue[queueKey]) == 0 {
-			// If the queue is empty, mark the bot as idle and leave the voice channel.
-			context.PlayingMutex.Lock()
-			context.Playing[queueKey] = false
-			context.PlayingMutex.Unlock()
+			nextTrack, err := store.PopNext(queueKey)
+			if err != nil {
+				logging.Error("Failed to pop next track: " + err.Error())
+				break
+			}
 
-			// Clear now playing
-			context.NowPlayingMutex.Lock()
-			delete(context.NowPlaying, queueKey)
-			context.NowPlayingMutex.Unlock()
+			if nextTrack == nil {
+				_ = store.SetPlaying(queueKey, false)
+				_ = store.ClearNowPlaying(queueKey)
 
-			// Clear now playing info
-			context.NowPlayingInfoMutex.Lock()
-			delete(context.NowPlayingInfo, queueKey)
-			context.NowPlayingInfoMutex.Unlock()
+				context.NowPlayingMutex.Lock()
+				delete(context.NowPlaying, queueKey)
+				context.NowPlayingMutex.Unlock()
 
-			context.QueueMutex.Unlock()
+				context.NowPlayingInfoMutex.Lock()
+				delete(context.NowPlayingInfo, queueKey)
+				context.NowPlayingInfoMutex.Unlock()
 
 				// Wait a moment before disconnecting to avoid rapid connect/disconnect cycles
 				time.Sleep(500 * time.Millisecond)
 
-				vc, err := GetVoiceConnection(ctx)
-				if err == nil {
+				vc, vcErr := GetVoiceConnection(ctx)
+				if vcErr == nil {
 					vc.Speaking(false)
 					vc.Disconnect()
 				}
 				break
 			}
 
-		// Dequeue the next song
-		currentURL := context.Queue[queueKey][0]
-		context.Queue[queueKey] = context.Queue[queueKey][1:]
-		songLength := len(context.Queue[queueKey])
-		context.QueueMutex.Unlock()
+			meta, metaErr := store.LookupMetadata(queueKey, nextTrack.URL)
+			if metaErr == nil && meta != nil {
+				nextTrack = meta
+			}
+			_ = store.SetNowPlaying(queueKey, nextTrack)
 
-		// Store the currently playing track
-		context.NowPlayingMutex.Lock()
-		context.NowPlaying[queueKey] = currentURL
-		context.NowPlayingMutex.Unlock()
+			context.NowPlayingMutex.Lock()
+			context.NowPlaying[queueKey] = nextTrack.URL
+			context.NowPlayingMutex.Unlock()
 
-		// Store metadata if available
-		context.TrackMetadataCacheMutex.Lock()
-		if meta, exists := context.TrackMetadataCache[queueKey][currentURL]; exists {
 			context.NowPlayingInfoMutex.Lock()
-			context.NowPlayingInfo[queueKey] = meta
+			context.NowPlayingInfo[queueKey] = nextTrack
 			context.NowPlayingInfoMutex.Unlock()
-		}
-		context.TrackMetadataCacheMutex.Unlock()
 
-			logging.Info("Playing song, " + strconv.Itoa(songLength) + " more in queue: " + queueKey)
-			ctx.Reply(fmt.Sprintf("Now playing: %s", currentURL))
+			pending, lengthErr := store.Length(queueKey)
+			if lengthErr != nil {
+				pending = 0
+			}
 
-		// Create a stop channel for this song
-		context.StopMutex.Lock()
-		stop := make(chan bool)
-		context.StopChannels[queueKey] = stop
-		context.StopMutex.Unlock()
+			title := nextTrack.Title
+			if title == "" {
+				title = nextTrack.URL
+			}
 
-		// Create pause channel
-		context.PauseChMutex.Lock()
-		pauseCh := make(chan bool, 1) // Buffered channel
-		context.PauseChs[queueKey] = pauseCh
-		context.PauseChMutex.Unlock()
+			logging.Info(fmt.Sprintf("Playing song, %d more in queue: %s", pending, queueKey))
+			ctx.Reply(fmt.Sprintf("Now playing: %s", title))
 
-		// Initialize pause state
-		context.PauseMutex.Lock()
-		pauseCh <- context.Paused[queueKey]
-		context.PauseMutex.Unlock()
+			// Create a stop channel for this song
+			context.StopMutex.Lock()
+			stop := make(chan bool)
+			context.StopChannels[queueKey] = stop
+			context.StopMutex.Unlock()
+
+			// Create pause channel
+			context.PauseChMutex.Lock()
+			pauseCh := make(chan bool, 1)
+			context.PauseChs[queueKey] = pauseCh
+			context.PauseChMutex.Unlock()
+
+			// Initialize pause state
+			context.PauseMutex.Lock()
+			pauseCh <- context.Paused[queueKey]
+			context.PauseMutex.Unlock()
 
 			done := make(chan bool)
-			go PlayAudio(ctx, currentURL, stop, pauseCh, done)
+			go PlayAudio(ctx, nextTrack.URL, stop, pauseCh, done)
 			<-done
 
 			logging.Info("Song finished, moving to next in queue if available.")
 
-		// Clean up pause channel
-		context.PauseChMutex.Lock()
-		delete(context.PauseChs, queueKey)
-		context.PauseChMutex.Unlock()
+			// Clean up pause channel
+			context.PauseChMutex.Lock()
+			delete(context.PauseChs, queueKey)
+			context.PauseChMutex.Unlock()
 		}
 	}()
 }
