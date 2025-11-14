@@ -512,3 +512,45 @@ func QueueSkip() http.HandlerFunc {
 		httpx.RespondJSON(write, http.StatusOK, map[string]any{"ok": true})
 	}
 }
+
+func QueueStop() http.HandlerFunc {
+	return func(write http.ResponseWriter, read *http.Request) {
+		if discordSessionProvider == nil {
+			httpx.RespondError(write, http.StatusInternalServerError, "Discord session not initialized")
+			return
+		}
+
+		s, _ := discordSessionProvider().(*discordgo.Session)
+		if s == nil {
+			httpx.RespondError(write, http.StatusInternalServerError, "Discord session unavailable")
+			return
+		}
+
+		guildID, errMsg := getGuildID()
+		if errMsg != "" {
+			httpx.RespondError(write, http.StatusInternalServerError, errMsg)
+			return
+		}
+
+		type stopRequest struct {
+			VoiceChannelID string `json:"voice_channel_id"`
+		}
+
+		var req stopRequest
+		if err := httpx.DecodeJSON(write, read, &req, 1<<20); err != nil {
+			httpx.RespondError(write, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		ctx := &appctx.Context{
+			SourceType:     appctx.SourceTypeWeb,
+			Session:        s,
+			GuildID:        guildID,
+			VoiceChannelID: req.VoiceChannelID,
+		}
+
+		discord.StopSong(ctx)
+
+		httpx.RespondJSON(write, http.StatusOK, map[string]any{"ok": true})
+	}
+}

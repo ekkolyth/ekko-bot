@@ -3,7 +3,7 @@ import { json } from '@tanstack/react-start';
 import { auth } from '@/lib/auth/auth';
 import { baseURL } from '@/lib/base-url';
 
-export const Route = createFileRoute('/api/queue/skip/')({
+export const Route = createFileRoute('/api/queue/stop/')({
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {
@@ -18,7 +18,7 @@ export const Route = createFileRoute('/api/queue/skip/')({
 
         try {
           const payload = await request.text();
-          const apiURL = `${baseURL}/api/queue/skip`;
+          const apiURL = `${baseURL}/api/queue/stop`;
           const response = await fetch(apiURL, {
             method: 'POST',
             headers: {
@@ -41,3 +41,5 @@ export const Route = createFileRoute('/api/queue/skip/')({
     },
   },
 });
+
+

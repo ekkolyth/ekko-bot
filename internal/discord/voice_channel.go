@@ -24,9 +24,17 @@ func GetVoiceConnection(ctx *context.Context) (*discordgo.VoiceConnection, error
 }
 
 func BotInChannel(ctx *context.Context) bool {
-	// determines whether the bot is in the guild's channel
-	_, err := GetVoiceConnection(ctx)
-	return err == nil
+	vc, err := GetVoiceConnection(ctx)
+	if err != nil || vc == nil {
+		return false
+	}
+
+	if !vc.Ready {
+		vc.Close()
+		return false
+	}
+
+	return true
 }
 
 func JoinUserVoiceChannel(ctx *context.Context) (*discordgo.VoiceConnection, error) {
@@ -55,6 +63,13 @@ func ensureVoiceChannelID(ctx *context.Context) bool {
 		return true
 	}
 
+	if user := ctx.GetUser(); user != nil {
+		if channelID, ok := context.GetUserVoiceChannel(ctx.GetGuildID(), user.ID); ok {
+			ctx.VoiceChannelID = channelID
+			return true
+		}
+	}
+
 	channelID := userVoiceChannelID(ctx)
 	if channelID == "" {
 		return false
@@ -65,6 +80,12 @@ func ensureVoiceChannelID(ctx *context.Context) bool {
 }
 
 func userVoiceChannelID(ctx *context.Context) string {
+	if user := ctx.GetUser(); user != nil {
+		if channelID, ok := context.GetUserVoiceChannel(ctx.GetGuildID(), user.ID); ok {
+			return channelID
+		}
+	}
+
 	guildID := ctx.GetGuildID()
 	if !httpx.ValidDiscordSnowflake(guildID) {
 		return ""

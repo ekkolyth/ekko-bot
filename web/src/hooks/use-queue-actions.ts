@@ -75,6 +75,26 @@ export function useQueueActions() {
     },
   });
 
+  const stop = useMutation({
+    mutationFn: async (params: QueueActionParams) => {
+      const response = await fetch('/api/queue/stop', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to stop');
+      }
+
+      return response.json();
+    },
+    onSuccess: (_, variables) => {
+      invalidateQueue(variables.voice_channel_id);
+    },
+  });
+
   const clear = useMutation({
     mutationFn: async (params: QueueActionParams) => {
       const response = await fetch('/api/queue/clear', {
@@ -119,6 +139,7 @@ export function useQueueActions() {
     pause,
     play,
     skip,
+    stop,
     clear,
     remove,
   };

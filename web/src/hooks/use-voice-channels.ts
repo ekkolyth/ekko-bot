@@ -16,6 +16,8 @@ export function useVoiceChannels() {
       const data = await response.json();
       return (data.channel ?? null) as VoiceChannel | null;
     },
-    staleTime: 1000 * 5,
+    staleTime: 0,
+    refetchInterval: 2000,
+    refetchIntervalInBackground: true,
   });
 }

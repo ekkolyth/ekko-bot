@@ -67,6 +67,7 @@ func main() {
 
 	dg.AddHandler(handlers.HandleMessageCreate)
 	dg.AddHandler(handlers.HandleInteractionCreate)
+	dg.AddHandler(handlers.HandleVoiceStateUpdate)
 
 	err = dg.Open()
 

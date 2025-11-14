@@ -5,6 +5,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/ekkolyth/ekko-bot/internal/api/httpx"
+	appctx "github.com/ekkolyth/ekko-bot/internal/context"
 )
 
 type voiceChannelResponse struct {
@@ -55,7 +56,7 @@ func VoiceChannelCurrent() http.HandlerFunc {
 			return
 		}
 
-		channelID, channelName, err := findUserVoiceChannel(session, guildID, userID)
+		channelID, channelName, err := getCachedVoiceChannel(session, guildID, userID)
 		if err != nil {
 			httpx.RespondJSON(write, http.StatusOK, voiceChannelResponse{
 				OK:      true,
@@ -74,6 +75,15 @@ func VoiceChannelCurrent() http.HandlerFunc {
 	}
 }
 
+func getCachedVoiceChannel(session *discordgo.Session, guildID, userID string) (string, string, error) {
+	if channelID, ok := appctx.GetUserVoiceChannel(guildID, userID); ok && channelID != "" {
+		name := channelName(session, channelID)
+		return channelID, name, nil
+	}
+
+	return findUserVoiceChannel(session, guildID, userID)
+}
+
 func findUserVoiceChannel(session *discordgo.Session, guildID, userID string) (string, string, error) {
 	guild, err := session.State.Guild(guildID)
 	if err != nil {
@@ -85,16 +95,26 @@ func findUserVoiceChannel(session *discordgo.Session, guildID, userID string) (s
 
 	for _, voiceState := range guild.VoiceStates {
 		if voiceState.UserID == userID {
-			name := ""
-			channel, err := session.State.Channel(voiceState.ChannelID)
-			if err == nil && channel != nil {
-				name = channel.Name
-			} else if fetched, fetchErr := session.Channel(voiceState.ChannelID); fetchErr == nil && fetched != nil {
-				name = fetched.Name
-			}
+			name := channelName(session, voiceState.ChannelID)
 			return voiceState.ChannelID, name, nil
 		}
 	}
 
 	return "", "", http.ErrNoLocation
+}
+
+func channelName(session *discordgo.Session, channelID string) string {
+	if channelID == "" {
+		return ""
+	}
+
+	if ch, err := session.State.Channel(channelID); err == nil && ch != nil {
+		return ch.Name
+	}
+
+	if fetched, err := session.Channel(channelID); err == nil && fetched != nil {
+		return fetched.Name
+	}
+
+	return ""
 }
