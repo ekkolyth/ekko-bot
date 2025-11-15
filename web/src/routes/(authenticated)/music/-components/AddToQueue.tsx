@@ -1,6 +1,5 @@
 import { Input } from '@/components/ui/input';
 import { Field } from '@/components/ui/field';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useForm } from '@tanstack/react-form';
