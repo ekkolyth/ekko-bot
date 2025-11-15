@@ -9,6 +9,7 @@
 - Avoid implicit behavior or "magic" when possible (with the exception of inferred Typescript types)
 - If the requested change is ambiguous, ALWAYS ASK a clarifying question before modifying files.
 - When updating code, do not refactor unrelated parts.
+- Only one guild is supported per deployment. Always use the DISCORD_GUILD_ID env value; new guilds require a new app instance.
 
 # Typescript
 

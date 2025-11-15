@@ -16,8 +16,9 @@ type DB struct {
 
 // Service wraps DB and provides additional services
 type Service struct {
-	DB      *DB
-	Queries *Queries
+	DB             *DB
+	Queries        *Queries
+	CustomCommands *CustomCommandService
 }
 
 // NewDB creates a new database connection pool and returns a DB instance
@@ -58,8 +59,9 @@ func NewService(ctx context.Context) (*Service, error) {
 	}
 
 	return &Service{
-		DB:      db,
-		Queries: db.Queries,
+		DB:             db,
+		Queries:        db.Queries,
+		CustomCommands: NewCustomCommandService(db.Queries),
 	}, nil
 }
 

@@ -21,6 +21,7 @@ import {
   ShoppingBag,
   Sparkles,
   UsersRound,
+  ExternalLink,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import {
@@ -55,7 +56,7 @@ export function Navbar() {
   // Authenticated sidebar sections
   const navSections: {
     label: string
-    items: { label: string; href: string; icon: LucideIcon }[]
+    items: { label: string; href: string; icon: LucideIcon; isExternal?: boolean }[]
   }[] = [
     {
       label: 'ESSENTIALS',
@@ -87,8 +88,18 @@ export function Navbar() {
       label: 'SUPPORT',
       items: [
         { label: 'Help', href: '/help', icon: LifeBuoy },
-        { label: 'Extra Life', href: '/extra-life', icon: HeartHandshake },
-        { label: 'Merch', href: '/merch', icon: ShoppingBag },
+        {
+          label: 'Extra Life',
+          href: 'https://extralife.ekkolyth.com/',
+          icon: HeartHandshake,
+          isExternal: true,
+        },
+        {
+          label: 'Merch',
+          href: 'https://ghostboy.co',
+          icon: ShoppingBag,
+          isExternal: true,
+        },
       ],
     },
   ]
@@ -156,13 +167,24 @@ export function Navbar() {
               <SidebarMenu>
                 {section.items.map((item) => {
                   const ItemIcon = item.icon
+                  const isActive = !item.isExternal && currentPath === item.href
                   return (
                     <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton asChild isActive={currentPath === item.href}>
-                        <Link to={item.href}>
-                          <ItemIcon />
-                          <span>{item.label}</span>
-                        </Link>
+                      <SidebarMenuButton asChild isActive={isActive}>
+                        {item.isExternal ? (
+                          <a href={item.href} target="_blank" rel="noreferrer">
+                            <ItemIcon />
+                            <span className="flex items-center gap-1">
+                              {item.label}
+                              <ExternalLink className="size-3.5" />
+                            </span>
+                          </a>
+                        ) : (
+                          <Link to={item.href}>
+                            <ItemIcon />
+                            <span>{item.label}</span>
+                          </Link>
+                        )}
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   )

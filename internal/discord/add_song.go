@@ -1,12 +1,14 @@
 package discord
 
 import (
+	stdcontext "context"
 	"strings"
 
 	"github.com/ekkolyth/ekko-bot/internal/api/httpx"
 	"github.com/ekkolyth/ekko-bot/internal/context"
 	"github.com/ekkolyth/ekko-bot/internal/logging"
 	"github.com/ekkolyth/ekko-bot/internal/media"
+	"github.com/ekkolyth/ekko-bot/internal/recentlyplayed"
 )
 
 func AddSong(ctx *context.Context, search_mode bool, apiURL ...string) { // search_mode - false for play, true for search
@@ -103,26 +105,46 @@ func AddSong(ctx *context.Context, search_mode bool, apiURL ...string) { // sear
 
 	queueKey := context.QueueKey(guildID, ctx.VoiceChannelID)
 
-	// Fetch video metadata in background
-	go func(requesterTag, requesterID string) {
+	// Fetch video metadata and persist recently played entry in background
+	go func(requesterTag, requesterID, guild, voiceChannel string) {
+		meta := &context.TrackInfo{
+			URL:       url,
+			Title:     url,
+			Artist:    "",
+			Duration:  0,
+			Thumbnail: "",
+			AddedBy:   requesterTag,
+			AddedByID: requesterID,
+		}
+
 		videoInfo, err := media.GetVideoInfo(url)
 		if err == nil && videoInfo != nil {
-			meta := &context.TrackInfo{
-				URL:       url,
-				Title:     videoInfo.Title,
-				Artist:    videoInfo.Artist,
-				Duration:  videoInfo.Duration,
-				Thumbnail: videoInfo.Thumbnail,
-				AddedBy:   requesterTag,
-				AddedByID: requesterID,
-			}
+			meta.Title = videoInfo.Title
+			meta.Artist = videoInfo.Artist
+			meta.Duration = videoInfo.Duration
+			meta.Thumbnail = videoInfo.Thumbnail
+
 			if saveErr := store.SaveMetadata(queueKey, url, meta); saveErr != nil {
 				logging.Error("Failed to cache metadata: " + saveErr.Error())
 			} else {
 				logging.Info("Cached metadata for: " + videoInfo.Title)
 			}
 		}
-	}(ctx.RequesterTag, ctx.RequesterDiscordUserID)
+
+		if recordErr := recentlyplayed.Record(stdcontext.Background(), recentlyplayed.RecordParams{
+			GuildID:         guild,
+			VoiceChannelID:  voiceChannel,
+			URL:             url,
+			Title:           meta.Title,
+			Artist:          meta.Artist,
+			DurationSeconds: meta.Duration,
+			Thumbnail:       meta.Thumbnail,
+			AddedBy:         meta.AddedBy,
+			AddedByID:       meta.AddedByID,
+		}); recordErr != nil {
+			logging.Error("Failed to record recently played: " + recordErr.Error())
+		}
+	}(ctx.RequesterTag, ctx.RequesterDiscordUserID, guildID, ctx.VoiceChannelID)
 
 	queueTrack := &context.TrackInfo{
 		URL:       url,

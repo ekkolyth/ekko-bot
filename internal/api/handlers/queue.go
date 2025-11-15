@@ -9,6 +9,7 @@ import (
 	appctx "github.com/ekkolyth/ekko-bot/internal/context"
 	"github.com/ekkolyth/ekko-bot/internal/discord"
 	"github.com/ekkolyth/ekko-bot/internal/logging"
+	"github.com/ekkolyth/ekko-bot/internal/recentlyplayed"
 )
 
 // getGuildID reads and validates DISCORD_GUILD_ID from environment
@@ -50,6 +51,15 @@ type queueResponse struct {
 	IsPlaying      bool         `json:"is_playing"`
 	IsPaused       bool         `json:"is_paused"`
 	Volume         float64      `json:"volume"`
+}
+
+type recentTrack struct {
+	URL       string `json:"url"`
+	Title     string `json:"title"`
+	Artist    string `json:"artist"`
+	Duration  int    `json:"duration"`
+	Thumbnail string `json:"thumbnail"`
+	AddedBy   string `json:"added_by"`
 }
 
 var discordSessionProvider func() any // set via SetDiscordSession
@@ -149,6 +159,45 @@ func QueueGet() http.HandlerFunc {
 	}
 }
 
+func QueueRecent() http.HandlerFunc {
+	return func(write http.ResponseWriter, read *http.Request) {
+		voiceChannelID := read.URL.Query().Get("voice_channel_id")
+		if voiceChannelID == "" {
+			httpx.RespondError(write, http.StatusBadRequest, "Missing voice_channel_id query parameter")
+			return
+		}
+
+		guildID, errMsg := getGuildID()
+		if errMsg != "" {
+			httpx.RespondError(write, http.StatusInternalServerError, errMsg)
+			return
+		}
+
+		recent, err := recentlyplayed.List(read.Context(), guildID, voiceChannelID, 100)
+		if err != nil {
+			httpx.RespondError(write, http.StatusInternalServerError, "Failed to load recently played tracks")
+			return
+		}
+
+		tracks := make([]recentTrack, 0, len(recent))
+		for _, entry := range recent {
+			tracks = append(tracks, recentTrack{
+				URL:       entry.Url,
+				Title:     stringOrFallback(entry.Title, entry.Url),
+				Artist:    stringOrFallback(entry.Artist, ""),
+				Duration:  int(entry.DurationSeconds),
+				Thumbnail: stringOrFallback(entry.Thumbnail, ""),
+				AddedBy:   stringOrFallback(entry.AddedBy, ""),
+			})
+		}
+
+		httpx.RespondJSON(write, http.StatusOK, map[string]any{
+			"voice_channel_id": voiceChannelID,
+			"tracks":           tracks,
+		})
+	}
+}
+
 func queueTrackFromInfo(position int, info *appctx.TrackInfo, meta *appctx.TrackInfo) queueTrack {
 	if info == nil {
 		info = &appctx.TrackInfo{}
@@ -207,6 +256,16 @@ func queueTrackFromInfo(position int, info *appctx.TrackInfo, meta *appctx.Track
 	}
 
 	return track
+}
+
+func stringOrFallback(value *string, fallback string) string {
+	if value == nil {
+		return fallback
+	}
+	if *value == "" && fallback != "" {
+		return fallback
+	}
+	return *value
 }
 
 func QueueAdd() http.HandlerFunc {

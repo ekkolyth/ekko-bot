@@ -56,6 +56,7 @@ func NewRouter(dbService *db.Service) http.Handler {
 
 		api.Route("/queue", func(queue chi.Router) {
 			queue.Get("/", handlers.QueueGet())
+			queue.Get("/recent", handlers.QueueRecent())
 			queue.Post("/", handlers.QueueAdd())
 			queue.Post("/remove", handlers.QueueRemove())
 			queue.Post("/clear", handlers.QueueClear())
@@ -63,6 +64,11 @@ func NewRouter(dbService *db.Service) http.Handler {
 			queue.Post("/play", handlers.QueuePlay())
 			queue.Post("/skip", handlers.QueueSkip())
 			queue.Post("/stop", handlers.QueueStop())
+		})
+
+		api.Route("/commands", func(commands chi.Router) {
+			commands.Get("/", handlers.CommandsList(dbService.CustomCommands))
+			commands.Post("/", handlers.CommandsCreate(dbService.CustomCommands))
 		})
 	})
 

@@ -10,13 +10,21 @@ import (
 
 type Querier interface {
 	CreateBotStatus(ctx context.Context, arg *CreateBotStatusParams) (*BotState, error)
+	CreateCustomCommand(ctx context.Context, arg *CreateCustomCommandParams) (*CustomCommand, error)
 	DeleteBotStatus(ctx context.Context, id string) error
+	DeleteCustomCommand(ctx context.Context, arg *DeleteCustomCommandParams) error
 	GetActiveBotStatus(ctx context.Context) (*BotState, error)
 	// Bot state queries
 	GetBotStatus(ctx context.Context, id string) (*BotState, error)
+	GetCustomCommandByName(ctx context.Context, arg *GetCustomCommandByNameParams) (*CustomCommand, error)
 	GetDiscordIdentityByAppUserId(ctx context.Context, appUserID string) (*GetDiscordIdentityByAppUserIdRow, error)
 	GetDiscordIdentityByDiscordUserId(ctx context.Context, discordUserID string) (*GetDiscordIdentityByDiscordUserIdRow, error)
+	InsertRecentlyPlayed(ctx context.Context, arg *InsertRecentlyPlayedParams) error
 	ListAllBotStatuses(ctx context.Context) ([]*BotState, error)
+	// Custom command queries
+	ListCustomCommands(ctx context.Context, guildID string) ([]*CustomCommand, error)
+	ListRecentlyPlayed(ctx context.Context, arg *ListRecentlyPlayedParams) ([]*RecentlyPlayed, error)
+	TrimRecentlyPlayed(ctx context.Context, arg *TrimRecentlyPlayedParams) error
 	UpdateBotActiveStatus(ctx context.Context, arg *UpdateBotActiveStatusParams) (*BotState, error)
 	UpdateBotActivity(ctx context.Context, arg *UpdateBotActivityParams) (*BotState, error)
 	UpdateBotStatus(ctx context.Context, arg *UpdateBotStatusParams) (*BotState, error)
