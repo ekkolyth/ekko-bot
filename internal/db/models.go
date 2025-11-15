@@ -32,6 +32,8 @@ type GuildConfig struct {
 	Volume                int32              `json:"volume"`
 	LanguageFilterEnabled bool               `json:"language_filter_enabled"`
 	UpdatedAt             pgtype.Timestamptz `json:"updated_at"`
+	WelcomeChannelID      *string            `json:"welcome_channel_id"`
+	WelcomeMessage        *string            `json:"welcome_message"`
 }
 
 type Queue struct {

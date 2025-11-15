@@ -48,8 +48,8 @@ function HomePage() {
       icon: Music,
       title: 'Music Bot with Web UI',
       description: 'Advanced music player with shared playlists, queue management, and a beautiful web dashboard for control.',
-      color: 'text-purple-400',
-      bgColor: 'bg-purple-400/10',
+      color: 'text-primary',
+      bgColor: 'bg-primary/10',
     },
     {
       icon: Bell,
@@ -95,7 +95,7 @@ function HomePage() {
       <Header />
       {/* Hero Section */}
       <section className="relative px-6 py-24 lg:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-cyan-600/20 blur-3xl" />
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-primary/20 to-cyan-600/20 blur-3xl" />
         <div className="relative max-w-7xl mx-auto">
           <div className="text-center max-w-4xl mx-auto">
             <Badge className="mb-6 bg-blue-500/10 text-blue-400 border-blue-500/20 hover:bg-blue-500/20">
@@ -104,7 +104,7 @@ function HomePage() {
             </Badge>
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
               Level Up Your
-              <span className="block bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+              <span className="block bg-gradient-to-r from-blue-400 via-primary to-cyan-400 bg-clip-text text-transparent">
                 Discord Server
               </span>
             </h1>
@@ -114,7 +114,7 @@ function HomePage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
               <Button
                 size="lg"
-                className="text-lg px-8 py-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white shadow-lg shadow-blue-500/50"
+                className="text-lg px-8 py-6 bg-gradient-to-r from-blue-600 to-primary hover:from-blue-500 hover:to-primary/90 text-white shadow-lg shadow-blue-500/50"
                 asChild
               >
                 <Link to="/auth/sign-in">
@@ -185,7 +185,7 @@ function HomePage() {
               return (
                 <Card
                   key={index}
-                  className="bg-slate-900/50 border-slate-800 hover:border-slate-700 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10"
+                  className="bg-slate-900/50 border-slate-800 hover:border-slate-700 transition-all duration-300 hover:shadow-xl hover:shadow-[0_25px_45px_color-mix(in_oklab,var(--color-primary)_20%,transparent)]"
                 >
                   <CardHeader>
                     <div
@@ -206,11 +206,11 @@ function HomePage() {
       </section>
 
       {/* Music Feature Highlight */}
-      <section className="px-6 py-24 bg-gradient-to-r from-purple-900/20 to-blue-900/20 border-y border-slate-800">
+      <section className="px-6 py-24 bg-gradient-to-r from-primary/20 to-blue-900/20 border-y border-slate-800">
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <Badge className="mb-4 bg-purple-500/10 text-purple-400 border-purple-500/20">
+              <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
                 <Music className="w-3 h-3 mr-2" />
                 Music Experience
               </Badge>
@@ -236,7 +236,7 @@ function HomePage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-purple-500/50 text-purple-400 hover:bg-purple-500/10 hover:text-purple-300"
+                className="border-primary/50 text-primary hover:bg-primary/10 hover:text-primary/80"
                 asChild
               >
                 <Link to="/auth/sign-in">
@@ -250,8 +250,8 @@ function HomePage() {
                 <CardHeader>
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                        <Play className="w-6 h-6 text-purple-400" />
+                      <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center">
+                        <Play className="w-6 h-6 text-primary" />
                       </div>
                       <div>
                         <CardTitle className="text-white">Now Playing</CardTitle>
@@ -263,7 +263,7 @@ function HomePage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    <div className="bg-slate-800/50 rounded-lg p-4 border border-purple-500/30">
+                    <div className="bg-slate-800/50 rounded-lg p-4 border border-primary/30">
                       <div className="text-white font-medium mb-1">Current Track</div>
                       <div className="text-slate-400 text-sm">Example Song Title</div>
                     </div>
@@ -289,7 +289,7 @@ function HomePage() {
       {/* CTA Section */}
       <section className="px-6 py-24">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-cyan-600/20 rounded-2xl p-12 border border-slate-800">
+          <div className="bg-gradient-to-r from-blue-600/20 via-primary/20 to-cyan-600/20 rounded-2xl p-12 border border-slate-800">
             <Bot className="w-16 h-16 text-blue-400 mx-auto mb-6" />
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
               Ready to Transform Your Server?
@@ -300,7 +300,7 @@ function HomePage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button
                 size="lg"
-                className="text-lg px-8 py-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white shadow-lg shadow-blue-500/50"
+                className="text-lg px-8 py-6 bg-gradient-to-r from-blue-600 to-primary hover:from-blue-500 hover:to-primary/90 text-white shadow-lg shadow-blue-500/50"
                 asChild
               >
                 <Link to="/auth/sign-in">

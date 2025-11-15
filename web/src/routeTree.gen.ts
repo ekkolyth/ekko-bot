@@ -17,8 +17,11 @@ import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
 import { Route as AuthLinkRouteImport } from './routes/auth/link'
 import { Route as AuthConnectRouteImport } from './routes/auth/connect'
+import { Route as ApiWelcomeConfigIndexRouteImport } from './routes/api/welcome-config/index'
+import { Route as ApiWeatherIndexRouteImport } from './routes/api/weather/index'
 import { Route as ApiRecentIndexRouteImport } from './routes/api/recent/index'
 import { Route as ApiQueueIndexRouteImport } from './routes/api/queue/index'
+import { Route as ApiLocationNameIndexRouteImport } from './routes/api/location-name/index'
 import { Route as ApiHealthzIndexRouteImport } from './routes/api/healthz/index'
 import { Route as ApiGuildsIndexRouteImport } from './routes/api/guilds/index'
 import { Route as ApiCommandsIndexRouteImport } from './routes/api/commands/index'
@@ -37,6 +40,7 @@ import { Route as authenticatedExtraLifeIndexRouteImport } from './routes/(authe
 import { Route as authenticatedDonationsIndexRouteImport } from './routes/(authenticated)/donations/index'
 import { Route as authenticatedDashboardIndexRouteImport } from './routes/(authenticated)/dashboard/index'
 import { Route as authenticatedCommandsIndexRouteImport } from './routes/(authenticated)/commands/index'
+import { Route as ApiGuildsChannelsRouteImport } from './routes/api/guilds/channels'
 import { Route as ApiCommandsCommandIdRouteImport } from './routes/api/commands/$commandId'
 import { Route as ApiAuthHasDiscordRouteImport } from './routes/api/auth/has-discord'
 import { Route as ApiAuthDeleteAutoCreatedAccountRouteImport } from './routes/api/auth/delete-auto-created-account'
@@ -90,6 +94,16 @@ const AuthConnectRoute = AuthConnectRouteImport.update({
   path: '/connect',
   getParentRoute: () => AuthRouteRoute,
 } as any)
+const ApiWelcomeConfigIndexRoute = ApiWelcomeConfigIndexRouteImport.update({
+  id: '/api/welcome-config/',
+  path: '/api/welcome-config/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiWeatherIndexRoute = ApiWeatherIndexRouteImport.update({
+  id: '/api/weather/',
+  path: '/api/weather/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiRecentIndexRoute = ApiRecentIndexRouteImport.update({
   id: '/api/recent/',
   path: '/api/recent/',
@@ -98,6 +112,11 @@ const ApiRecentIndexRoute = ApiRecentIndexRouteImport.update({
 const ApiQueueIndexRoute = ApiQueueIndexRouteImport.update({
   id: '/api/queue/',
   path: '/api/queue/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLocationNameIndexRoute = ApiLocationNameIndexRouteImport.update({
+  id: '/api/location-name/',
+  path: '/api/location-name/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiHealthzIndexRoute = ApiHealthzIndexRouteImport.update({
@@ -200,6 +219,11 @@ const authenticatedCommandsIndexRoute =
     path: '/commands/',
     getParentRoute: () => authenticatedRouteRoute,
   } as any)
+const ApiGuildsChannelsRoute = ApiGuildsChannelsRouteImport.update({
+  id: '/api/guilds/channels',
+  path: '/api/guilds/channels',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiCommandsCommandIdRoute = ApiCommandsCommandIdRouteImport.update({
   id: '/api/commands/$commandId',
   path: '/api/commands/$commandId',
@@ -282,6 +306,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/delete-auto-created-account': typeof ApiAuthDeleteAutoCreatedAccountRoute
   '/api/auth/has-discord': typeof ApiAuthHasDiscordRoute
   '/api/commands/$commandId': typeof ApiCommandsCommandIdRoute
+  '/api/guilds/channels': typeof ApiGuildsChannelsRoute
   '/commands': typeof authenticatedCommandsIndexRoute
   '/dashboard': typeof authenticatedDashboardIndexRoute
   '/donations': typeof authenticatedDonationsIndexRoute
@@ -300,8 +325,11 @@ export interface FileRoutesByFullPath {
   '/api/commands': typeof ApiCommandsIndexRoute
   '/api/guilds': typeof ApiGuildsIndexRoute
   '/api/healthz': typeof ApiHealthzIndexRoute
+  '/api/location-name': typeof ApiLocationNameIndexRoute
   '/api/queue': typeof ApiQueueIndexRoute
   '/api/recent': typeof ApiRecentIndexRoute
+  '/api/weather': typeof ApiWeatherIndexRoute
+  '/api/welcome-config': typeof ApiWelcomeConfigIndexRoute
   '/api/guilds/$guildId/channels': typeof ApiGuildsGuildIdChannelsRoute
   '/api/guilds/current/voice': typeof ApiGuildsCurrentVoiceRoute
   '/api/queue/clear': typeof ApiQueueClearIndexRoute
@@ -324,6 +352,7 @@ export interface FileRoutesByTo {
   '/api/auth/delete-auto-created-account': typeof ApiAuthDeleteAutoCreatedAccountRoute
   '/api/auth/has-discord': typeof ApiAuthHasDiscordRoute
   '/api/commands/$commandId': typeof ApiCommandsCommandIdRoute
+  '/api/guilds/channels': typeof ApiGuildsChannelsRoute
   '/commands': typeof authenticatedCommandsIndexRoute
   '/dashboard': typeof authenticatedDashboardIndexRoute
   '/donations': typeof authenticatedDonationsIndexRoute
@@ -342,8 +371,11 @@ export interface FileRoutesByTo {
   '/api/commands': typeof ApiCommandsIndexRoute
   '/api/guilds': typeof ApiGuildsIndexRoute
   '/api/healthz': typeof ApiHealthzIndexRoute
+  '/api/location-name': typeof ApiLocationNameIndexRoute
   '/api/queue': typeof ApiQueueIndexRoute
   '/api/recent': typeof ApiRecentIndexRoute
+  '/api/weather': typeof ApiWeatherIndexRoute
+  '/api/welcome-config': typeof ApiWelcomeConfigIndexRoute
   '/api/guilds/$guildId/channels': typeof ApiGuildsGuildIdChannelsRoute
   '/api/guilds/current/voice': typeof ApiGuildsCurrentVoiceRoute
   '/api/queue/clear': typeof ApiQueueClearIndexRoute
@@ -368,6 +400,7 @@ export interface FileRoutesById {
   '/api/auth/delete-auto-created-account': typeof ApiAuthDeleteAutoCreatedAccountRoute
   '/api/auth/has-discord': typeof ApiAuthHasDiscordRoute
   '/api/commands/$commandId': typeof ApiCommandsCommandIdRoute
+  '/api/guilds/channels': typeof ApiGuildsChannelsRoute
   '/(authenticated)/commands/': typeof authenticatedCommandsIndexRoute
   '/(authenticated)/dashboard/': typeof authenticatedDashboardIndexRoute
   '/(authenticated)/donations/': typeof authenticatedDonationsIndexRoute
@@ -386,8 +419,11 @@ export interface FileRoutesById {
   '/api/commands/': typeof ApiCommandsIndexRoute
   '/api/guilds/': typeof ApiGuildsIndexRoute
   '/api/healthz/': typeof ApiHealthzIndexRoute
+  '/api/location-name/': typeof ApiLocationNameIndexRoute
   '/api/queue/': typeof ApiQueueIndexRoute
   '/api/recent/': typeof ApiRecentIndexRoute
+  '/api/weather/': typeof ApiWeatherIndexRoute
+  '/api/welcome-config/': typeof ApiWelcomeConfigIndexRoute
   '/api/guilds/$guildId/channels': typeof ApiGuildsGuildIdChannelsRoute
   '/api/guilds/current/voice': typeof ApiGuildsCurrentVoiceRoute
   '/api/queue/clear/': typeof ApiQueueClearIndexRoute
@@ -412,6 +448,7 @@ export interface FileRouteTypes {
     | '/api/auth/delete-auto-created-account'
     | '/api/auth/has-discord'
     | '/api/commands/$commandId'
+    | '/api/guilds/channels'
     | '/commands'
     | '/dashboard'
     | '/donations'
@@ -430,8 +467,11 @@ export interface FileRouteTypes {
     | '/api/commands'
     | '/api/guilds'
     | '/api/healthz'
+    | '/api/location-name'
     | '/api/queue'
     | '/api/recent'
+    | '/api/weather'
+    | '/api/welcome-config'
     | '/api/guilds/$guildId/channels'
     | '/api/guilds/current/voice'
     | '/api/queue/clear'
@@ -454,6 +494,7 @@ export interface FileRouteTypes {
     | '/api/auth/delete-auto-created-account'
     | '/api/auth/has-discord'
     | '/api/commands/$commandId'
+    | '/api/guilds/channels'
     | '/commands'
     | '/dashboard'
     | '/donations'
@@ -472,8 +513,11 @@ export interface FileRouteTypes {
     | '/api/commands'
     | '/api/guilds'
     | '/api/healthz'
+    | '/api/location-name'
     | '/api/queue'
     | '/api/recent'
+    | '/api/weather'
+    | '/api/welcome-config'
     | '/api/guilds/$guildId/channels'
     | '/api/guilds/current/voice'
     | '/api/queue/clear'
@@ -497,6 +541,7 @@ export interface FileRouteTypes {
     | '/api/auth/delete-auto-created-account'
     | '/api/auth/has-discord'
     | '/api/commands/$commandId'
+    | '/api/guilds/channels'
     | '/(authenticated)/commands/'
     | '/(authenticated)/dashboard/'
     | '/(authenticated)/donations/'
@@ -515,8 +560,11 @@ export interface FileRouteTypes {
     | '/api/commands/'
     | '/api/guilds/'
     | '/api/healthz/'
+    | '/api/location-name/'
     | '/api/queue/'
     | '/api/recent/'
+    | '/api/weather/'
+    | '/api/welcome-config/'
     | '/api/guilds/$guildId/channels'
     | '/api/guilds/current/voice'
     | '/api/queue/clear/'
@@ -536,11 +584,15 @@ export interface RootRouteChildren {
   ApiAuthDeleteAutoCreatedAccountRoute: typeof ApiAuthDeleteAutoCreatedAccountRoute
   ApiAuthHasDiscordRoute: typeof ApiAuthHasDiscordRoute
   ApiCommandsCommandIdRoute: typeof ApiCommandsCommandIdRoute
+  ApiGuildsChannelsRoute: typeof ApiGuildsChannelsRoute
   ApiCommandsIndexRoute: typeof ApiCommandsIndexRoute
   ApiGuildsIndexRoute: typeof ApiGuildsIndexRoute
   ApiHealthzIndexRoute: typeof ApiHealthzIndexRoute
+  ApiLocationNameIndexRoute: typeof ApiLocationNameIndexRoute
   ApiQueueIndexRoute: typeof ApiQueueIndexRoute
   ApiRecentIndexRoute: typeof ApiRecentIndexRoute
+  ApiWeatherIndexRoute: typeof ApiWeatherIndexRoute
+  ApiWelcomeConfigIndexRoute: typeof ApiWelcomeConfigIndexRoute
   ApiGuildsGuildIdChannelsRoute: typeof ApiGuildsGuildIdChannelsRoute
   ApiGuildsCurrentVoiceRoute: typeof ApiGuildsCurrentVoiceRoute
   ApiQueueClearIndexRoute: typeof ApiQueueClearIndexRoute
@@ -609,6 +661,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthConnectRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/api/welcome-config/': {
+      id: '/api/welcome-config/'
+      path: '/api/welcome-config'
+      fullPath: '/api/welcome-config'
+      preLoaderRoute: typeof ApiWelcomeConfigIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/weather/': {
+      id: '/api/weather/'
+      path: '/api/weather'
+      fullPath: '/api/weather'
+      preLoaderRoute: typeof ApiWeatherIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/recent/': {
       id: '/api/recent/'
       path: '/api/recent'
@@ -621,6 +687,13 @@ declare module '@tanstack/react-router' {
       path: '/api/queue'
       fullPath: '/api/queue'
       preLoaderRoute: typeof ApiQueueIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/location-name/': {
+      id: '/api/location-name/'
+      path: '/api/location-name'
+      fullPath: '/api/location-name'
+      preLoaderRoute: typeof ApiLocationNameIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/healthz/': {
@@ -748,6 +821,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/commands'
       preLoaderRoute: typeof authenticatedCommandsIndexRouteImport
       parentRoute: typeof authenticatedRouteRoute
+    }
+    '/api/guilds/channels': {
+      id: '/api/guilds/channels'
+      path: '/api/guilds/channels'
+      fullPath: '/api/guilds/channels'
+      preLoaderRoute: typeof ApiGuildsChannelsRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/commands/$commandId': {
       id: '/api/commands/$commandId'
@@ -912,11 +992,15 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthDeleteAutoCreatedAccountRoute: ApiAuthDeleteAutoCreatedAccountRoute,
   ApiAuthHasDiscordRoute: ApiAuthHasDiscordRoute,
   ApiCommandsCommandIdRoute: ApiCommandsCommandIdRoute,
+  ApiGuildsChannelsRoute: ApiGuildsChannelsRoute,
   ApiCommandsIndexRoute: ApiCommandsIndexRoute,
   ApiGuildsIndexRoute: ApiGuildsIndexRoute,
   ApiHealthzIndexRoute: ApiHealthzIndexRoute,
+  ApiLocationNameIndexRoute: ApiLocationNameIndexRoute,
   ApiQueueIndexRoute: ApiQueueIndexRoute,
   ApiRecentIndexRoute: ApiRecentIndexRoute,
+  ApiWeatherIndexRoute: ApiWeatherIndexRoute,
+  ApiWelcomeConfigIndexRoute: ApiWelcomeConfigIndexRoute,
   ApiGuildsGuildIdChannelsRoute: ApiGuildsGuildIdChannelsRoute,
   ApiGuildsCurrentVoiceRoute: ApiGuildsCurrentVoiceRoute,
   ApiQueueClearIndexRoute: ApiQueueClearIndexRoute,

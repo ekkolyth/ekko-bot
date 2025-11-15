@@ -69,6 +69,7 @@ func main() {
 	defer dbService.DB.Close()
 	recentlyplayed.SetService(recentlyplayed.NewService(dbService.DB))
 	handlers.SetCustomCommandService(dbService.CustomCommands)
+	handlers.SetGuildConfigService(dbService.GuildConfig)
 
 	dg, err := discordgo.New("Bot " + context.Token)
 	if err != nil {
@@ -78,6 +79,7 @@ func main() {
 	dg.AddHandler(handlers.HandleMessageCreate)
 	dg.AddHandler(handlers.HandleInteractionCreate)
 	dg.AddHandler(handlers.HandleVoiceStateUpdate)
+	dg.AddHandler(handlers.HandleGuildMemberAdd)
 
 	err = dg.Open()
 
