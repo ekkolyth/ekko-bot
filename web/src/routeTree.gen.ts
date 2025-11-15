@@ -20,8 +20,21 @@ import { Route as AuthConnectRouteImport } from './routes/auth/connect'
 import { Route as ApiQueueIndexRouteImport } from './routes/api/queue/index'
 import { Route as ApiHealthzIndexRouteImport } from './routes/api/healthz/index'
 import { Route as ApiGuildsIndexRouteImport } from './routes/api/guilds/index'
+import { Route as authenticatedWelcomeChannelIndexRouteImport } from './routes/(authenticated)/welcome-channel/index'
+import { Route as authenticatedRemindersIndexRouteImport } from './routes/(authenticated)/reminders/index'
+import { Route as authenticatedReactionRolesIndexRouteImport } from './routes/(authenticated)/reaction-roles/index'
+import { Route as authenticatedPollsIndexRouteImport } from './routes/(authenticated)/polls/index'
+import { Route as authenticatedNotificationsIndexRouteImport } from './routes/(authenticated)/notifications/index'
 import { Route as authenticatedMusicIndexRouteImport } from './routes/(authenticated)/music/index'
+import { Route as authenticatedModeratorControlsIndexRouteImport } from './routes/(authenticated)/moderator-controls/index'
+import { Route as authenticatedMessageEmbedsIndexRouteImport } from './routes/(authenticated)/message-embeds/index'
+import { Route as authenticatedMerchIndexRouteImport } from './routes/(authenticated)/merch/index'
+import { Route as authenticatedHelpIndexRouteImport } from './routes/(authenticated)/help/index'
+import { Route as authenticatedGamesIndexRouteImport } from './routes/(authenticated)/games/index'
+import { Route as authenticatedExtraLifeIndexRouteImport } from './routes/(authenticated)/extra-life/index'
+import { Route as authenticatedDonationsIndexRouteImport } from './routes/(authenticated)/donations/index'
 import { Route as authenticatedDashboardIndexRouteImport } from './routes/(authenticated)/dashboard/index'
+import { Route as authenticatedCommandsIndexRouteImport } from './routes/(authenticated)/commands/index'
 import { Route as ApiAuthHasDiscordRouteImport } from './routes/api/auth/has-discord'
 import { Route as ApiAuthDeleteAutoCreatedAccountRouteImport } from './routes/api/auth/delete-auto-created-account'
 import { Route as ApiAuthCheckPasswordAccountRouteImport } from './routes/api/auth/check-password-account'
@@ -89,15 +102,89 @@ const ApiGuildsIndexRoute = ApiGuildsIndexRouteImport.update({
   path: '/api/guilds/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const authenticatedWelcomeChannelIndexRoute =
+  authenticatedWelcomeChannelIndexRouteImport.update({
+    id: '/welcome-channel/',
+    path: '/welcome-channel/',
+    getParentRoute: () => authenticatedRouteRoute,
+  } as any)
+const authenticatedRemindersIndexRoute =
+  authenticatedRemindersIndexRouteImport.update({
+    id: '/reminders/',
+    path: '/reminders/',
+    getParentRoute: () => authenticatedRouteRoute,
+  } as any)
+const authenticatedReactionRolesIndexRoute =
+  authenticatedReactionRolesIndexRouteImport.update({
+    id: '/reaction-roles/',
+    path: '/reaction-roles/',
+    getParentRoute: () => authenticatedRouteRoute,
+  } as any)
+const authenticatedPollsIndexRoute = authenticatedPollsIndexRouteImport.update({
+  id: '/polls/',
+  path: '/polls/',
+  getParentRoute: () => authenticatedRouteRoute,
+} as any)
+const authenticatedNotificationsIndexRoute =
+  authenticatedNotificationsIndexRouteImport.update({
+    id: '/notifications/',
+    path: '/notifications/',
+    getParentRoute: () => authenticatedRouteRoute,
+  } as any)
 const authenticatedMusicIndexRoute = authenticatedMusicIndexRouteImport.update({
   id: '/music/',
   path: '/music/',
   getParentRoute: () => authenticatedRouteRoute,
 } as any)
+const authenticatedModeratorControlsIndexRoute =
+  authenticatedModeratorControlsIndexRouteImport.update({
+    id: '/moderator-controls/',
+    path: '/moderator-controls/',
+    getParentRoute: () => authenticatedRouteRoute,
+  } as any)
+const authenticatedMessageEmbedsIndexRoute =
+  authenticatedMessageEmbedsIndexRouteImport.update({
+    id: '/message-embeds/',
+    path: '/message-embeds/',
+    getParentRoute: () => authenticatedRouteRoute,
+  } as any)
+const authenticatedMerchIndexRoute = authenticatedMerchIndexRouteImport.update({
+  id: '/merch/',
+  path: '/merch/',
+  getParentRoute: () => authenticatedRouteRoute,
+} as any)
+const authenticatedHelpIndexRoute = authenticatedHelpIndexRouteImport.update({
+  id: '/help/',
+  path: '/help/',
+  getParentRoute: () => authenticatedRouteRoute,
+} as any)
+const authenticatedGamesIndexRoute = authenticatedGamesIndexRouteImport.update({
+  id: '/games/',
+  path: '/games/',
+  getParentRoute: () => authenticatedRouteRoute,
+} as any)
+const authenticatedExtraLifeIndexRoute =
+  authenticatedExtraLifeIndexRouteImport.update({
+    id: '/extra-life/',
+    path: '/extra-life/',
+    getParentRoute: () => authenticatedRouteRoute,
+  } as any)
+const authenticatedDonationsIndexRoute =
+  authenticatedDonationsIndexRouteImport.update({
+    id: '/donations/',
+    path: '/donations/',
+    getParentRoute: () => authenticatedRouteRoute,
+  } as any)
 const authenticatedDashboardIndexRoute =
   authenticatedDashboardIndexRouteImport.update({
     id: '/dashboard/',
     path: '/dashboard/',
+    getParentRoute: () => authenticatedRouteRoute,
+  } as any)
+const authenticatedCommandsIndexRoute =
+  authenticatedCommandsIndexRouteImport.update({
+    id: '/commands/',
+    path: '/commands/',
     getParentRoute: () => authenticatedRouteRoute,
   } as any)
 const ApiAuthHasDiscordRoute = ApiAuthHasDiscordRouteImport.update({
@@ -176,8 +263,21 @@ export interface FileRoutesByFullPath {
   '/api/auth/check-password-account': typeof ApiAuthCheckPasswordAccountRoute
   '/api/auth/delete-auto-created-account': typeof ApiAuthDeleteAutoCreatedAccountRoute
   '/api/auth/has-discord': typeof ApiAuthHasDiscordRoute
+  '/commands': typeof authenticatedCommandsIndexRoute
   '/dashboard': typeof authenticatedDashboardIndexRoute
+  '/donations': typeof authenticatedDonationsIndexRoute
+  '/extra-life': typeof authenticatedExtraLifeIndexRoute
+  '/games': typeof authenticatedGamesIndexRoute
+  '/help': typeof authenticatedHelpIndexRoute
+  '/merch': typeof authenticatedMerchIndexRoute
+  '/message-embeds': typeof authenticatedMessageEmbedsIndexRoute
+  '/moderator-controls': typeof authenticatedModeratorControlsIndexRoute
   '/music': typeof authenticatedMusicIndexRoute
+  '/notifications': typeof authenticatedNotificationsIndexRoute
+  '/polls': typeof authenticatedPollsIndexRoute
+  '/reaction-roles': typeof authenticatedReactionRolesIndexRoute
+  '/reminders': typeof authenticatedRemindersIndexRoute
+  '/welcome-channel': typeof authenticatedWelcomeChannelIndexRoute
   '/api/guilds': typeof ApiGuildsIndexRoute
   '/api/healthz': typeof ApiHealthzIndexRoute
   '/api/queue': typeof ApiQueueIndexRoute
@@ -202,8 +302,21 @@ export interface FileRoutesByTo {
   '/api/auth/check-password-account': typeof ApiAuthCheckPasswordAccountRoute
   '/api/auth/delete-auto-created-account': typeof ApiAuthDeleteAutoCreatedAccountRoute
   '/api/auth/has-discord': typeof ApiAuthHasDiscordRoute
+  '/commands': typeof authenticatedCommandsIndexRoute
   '/dashboard': typeof authenticatedDashboardIndexRoute
+  '/donations': typeof authenticatedDonationsIndexRoute
+  '/extra-life': typeof authenticatedExtraLifeIndexRoute
+  '/games': typeof authenticatedGamesIndexRoute
+  '/help': typeof authenticatedHelpIndexRoute
+  '/merch': typeof authenticatedMerchIndexRoute
+  '/message-embeds': typeof authenticatedMessageEmbedsIndexRoute
+  '/moderator-controls': typeof authenticatedModeratorControlsIndexRoute
   '/music': typeof authenticatedMusicIndexRoute
+  '/notifications': typeof authenticatedNotificationsIndexRoute
+  '/polls': typeof authenticatedPollsIndexRoute
+  '/reaction-roles': typeof authenticatedReactionRolesIndexRoute
+  '/reminders': typeof authenticatedRemindersIndexRoute
+  '/welcome-channel': typeof authenticatedWelcomeChannelIndexRoute
   '/api/guilds': typeof ApiGuildsIndexRoute
   '/api/healthz': typeof ApiHealthzIndexRoute
   '/api/queue': typeof ApiQueueIndexRoute
@@ -230,8 +343,21 @@ export interface FileRoutesById {
   '/api/auth/check-password-account': typeof ApiAuthCheckPasswordAccountRoute
   '/api/auth/delete-auto-created-account': typeof ApiAuthDeleteAutoCreatedAccountRoute
   '/api/auth/has-discord': typeof ApiAuthHasDiscordRoute
+  '/(authenticated)/commands/': typeof authenticatedCommandsIndexRoute
   '/(authenticated)/dashboard/': typeof authenticatedDashboardIndexRoute
+  '/(authenticated)/donations/': typeof authenticatedDonationsIndexRoute
+  '/(authenticated)/extra-life/': typeof authenticatedExtraLifeIndexRoute
+  '/(authenticated)/games/': typeof authenticatedGamesIndexRoute
+  '/(authenticated)/help/': typeof authenticatedHelpIndexRoute
+  '/(authenticated)/merch/': typeof authenticatedMerchIndexRoute
+  '/(authenticated)/message-embeds/': typeof authenticatedMessageEmbedsIndexRoute
+  '/(authenticated)/moderator-controls/': typeof authenticatedModeratorControlsIndexRoute
   '/(authenticated)/music/': typeof authenticatedMusicIndexRoute
+  '/(authenticated)/notifications/': typeof authenticatedNotificationsIndexRoute
+  '/(authenticated)/polls/': typeof authenticatedPollsIndexRoute
+  '/(authenticated)/reaction-roles/': typeof authenticatedReactionRolesIndexRoute
+  '/(authenticated)/reminders/': typeof authenticatedRemindersIndexRoute
+  '/(authenticated)/welcome-channel/': typeof authenticatedWelcomeChannelIndexRoute
   '/api/guilds/': typeof ApiGuildsIndexRoute
   '/api/healthz/': typeof ApiHealthzIndexRoute
   '/api/queue/': typeof ApiQueueIndexRoute
@@ -258,8 +384,21 @@ export interface FileRouteTypes {
     | '/api/auth/check-password-account'
     | '/api/auth/delete-auto-created-account'
     | '/api/auth/has-discord'
+    | '/commands'
     | '/dashboard'
+    | '/donations'
+    | '/extra-life'
+    | '/games'
+    | '/help'
+    | '/merch'
+    | '/message-embeds'
+    | '/moderator-controls'
     | '/music'
+    | '/notifications'
+    | '/polls'
+    | '/reaction-roles'
+    | '/reminders'
+    | '/welcome-channel'
     | '/api/guilds'
     | '/api/healthz'
     | '/api/queue'
@@ -284,8 +423,21 @@ export interface FileRouteTypes {
     | '/api/auth/check-password-account'
     | '/api/auth/delete-auto-created-account'
     | '/api/auth/has-discord'
+    | '/commands'
     | '/dashboard'
+    | '/donations'
+    | '/extra-life'
+    | '/games'
+    | '/help'
+    | '/merch'
+    | '/message-embeds'
+    | '/moderator-controls'
     | '/music'
+    | '/notifications'
+    | '/polls'
+    | '/reaction-roles'
+    | '/reminders'
+    | '/welcome-channel'
     | '/api/guilds'
     | '/api/healthz'
     | '/api/queue'
@@ -311,8 +463,21 @@ export interface FileRouteTypes {
     | '/api/auth/check-password-account'
     | '/api/auth/delete-auto-created-account'
     | '/api/auth/has-discord'
+    | '/(authenticated)/commands/'
     | '/(authenticated)/dashboard/'
+    | '/(authenticated)/donations/'
+    | '/(authenticated)/extra-life/'
+    | '/(authenticated)/games/'
+    | '/(authenticated)/help/'
+    | '/(authenticated)/merch/'
+    | '/(authenticated)/message-embeds/'
+    | '/(authenticated)/moderator-controls/'
     | '/(authenticated)/music/'
+    | '/(authenticated)/notifications/'
+    | '/(authenticated)/polls/'
+    | '/(authenticated)/reaction-roles/'
+    | '/(authenticated)/reminders/'
+    | '/(authenticated)/welcome-channel/'
     | '/api/guilds/'
     | '/api/healthz/'
     | '/api/queue/'
@@ -426,6 +591,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiGuildsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(authenticated)/welcome-channel/': {
+      id: '/(authenticated)/welcome-channel/'
+      path: '/welcome-channel'
+      fullPath: '/welcome-channel'
+      preLoaderRoute: typeof authenticatedWelcomeChannelIndexRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
+    '/(authenticated)/reminders/': {
+      id: '/(authenticated)/reminders/'
+      path: '/reminders'
+      fullPath: '/reminders'
+      preLoaderRoute: typeof authenticatedRemindersIndexRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
+    '/(authenticated)/reaction-roles/': {
+      id: '/(authenticated)/reaction-roles/'
+      path: '/reaction-roles'
+      fullPath: '/reaction-roles'
+      preLoaderRoute: typeof authenticatedReactionRolesIndexRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
+    '/(authenticated)/polls/': {
+      id: '/(authenticated)/polls/'
+      path: '/polls'
+      fullPath: '/polls'
+      preLoaderRoute: typeof authenticatedPollsIndexRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
+    '/(authenticated)/notifications/': {
+      id: '/(authenticated)/notifications/'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof authenticatedNotificationsIndexRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
     '/(authenticated)/music/': {
       id: '/(authenticated)/music/'
       path: '/music'
@@ -433,11 +633,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authenticatedMusicIndexRouteImport
       parentRoute: typeof authenticatedRouteRoute
     }
+    '/(authenticated)/moderator-controls/': {
+      id: '/(authenticated)/moderator-controls/'
+      path: '/moderator-controls'
+      fullPath: '/moderator-controls'
+      preLoaderRoute: typeof authenticatedModeratorControlsIndexRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
+    '/(authenticated)/message-embeds/': {
+      id: '/(authenticated)/message-embeds/'
+      path: '/message-embeds'
+      fullPath: '/message-embeds'
+      preLoaderRoute: typeof authenticatedMessageEmbedsIndexRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
+    '/(authenticated)/merch/': {
+      id: '/(authenticated)/merch/'
+      path: '/merch'
+      fullPath: '/merch'
+      preLoaderRoute: typeof authenticatedMerchIndexRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
+    '/(authenticated)/help/': {
+      id: '/(authenticated)/help/'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof authenticatedHelpIndexRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
+    '/(authenticated)/games/': {
+      id: '/(authenticated)/games/'
+      path: '/games'
+      fullPath: '/games'
+      preLoaderRoute: typeof authenticatedGamesIndexRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
+    '/(authenticated)/extra-life/': {
+      id: '/(authenticated)/extra-life/'
+      path: '/extra-life'
+      fullPath: '/extra-life'
+      preLoaderRoute: typeof authenticatedExtraLifeIndexRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
+    '/(authenticated)/donations/': {
+      id: '/(authenticated)/donations/'
+      path: '/donations'
+      fullPath: '/donations'
+      preLoaderRoute: typeof authenticatedDonationsIndexRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
     '/(authenticated)/dashboard/': {
       id: '/(authenticated)/dashboard/'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof authenticatedDashboardIndexRouteImport
+      parentRoute: typeof authenticatedRouteRoute
+    }
+    '/(authenticated)/commands/': {
+      id: '/(authenticated)/commands/'
+      path: '/commands'
+      fullPath: '/commands'
+      preLoaderRoute: typeof authenticatedCommandsIndexRouteImport
       parentRoute: typeof authenticatedRouteRoute
     }
     '/api/auth/has-discord': {
@@ -528,13 +784,40 @@ declare module '@tanstack/react-router' {
 }
 
 interface authenticatedRouteRouteChildren {
+  authenticatedCommandsIndexRoute: typeof authenticatedCommandsIndexRoute
   authenticatedDashboardIndexRoute: typeof authenticatedDashboardIndexRoute
+  authenticatedDonationsIndexRoute: typeof authenticatedDonationsIndexRoute
+  authenticatedExtraLifeIndexRoute: typeof authenticatedExtraLifeIndexRoute
+  authenticatedGamesIndexRoute: typeof authenticatedGamesIndexRoute
+  authenticatedHelpIndexRoute: typeof authenticatedHelpIndexRoute
+  authenticatedMerchIndexRoute: typeof authenticatedMerchIndexRoute
+  authenticatedMessageEmbedsIndexRoute: typeof authenticatedMessageEmbedsIndexRoute
+  authenticatedModeratorControlsIndexRoute: typeof authenticatedModeratorControlsIndexRoute
   authenticatedMusicIndexRoute: typeof authenticatedMusicIndexRoute
+  authenticatedNotificationsIndexRoute: typeof authenticatedNotificationsIndexRoute
+  authenticatedPollsIndexRoute: typeof authenticatedPollsIndexRoute
+  authenticatedReactionRolesIndexRoute: typeof authenticatedReactionRolesIndexRoute
+  authenticatedRemindersIndexRoute: typeof authenticatedRemindersIndexRoute
+  authenticatedWelcomeChannelIndexRoute: typeof authenticatedWelcomeChannelIndexRoute
 }
 
 const authenticatedRouteRouteChildren: authenticatedRouteRouteChildren = {
+  authenticatedCommandsIndexRoute: authenticatedCommandsIndexRoute,
   authenticatedDashboardIndexRoute: authenticatedDashboardIndexRoute,
+  authenticatedDonationsIndexRoute: authenticatedDonationsIndexRoute,
+  authenticatedExtraLifeIndexRoute: authenticatedExtraLifeIndexRoute,
+  authenticatedGamesIndexRoute: authenticatedGamesIndexRoute,
+  authenticatedHelpIndexRoute: authenticatedHelpIndexRoute,
+  authenticatedMerchIndexRoute: authenticatedMerchIndexRoute,
+  authenticatedMessageEmbedsIndexRoute: authenticatedMessageEmbedsIndexRoute,
+  authenticatedModeratorControlsIndexRoute:
+    authenticatedModeratorControlsIndexRoute,
   authenticatedMusicIndexRoute: authenticatedMusicIndexRoute,
+  authenticatedNotificationsIndexRoute: authenticatedNotificationsIndexRoute,
+  authenticatedPollsIndexRoute: authenticatedPollsIndexRoute,
+  authenticatedReactionRolesIndexRoute: authenticatedReactionRolesIndexRoute,
+  authenticatedRemindersIndexRoute: authenticatedRemindersIndexRoute,
+  authenticatedWelcomeChannelIndexRoute: authenticatedWelcomeChannelIndexRoute,
 }
 
 const authenticatedRouteRouteWithChildren =

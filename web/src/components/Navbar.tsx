@@ -1,7 +1,28 @@
 import { Link, useRouterState } from '@tanstack/react-router'
 import { authClient } from '@/lib/auth/client'
 import { useNavigate } from '@tanstack/react-router'
-import { LayoutDashboard, LogOut, Heart, MoreVertical, Music } from 'lucide-react'
+import {
+  AlarmClock,
+  BarChart3,
+  Bell,
+  Code2,
+  Coins,
+  Disc3,
+  FileText,
+  Gamepad2,
+  Heart,
+  HeartHandshake,
+  LayoutDashboard,
+  LifeBuoy,
+  LogOut,
+  MoreVertical,
+  Music,
+  ShieldCheck,
+  ShoppingBag,
+  Sparkles,
+  UsersRound,
+} from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import {
   Sidebar,
   SidebarContent,
@@ -31,6 +52,46 @@ export function Navbar() {
   const currentPath = router.location.pathname
   const { state } = useSidebar()
   const isCollapsed = state === 'collapsed'
+  // Authenticated sidebar sections
+  const navSections: {
+    label: string
+    items: { label: string; href: string; icon: LucideIcon }[]
+  }[] = [
+    {
+      label: 'ESSENTIALS',
+      items: [
+        { label: 'Jukebox', href: '/music', icon: Disc3 },
+        { label: 'Games', href: '/games', icon: Gamepad2 },
+      ],
+    },
+    {
+      label: 'MOD TOOLS',
+      items: [
+        { label: 'Welcome Channel', href: '/welcome-channel', icon: Sparkles },
+        { label: 'Reaction Roles', href: '/reaction-roles', icon: UsersRound },
+        { label: 'Moderator Controls', href: '/moderator-controls', icon: ShieldCheck },
+        { label: 'Commands', href: '/commands', icon: Code2 },
+      ],
+    },
+    {
+      label: 'UTILITIES',
+      items: [
+        { label: 'Polls', href: '/polls', icon: BarChart3 },
+        { label: 'Message Embeds', href: '/message-embeds', icon: FileText },
+        { label: 'Reminders', href: '/reminders', icon: AlarmClock },
+        { label: 'Notifications', href: '/notifications', icon: Bell },
+        { label: 'Donations', href: '/donations', icon: Coins },
+      ],
+    },
+    {
+      label: 'SUPPORT',
+      items: [
+        { label: 'Help', href: '/help', icon: LifeBuoy },
+        { label: 'Extra Life', href: '/extra-life', icon: HeartHandshake },
+        { label: 'Merch', href: '/merch', icon: ShoppingBag },
+      ],
+    },
+  ]
 
   async function handleSignOut() {
     await authClient.signOut({
@@ -85,17 +146,31 @@ export function Navbar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={currentPath === '/music'}>
-                  <Link to="/music">
-                    <Music />
-                    <span>Music</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        {navSections.map((section) => (
+          <SidebarGroup key={section.label}>
+            <SidebarGroupLabel>{section.label}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {section.items.map((item) => {
+                  const ItemIcon = item.icon
+                  return (
+                    <SidebarMenuItem key={item.href}>
+                      <SidebarMenuButton asChild isActive={currentPath === item.href}>
+                        <Link to={item.href}>
+                          <ItemIcon />
+                          <span>{item.label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
       <SidebarFooter>
         {isCollapsed && (

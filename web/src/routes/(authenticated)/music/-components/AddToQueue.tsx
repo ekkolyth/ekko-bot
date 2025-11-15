@@ -1,8 +1,8 @@
-import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Field } from '@/components/ui/field';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useForm } from '@tanstack/react-form';
 import { useState } from 'react';
 import { useAddToQueue } from '@/hooks/use-add-to-queue';
@@ -12,9 +12,11 @@ interface AddToQueueProps {
   selectedChannelId: string | null;
   onSuccess?: () => void;
   voiceChannelName?: string;
+  open: boolean;
+  onOpenChange: (isOpen: boolean) => void;
 }
 
-export function AddToQueue({ selectedChannelId, onSuccess, voiceChannelName }: AddToQueueProps) {
+export function AddToQueue({ selectedChannelId, onSuccess, voiceChannelName, open, onOpenChange }: AddToQueueProps) {
   const [addUrlMessage, setAddUrlMessage] = useState('');
   const addToQueue = useAddToQueue();
 
@@ -42,25 +44,27 @@ export function AddToQueue({ selectedChannelId, onSuccess, voiceChannelName }: A
   });
 
   return (
-    <Card className="bg-card border-border">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Plus className="size-5 text-primary" />
-          {voiceChannelName ? `Add to ${voiceChannelName}` : 'Add to Queue'}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md bg-card border-border text-foreground">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-foreground">
+            <Plus className="size-5 text-primary" />
+            {voiceChannelName ? `Add to ${voiceChannelName}` : 'Add to Queue'}
+          </DialogTitle>
+          <DialogDescription className="text-foreground/80">
+            Paste a YouTube link to queue a track.
+          </DialogDescription>
+        </DialogHeader>
         <form
           onSubmit={(event) => {
             event.preventDefault();
             form.handleSubmit();
           }}
-          className="space-y-4"
+          className="space-y-4 pt-2"
         >
           <form.Field name="URL">
             {(field) => (
               <Field>
-                <Label htmlFor="url">YouTube URL</Label>
                 <Input
                   id="url"
                   type="url"
@@ -88,7 +92,7 @@ export function AddToQueue({ selectedChannelId, onSuccess, voiceChannelName }: A
             </div>
           )}
         </form>
-      </CardContent>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 }
