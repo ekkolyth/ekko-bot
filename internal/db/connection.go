@@ -42,11 +42,14 @@ func NewDB(ctx context.Context, databaseURL string) (*DB, error) {
 	}, nil
 }
 
-// NewDBFromEnv creates a new database connection using DB_URL from environment
+// NewDBFromEnv creates a new database connection using DB_URL (or GOOSE_DBSTRING) from environment
 func NewDBFromEnv(ctx context.Context) (*DB, error) {
 	databaseURL := os.Getenv("DB_URL")
 	if databaseURL == "" {
-		return nil, fmt.Errorf("DB_URL environment variable is not set")
+		databaseURL = os.Getenv("GOOSE_DBSTRING")
+	}
+	if databaseURL == "" {
+		return nil, fmt.Errorf("DB_URL (production) or GOOSE_DBSTRING (development) must be set")
 	}
 
 	return NewDB(ctx, databaseURL)
