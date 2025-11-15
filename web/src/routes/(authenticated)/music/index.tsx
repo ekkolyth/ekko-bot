@@ -4,7 +4,6 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Music2 } from 'lucide-react'
 import { useEffect } from 'react'
 import { MusicPlayer } from './-components/MusicPlayer'
-import { AddToQueue } from './-components/AddToQueue'
 import { useVoiceChannels } from '@/hooks/use-voice-channels'
 import { useHasDiscord } from '@/hooks/use-has-discord'
 import { Empty } from '@/components/ui/empty'
@@ -59,7 +58,6 @@ function Dashboard() {
   return (
     <div className="container max-w-7xl mx-auto p-4 md:p-8">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Sidebar - Channel List & Add Song */}
         <div className="lg:col-span-12 space-y-4">
           {channelLoading ? (
             <Card className="bg-card border-border">
@@ -77,10 +75,6 @@ function Dashboard() {
             </Empty>
           ) : (
             <>
-              <AddToQueue
-                selectedChannelId={activeChannelId}
-                voiceChannelName={activeChannelName}
-              />
               <MusicPlayer
                 voiceChannelId={activeChannelId}
                 voiceChannelName={activeChannelName}
