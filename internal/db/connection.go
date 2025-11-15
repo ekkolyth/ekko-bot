@@ -19,6 +19,7 @@ type Service struct {
 	DB             *DB
 	Queries        *Queries
 	CustomCommands *CustomCommandService
+	GuildConfig    *GuildConfigService
 }
 
 // NewDB creates a new database connection pool and returns a DB instance
@@ -62,6 +63,7 @@ func NewService(ctx context.Context) (*Service, error) {
 		DB:             db,
 		Queries:        db.Queries,
 		CustomCommands: NewCustomCommandService(db.Queries),
+		GuildConfig:    NewGuildConfigService(db.Queries),
 	}, nil
 }
 

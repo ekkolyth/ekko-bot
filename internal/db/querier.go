@@ -19,6 +19,7 @@ type Querier interface {
 	GetCustomCommandByName(ctx context.Context, arg *GetCustomCommandByNameParams) (*CustomCommand, error)
 	GetDiscordIdentityByAppUserId(ctx context.Context, appUserID string) (*GetDiscordIdentityByAppUserIdRow, error)
 	GetDiscordIdentityByDiscordUserId(ctx context.Context, discordUserID string) (*GetDiscordIdentityByDiscordUserIdRow, error)
+	GetWelcomeConfig(ctx context.Context, guildID string) (*GetWelcomeConfigRow, error)
 	InsertRecentlyPlayed(ctx context.Context, arg *InsertRecentlyPlayedParams) error
 	ListAllBotStatuses(ctx context.Context) ([]*BotState, error)
 	// Custom command queries
@@ -30,6 +31,7 @@ type Querier interface {
 	UpdateBotStatus(ctx context.Context, arg *UpdateBotStatusParams) (*BotState, error)
 	UpdateCustomCommand(ctx context.Context, arg *UpdateCustomCommandParams) (*CustomCommand, error)
 	UpsertUserDiscordAccount(ctx context.Context, arg *UpsertUserDiscordAccountParams) error
+	UpsertWelcomeConfig(ctx context.Context, arg *UpsertWelcomeConfigParams) (*UpsertWelcomeConfigRow, error)
 }
 
 var _ Querier = (*Queries)(nil)

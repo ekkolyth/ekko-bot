@@ -72,6 +72,11 @@ func NewRouter(dbService *db.Service) http.Handler {
 			commands.Patch("/{id}", handlers.CommandsUpdate(dbService.CustomCommands))
 			commands.Delete("/{id}", handlers.CommandsDelete(dbService.CustomCommands))
 		})
+
+		api.Route("/welcome-config", func(welcome chi.Router) {
+			welcome.Get("/", handlers.WelcomeConfigGet(dbService.GuildConfig))
+			welcome.Put("/", handlers.WelcomeConfigSave(dbService.GuildConfig))
+		})
 	})
 
 	return router

@@ -26,7 +26,7 @@ export default function Header() {
           to="/"
           className="flex items-center gap-2 font-semibold text-xl text-white hover:opacity-80 transition-opacity"
         >
-          <Heart className="size-7 mr-1 text-indigo-500 fill-indigo-500" />
+          <Heart className="size-7 mr-1 text-primary fill-primary" />
           <span className='text-2xl'>Ekko Bot</span>
         </Link>
 
@@ -51,7 +51,7 @@ export default function Header() {
             </>
           ) : (
             <Button
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white"
+              className="bg-gradient-to-r from-blue-600 to-primary hover:from-blue-500 hover:to-primary/90 text-white"
               asChild
             >
               <Link to="/auth/sign-in">
