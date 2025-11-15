@@ -1,4 +1,6 @@
+# ==========================================================
 # Environment Variables
+# ==========================================================
 BOT_BINARY_NAME=bot-server
 API_BINARY_NAME=api-server
 OUTPUT_DIR=bin
@@ -27,13 +29,17 @@ ifndef REDIS_URL
 export REDIS_URL := redis://127.0.0.1:$(REDIS_PORT)/0
 endif
 
+# ==========================================================
+# Top-level commands
+# ==========================================================
 all: build
 
 build: build-bot build-api
 
 build-bot:
 	mkdir -p $(OUTPUT_DIR)
-	$(GOBUILD) -ldflags "-X 'github.com/ekkolyth/ekko-bot/internal/shared/context/state.GoSourceHash=$(GO_SOURCE_HASH)'" -o $(OUTPUT_DIR)/$(BOT_BINARY_NAME) -v ./cmd/bot
+	$(GOBUILD) -ldflags "-X 'github.com/ekkolyth/ekko-bot/internal/shared/context/state.GoSourceHash=$(GO_SOURCE_HASH)'" \
+		-o $(OUTPUT_DIR)/$(BOT_BINARY_NAME) -v ./cmd/bot
 
 build-api:
 	mkdir -p $(OUTPUT_DIR)
@@ -50,12 +56,12 @@ install:
 		cd web && pnpm install; \
 	fi
 
-go: redis/start build
+go: redis/up build
 	@echo "Starting bot server, API server, and web UI..."
 	@echo "Press Ctrl+C to stop all servers"
 	@cleanup() { \
 		kill %1 %2 %3 2>/dev/null || true; \
-		$(MAKE) -s redis/stop >/dev/null 2>&1 || true; \
+		$(MAKE) -s redis/down >/dev/null 2>&1 || true; \
 		exit 0; \
 	}; \
 	trap cleanup INT; \
@@ -65,10 +71,20 @@ go: redis/start build
 	wait; \
 	cleanup
 
-redis/start:
+version:
+	@echo "Version: $(GO_SOURCE_HASH)"
+
+test:
+	@echo "GOOSE_DBSTRING=$(GOOSE_DBSTRING)"
+
+# ==========================================================
+# Redis (namespaced)
+# ==========================================================
+
+redis/up:
 	@if [ -z "$$(docker ps -q -f name=$(REDIS_CONTAINER_NAME))" ]; then \
 		if [ -z "$$(docker ps -aq -f name=$(REDIS_CONTAINER_NAME))" ]; then \
-			echo "Starting Redis container $(REDIS_CONTAINER_NAME) on port $(REDIS_PORT)..."; \
+			echo "Creating Redis container $(REDIS_CONTAINER_NAME) on port $(REDIS_PORT)..."; \
 			if [ -n "$(REDIS_PASSWORD)" ]; then \
 				docker run -d --name $(REDIS_CONTAINER_NAME) -p $(REDIS_PORT):6379 $(REDIS_IMAGE) \
 					redis-server --save "" --appendonly no --requirepass $(REDIS_PASSWORD); \
@@ -84,7 +100,7 @@ redis/start:
 		echo "Redis container $(REDIS_CONTAINER_NAME) already running."; \
 	fi
 
-redis/stop:
+redis/down:
 	@if [ -n "$$(docker ps -q -f name=$(REDIS_CONTAINER_NAME))" ]; then \
 		echo "Stopping Redis container $(REDIS_CONTAINER_NAME)..."; \
 		docker stop $(REDIS_CONTAINER_NAME) >/dev/null; \
@@ -92,13 +108,10 @@ redis/stop:
 		echo "Redis container $(REDIS_CONTAINER_NAME) is not running."; \
 	fi
 
-version:
-	@echo "Version: $(GO_SOURCE_HASH)"
+# ==========================================================
+# Database (Goose)
+# ==========================================================
 
-test:
-	@echo "GOOSE_DBSTRING=$(GOOSE_DBSTRING)"
-
-# Database
 MIGRATIONS_DIR=internal/db/migrations
 
 db/up:
@@ -110,48 +123,36 @@ db/down:
 	goose -dir $(MIGRATIONS_DIR) down
 
 db/reset:
-	@echo "Resetting Goose Migrations"
+	@echo "Resetting Goose migrations..."
 	goose -dir $(MIGRATIONS_DIR) reset
 
 db/status:
 	@echo "Checking migration status..."
 	goose -dir $(MIGRATIONS_DIR) status
 
-db/_require-prod:
-	@if [ -z "$(DB_URL_PROD)" ]; then \
-		echo "DB_URL_PROD is not set. Export it or add it to .env"; \
-		exit 1; \
-	fi
+db/fix:
+	@echo "Fixing Goose migration timestamps..."
+	goose -dir $(MIGRATIONS_DIR) fix
 
-db/up-prod: db/_require-prod
-	@read -p "Type 'fuckitlol' to run Goose up on the production DB: " confirm; \
-	if [ "$$confirm" != "fuckitlol" ]; then \
-		echo "Aborted."; \
-		exit 1; \
-	fi; \
-	GOOSE_DBSTRING=$(DB_URL_PROD) goose -dir $(MIGRATIONS_DIR) up
+db/fix.prod: env.db
+	@read -p "Type 'fuckitlol' to fix Goose timestamps on production: " confirm; \
+	[ "$$confirm" = "fuckitlol" ] || (echo "Aborted."; exit 1); \
+	GOOSE_DBSTRING=$(DB_URL_PROD) goose -dir $(MIGRATIONS_DIR) fix
 
-db/down-prod: db/_require-prod
-	@read -p "Type 'fuckitlol' to roll back the production DB: " confirm; \
-	if [ "$$confirm" != "fuckitlol" ]; then \
-		echo "Aborted."; \
-		exit 1; \
-	fi; \
-	GOOSE_DBSTRING=$(DB_URL_PROD) goose -dir $(MIGRATIONS_DIR) down
+# ==========================================================
+# Verification
+# ==========================================================
 
-db/reset-prod: db/_require-prod
-	@read -p "Type 'fuckitlol' to reset ALL production migrations: " confirm; \
-	if [ "$$confirm" != "fuckitlol" ]; then \
-		echo "Aborted."; \
-		exit 1; \
-	fi; \
-	GOOSE_DBSTRING=$(DB_URL_PROD) goose -dir $(MIGRATIONS_DIR) reset
+env.db:
+	@test -n "$(DB_URL_PROD)" || (echo "DB_URL_PROD is not set. Export it or add it to .env"; exit 1)
 
-db/status-prod: db/_require-prod
-	@echo "Checking production migration status..."
-	GOOSE_DBSTRING=$(DB_URL_PROD) goose -dir $(MIGRATIONS_DIR) status
+env.auth:
+	@test -n "$(BETTER_AUTH_DB_URL_PROD)" || (echo "BETTER_AUTH_DB_URL_PROD is not set. Export it or add it to web/.env"; exit 1)
 
+# ==========================================================
 # SQLC
+# ==========================================================
+
 db/generate:
 	@echo "Generating SQLC code..."
 	sqlc generate --file internal/db/sqlc.yaml
@@ -160,61 +161,87 @@ db/verify:
 	@echo "Verifying SQLC queries..."
 	sqlc compile --file internal/db/sqlc.yaml
 
+# ==========================================================
+# Production DB
+# ==========================================================
+
+db/up.prod: env.db
+	@read -p "Type 'fuckitlol' to run Goose up on the production DB: " confirm; \
+	[ "$$confirm" = "fuckitlol" ] || (echo "Aborted."; exit 1); \
+	GOOSE_DBSTRING=$(DB_URL_PROD) goose -dir $(MIGRATIONS_DIR) up
+
+db/down.prod: env.db
+	@read -p "Type 'fuckitlol' to roll back the production DB: " confirm; \
+	[ "$$confirm" = "fuckitlol" ] || (echo "Aborted."; exit 1); \
+	GOOSE_DBSTRING=$(DB_URL_PROD) goose -dir $(MIGRATIONS_DIR) down
+
+db/reset.prod: env.db
+	@read -p "Type 'fuckitlol' to RESET ALL production migrations: " confirm; \
+	[ "$$confirm" = "fuckitlol" ] || (echo "Aborted."; exit 1); \
+	GOOSE_DBSTRING=$(DB_URL_PROD) goose -dir $(MIGRATIONS_DIR) reset
+
+db/status.prod: env.db
+	@echo "Checking production Goose migration status..."
+	GOOSE_DBSTRING=$(DB_URL_PROD) goose -dir $(MIGRATIONS_DIR) status
+
+
+
+# ==========================================================
 # Better Auth / Drizzle
+# ==========================================================
 
 auth/generate:
-	@echo "Running Better Auth CLI"
 	cd web && npx @better-auth/cli generate --config src/lib/auth/auth.ts
 
 drizzle/generate:
-	@echo "Running Drizzle Generation..."
 	cd web && npx drizzle-kit generate
 
 drizzle/migrate:
-	@echo "Running Drizzle Migration..."
 	cd web && npx drizzle-kit migrate
 
 drizzle/push:
-	@echo "Pushing Drizzle schema to database..."
 	cd web && npx drizzle-kit push
 
 drizzle/studio:
-	@echo "Starting Drizzle Studio..."
 	cd web && npx drizzle-kit studio
 
-drizzle/_require-prod:
-	@if [ -z "$(BETTER_AUTH_DB_URL_PROD)" ]; then \
-		echo "BETTER_AUTH_DB_URL_PROD is not set. Export it or add it to web/.env"; \
-		exit 1; \
-	fi
+# ==========================================================
+# Drizzle (prod)
+# ==========================================================
 
-drizzle/migrate-prod: drizzle/_require-prod
-	@read -p "Type 'fuckitlol' to run Drizzle migrate against production Better Auth DB: " confirm; \
-	if [ "$$confirm" != "fuckitlol" ]; then \
-		echo "Aborted."; \
-		exit 1; \
-	fi; \
+drizzle/migrate.prod: env.auth
+	@read -p "Type 'fuckitlol' to run Drizzle migrate on production: " confirm; \
+	[ "$$confirm" = "fuckitlol" ] || (echo "Aborted."; exit 1); \
 	cd web && BETTER_AUTH_DB_URL=$(BETTER_AUTH_DB_URL_PROD) npx drizzle-kit migrate
 
-drizzle/push-prod: drizzle/_require-prod
-	@read -p "Type 'fuckitlol' to push schema to production Better Auth DB: " confirm; \
-	if [ "$$confirm" != "fuckitlol" ]; then \
-		echo "Aborted."; \
-		exit 1; \
-	fi; \
+drizzle/push.prod: env.auth
+	@read -p "Type 'fuckitlol' to push Drizzle schema to production: " confirm; \
+	[ "$$confirm" = "fuckitlol" ] || (echo "Aborted."; exit 1); \
 	cd web && BETTER_AUTH_DB_URL=$(BETTER_AUTH_DB_URL_PROD) npx drizzle-kit push
 
+# ==========================================================
 # Docker
+# ==========================================================
 
 docker/build:
-	docker build --platform linux/amd64 --build-arg BETTER_AUTH_URL=$(BETTER_AUTH_URL) -t $(IMAGE_NAME):$(IMAGE_TAG) .
+	docker build --platform linux/amd64 \
+		--build-arg BETTER_AUTH_URL=$(BETTER_AUTH_URL) \
+		-t $(IMAGE_NAME):$(IMAGE_TAG) .
 
 docker/tag:
-	@if [ -z "$(NEW_TAG)" ]; then \
-		echo "Usage: make docker-tag NEW_TAG=v0.1.0"; \
-		exit 1; \
-	fi
+	@test -n "$(NEW_TAG)" || (echo "Usage: make docker/tag NEW_TAG=v0.1.0"; exit 1)
 	docker tag $(IMAGE_NAME):$(IMAGE_TAG) $(IMAGE_NAME):$(NEW_TAG)
 
 docker/push:
 	docker push ekkolyth/ekko-bot:dev
+
+.PHONY: \
+	all build build-bot build-api clean install go version test \
+	redis/up redis/down \
+	db/up db/down db/reset db/status db/fix db/up.prod db/down.prod db/reset.prod db/status.prod db/fix.prod \
+	env.db env.auth \
+	db/generate db/verify \
+	auth/generate \
+	drizzle/generate drizzle/migrate drizzle/push drizzle/studio \
+	drizzle/migrate.prod drizzle/push.prod \
+	docker/build docker/tag docker/push
