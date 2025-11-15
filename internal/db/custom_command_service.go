@@ -80,6 +80,49 @@ func (s *CustomCommandService) Create(ctx context.Context, guildID, rawName, raw
 	})
 }
 
+// Update modifies an existing command's name and response.
+func (s *CustomCommandService) Update(ctx context.Context, guildID, id, rawName, rawResponse string) (*CustomCommand, error) {
+	trimmedID := strings.TrimSpace(id)
+	if trimmedID == "" {
+		return nil, ErrCustomCommandIDRequired
+	}
+
+	var identifier pgtype.UUID
+	if err := identifier.Scan(trimmedID); err != nil {
+		return nil, err
+	}
+
+	name := normalizeCommandName(rawName)
+	if name == "" {
+		return nil, ErrCustomCommandNameRequired
+	}
+
+	response := strings.TrimSpace(rawResponse)
+	if response == "" {
+		return nil, ErrCustomCommandResponseRequired
+	}
+
+	command, err := s.GetByName(ctx, guildID, name)
+	if err != nil && !errors.Is(err, ErrCustomCommandNotFound) {
+		return nil, err
+	}
+
+	if command != nil && command.ID.Bytes != identifier.Bytes {
+		return nil, ErrCustomCommandExists
+	}
+
+	updated, err := s.queries.UpdateCustomCommand(ctx, &UpdateCustomCommandParams{
+		GuildID:  guildID,
+		ID:       identifier,
+		Name:     name,
+		Response: response,
+	})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, ErrCustomCommandNotFound
+	}
+	return updated, err
+}
+
 // Delete removes a command by id for the guild.
 func (s *CustomCommandService) Delete(ctx context.Context, guildID, id string) error {
 	trimmedID := strings.TrimSpace(id)

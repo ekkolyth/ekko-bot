@@ -69,6 +69,8 @@ func NewRouter(dbService *db.Service) http.Handler {
 		api.Route("/commands", func(commands chi.Router) {
 			commands.Get("/", handlers.CommandsList(dbService.CustomCommands))
 			commands.Post("/", handlers.CommandsCreate(dbService.CustomCommands))
+			commands.Patch("/{id}", handlers.CommandsUpdate(dbService.CustomCommands))
+			commands.Delete("/{id}", handlers.CommandsDelete(dbService.CustomCommands))
 		})
 	})
 
