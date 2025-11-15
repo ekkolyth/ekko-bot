@@ -101,9 +101,12 @@ DISCORD_BOT_TOKEN=your_bot_token
 DISCORD_CLIENT_ID=your_client_id
 DISCORD_CLIENT_SECRET=your_client_secret
 
-# Database
-DB_URL=postgres://user:pass@localhost:5432/ekko_bot
-DATABASE_URL=postgres://user:pass@localhost:5432/ekko_bot
+# Database (development)
+GOOSE_DBSTRING=postgres://user:pass@localhost:5432/sqlc_dev
+
+# Database (production deploys)
+DB_URL=postgres://user:pass@postgres:5433/sqlc-prod
+DB_URL_PROD=postgres://user:pass@host:5433/sqlc-prod
 
 # Servers
 API_PORT=3000
@@ -111,6 +114,9 @@ WEB_PORT=3001
 
 # Authentication
 BETTER_AUTH_URL=http://localhost:3001
+BETTER_AUTH_URL_PROD=https://example.com
+BETTER_AUTH_DB_URL=postgresql://user:pass@localhost:5432/better_auth_dev
+BETTER_AUTH_DB_URL_PROD=postgresql://user:pass@host:5433/better-auth-prod
 BETTER_AUTH_SECRET=your_secret_here
 ```
 

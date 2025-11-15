@@ -96,7 +96,7 @@ version:
 	@echo "Version: $(GO_SOURCE_HASH)"
 
 test:
-	@echo "DB_URL=$(DB_URL)"
+	@echo "GOOSE_DBSTRING=$(GOOSE_DBSTRING)"
 
 # Database
 MIGRATIONS_DIR=internal/db/migrations
@@ -116,6 +116,40 @@ db/reset:
 db/status:
 	@echo "Checking migration status..."
 	goose -dir $(MIGRATIONS_DIR) status
+
+db/_require-prod:
+	@if [ -z "$(DB_URL_PROD)" ]; then \
+		echo "DB_URL_PROD is not set. Export it or add it to .env"; \
+		exit 1; \
+	fi
+
+db/up-prod: db/_require-prod
+	@read -p "Type 'fuckitlol' to run Goose up on the production DB: " confirm; \
+	if [ "$$confirm" != "fuckitlol" ]; then \
+		echo "Aborted."; \
+		exit 1; \
+	fi; \
+	GOOSE_DBSTRING=$(DB_URL_PROD) goose -dir $(MIGRATIONS_DIR) up
+
+db/down-prod: db/_require-prod
+	@read -p "Type 'fuckitlol' to roll back the production DB: " confirm; \
+	if [ "$$confirm" != "fuckitlol" ]; then \
+		echo "Aborted."; \
+		exit 1; \
+	fi; \
+	GOOSE_DBSTRING=$(DB_URL_PROD) goose -dir $(MIGRATIONS_DIR) down
+
+db/reset-prod: db/_require-prod
+	@read -p "Type 'fuckitlol' to reset ALL production migrations: " confirm; \
+	if [ "$$confirm" != "fuckitlol" ]; then \
+		echo "Aborted."; \
+		exit 1; \
+	fi; \
+	GOOSE_DBSTRING=$(DB_URL_PROD) goose -dir $(MIGRATIONS_DIR) reset
+
+db/status-prod: db/_require-prod
+	@echo "Checking production migration status..."
+	GOOSE_DBSTRING=$(DB_URL_PROD) goose -dir $(MIGRATIONS_DIR) status
 
 # SQLC
 db/generate:
@@ -147,6 +181,28 @@ drizzle/push:
 drizzle/studio:
 	@echo "Starting Drizzle Studio..."
 	cd web && npx drizzle-kit studio
+
+drizzle/_require-prod:
+	@if [ -z "$(BETTER_AUTH_DB_URL_PROD)" ]; then \
+		echo "BETTER_AUTH_DB_URL_PROD is not set. Export it or add it to web/.env"; \
+		exit 1; \
+	fi
+
+drizzle/migrate-prod: drizzle/_require-prod
+	@read -p "Type 'fuckitlol' to run Drizzle migrate against production Better Auth DB: " confirm; \
+	if [ "$$confirm" != "fuckitlol" ]; then \
+		echo "Aborted."; \
+		exit 1; \
+	fi; \
+	cd web && BETTER_AUTH_DB_URL=$(BETTER_AUTH_DB_URL_PROD) npx drizzle-kit migrate
+
+drizzle/push-prod: drizzle/_require-prod
+	@read -p "Type 'fuckitlol' to push schema to production Better Auth DB: " confirm; \
+	if [ "$$confirm" != "fuckitlol" ]; then \
+		echo "Aborted."; \
+		exit 1; \
+	fi; \
+	cd web && BETTER_AUTH_DB_URL=$(BETTER_AUTH_DB_URL_PROD) npx drizzle-kit push
 
 # Docker
 
