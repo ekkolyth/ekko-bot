@@ -28,6 +28,7 @@ type Querier interface {
 	UpdateBotActiveStatus(ctx context.Context, arg *UpdateBotActiveStatusParams) (*BotState, error)
 	UpdateBotActivity(ctx context.Context, arg *UpdateBotActivityParams) (*BotState, error)
 	UpdateBotStatus(ctx context.Context, arg *UpdateBotStatusParams) (*BotState, error)
+	UpdateCustomCommand(ctx context.Context, arg *UpdateCustomCommandParams) (*CustomCommand, error)
 	UpsertUserDiscordAccount(ctx context.Context, arg *UpsertUserDiscordAccountParams) error
 }
 

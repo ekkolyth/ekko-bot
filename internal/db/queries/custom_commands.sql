@@ -11,6 +11,14 @@ INSERT INTO custom_commands (guild_id, name, response)
 VALUES ($1, $2, $3)
 RETURNING id, guild_id, name, response, created_at;
 
+-- name: UpdateCustomCommand :one
+UPDATE custom_commands
+SET name = $3,
+    response = $4
+WHERE guild_id = $1
+  AND id = $2
+RETURNING id, guild_id, name, response, created_at;
+
 -- name: DeleteCustomCommand :exec
 DELETE FROM custom_commands
 WHERE guild_id = $1 AND id = $2;

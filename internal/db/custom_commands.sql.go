@@ -110,3 +110,37 @@ func (q *Queries) ListCustomCommands(ctx context.Context, guildID string) ([]*Cu
 	}
 	return items, nil
 }
+
+const UpdateCustomCommand = `-- name: UpdateCustomCommand :one
+UPDATE custom_commands
+SET name = $3,
+    response = $4
+WHERE guild_id = $1
+  AND id = $2
+RETURNING id, guild_id, name, response, created_at
+`
+
+type UpdateCustomCommandParams struct {
+	GuildID  string      `json:"guild_id"`
+	ID       pgtype.UUID `json:"id"`
+	Name     string      `json:"name"`
+	Response string      `json:"response"`
+}
+
+func (q *Queries) UpdateCustomCommand(ctx context.Context, arg *UpdateCustomCommandParams) (*CustomCommand, error) {
+	row := q.db.QueryRow(ctx, UpdateCustomCommand,
+		arg.GuildID,
+		arg.ID,
+		arg.Name,
+		arg.Response,
+	)
+	var i CustomCommand
+	err := row.Scan(
+		&i.ID,
+		&i.GuildID,
+		&i.Name,
+		&i.Response,
+		&i.CreatedAt,
+	)
+	return &i, err
+}
