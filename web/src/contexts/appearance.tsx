@@ -92,17 +92,23 @@ export function AppearanceProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (typeof document === 'undefined') return
     const accent = getAccentById(accentId)
+    const body = document.body
     const root = document.documentElement
 
-    root.style.setProperty('--primary', accent.value)
-    root.style.setProperty('--primary-foreground', accent.foreground)
-    root.style.setProperty('--sidebar-primary', accent.value)
-    root.style.setProperty('--sidebar-primary-foreground', accent.foreground)
-    root.style.setProperty('--ring', accent.value)
-    root.style.setProperty('--sidebar-ring', accent.value)
+    if (!body || !root) return
 
-    const body = document.body
-    if (!body) return
+    const applyAccent = (element: HTMLElement) => {
+      element.style.setProperty('--primary', accent.value)
+      element.style.setProperty('--primary-foreground', accent.foreground)
+      element.style.setProperty('--sidebar-primary', accent.value)
+      element.style.setProperty('--sidebar-primary-foreground', accent.foreground)
+      element.style.setProperty('--ring', accent.value)
+      element.style.setProperty('--sidebar-ring', accent.value)
+    }
+
+    applyAccent(root)
+    applyAccent(body)
+
     if (mode === 'dark') {
       body.classList.add('dark')
     } else {

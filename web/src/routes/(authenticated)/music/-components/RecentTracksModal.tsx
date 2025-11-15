@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,20 @@ export function RecentTracksModal({ voiceChannelId, voiceChannelName, open, onOp
   });
 
   const tracks = data?.tracks ?? [];
+  const uniqueTracks = useMemo(() => {
+    if (tracks.length === 0) {
+      return [];
+    }
+
+    return tracks.filter((track, index, list) => {
+      if (index === 0) {
+        return true;
+      }
+
+      const previous = list[index - 1];
+      return previous.url !== track.url;
+    });
+  }, [tracks]);
 
   const handleAddTrack = async (url: string) => {
     if (!voiceChannelId) {
@@ -60,7 +74,7 @@ export function RecentTracksModal({ voiceChannelId, voiceChannelName, open, onOp
       );
     }
 
-    if (tracks.length === 0) {
+    if (uniqueTracks.length === 0) {
       return (
         <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
           No recent tracks yet. Add a few songs to see them here.
@@ -71,7 +85,7 @@ export function RecentTracksModal({ voiceChannelId, voiceChannelName, open, onOp
     return (
       <ScrollArea className="h-full pr-3">
         <div className="divide-y divide-border">
-          {tracks.map((track, index) => (
+          {uniqueTracks.map((track, index) => (
             <div key={`${track.url}-${index}`} className="flex items-center gap-3 py-3">
               {track.thumbnail ? (
                 <img
