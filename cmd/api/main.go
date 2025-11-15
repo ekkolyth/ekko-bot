@@ -17,6 +17,7 @@ import (
 	appctx "github.com/ekkolyth/ekko-bot/internal/context"
 	"github.com/ekkolyth/ekko-bot/internal/db"
 	"github.com/ekkolyth/ekko-bot/internal/logging"
+	"github.com/ekkolyth/ekko-bot/internal/recentlyplayed"
 	"github.com/joho/godotenv"
 )
 
@@ -58,6 +59,7 @@ func main() {
 	}
 	defer dbService.DB.Close()
 	logging.Info("Database connection established")
+	recentlyplayed.SetService(recentlyplayed.NewService(dbService.DB))
 
 	// Discord
 	discordToken := os.Getenv("DISCORD_BOT_TOKEN")

@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { AddToQueue } from './AddToQueue';
+import { RecentTracksModal } from './RecentTracksModal';
 
 interface MusicPlayerProps {
   voiceChannelId: string;
@@ -25,6 +26,7 @@ export function MusicPlayer({ voiceChannelId, voiceChannelName }: MusicPlayerPro
   const actions = useQueueActions();
   const [actionMessage, setActionMessage] = useState('');
   const [isAddSongOpen, setIsAddSongOpen] = useState(false);
+  const [isRecentOpen, setIsRecentOpen] = useState(false);
 
   const handlePlay = async () => {
     try {
@@ -140,14 +142,22 @@ export function MusicPlayer({ voiceChannelId, voiceChannelName }: MusicPlayerPro
                     : 'Paused'}
               </CardDescription>
             </div>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setIsAddSongOpen(true)}
-              className="shrink-0"
-            >
-              Add Song
-            </Button>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setIsRecentOpen(true)}
+              >
+                Recent
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setIsAddSongOpen(true)}
+              >
+                Add Song
+              </Button>
+            </div>
           </div>
 
           {/* Player Controls */}
@@ -334,6 +344,13 @@ export function MusicPlayer({ voiceChannelId, voiceChannelName }: MusicPlayerPro
         onSuccess={() => setIsAddSongOpen(false)}
         open={isAddSongOpen}
         onOpenChange={setIsAddSongOpen}
-      /></>
+      />
+      <RecentTracksModal
+        voiceChannelId={voiceChannelId}
+        voiceChannelName={voiceChannelName}
+        open={isRecentOpen}
+        onOpenChange={setIsRecentOpen}
+      />
+    </>
   );
 }

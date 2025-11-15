@@ -99,21 +99,23 @@ test:
 	@echo "DB_URL=$(DB_URL)"
 
 # Database
+MIGRATIONS_DIR=internal/db/migrations
+
 db/up:
 	@echo "Running database migrations..."
-	goose -dir sql/migrations up
+	goose -dir $(MIGRATIONS_DIR) up
 
 db/down:
 	@echo "Rolling back database migrations..."
-	goose -dir sql/migrations down
+	goose -dir $(MIGRATIONS_DIR) down
 
 db/reset:
 	@echo "Resetting Goose Migrations"
-	goose -dir sql/migrations reset
+	goose -dir $(MIGRATIONS_DIR) reset
 
 db/status:
 	@echo "Checking migration status..."
-	goose -dir sql/migrations status
+	goose -dir $(MIGRATIONS_DIR) status
 
 # SQLC
 db/generate:

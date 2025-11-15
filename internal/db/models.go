@@ -18,10 +18,26 @@ type BotState struct {
 	UpdatedAt       pgtype.Timestamptz `json:"updated_at"`
 }
 
+type CustomCommand struct {
+	ID        pgtype.UUID        `json:"id"`
+	GuildID   string             `json:"guild_id"`
+	Name      string             `json:"name"`
+	Response  string             `json:"response"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+}
+
+type GuildConfig struct {
+	GuildID               string             `json:"guild_id"`
+	DefaultVc             *string            `json:"default_vc"`
+	Volume                int32              `json:"volume"`
+	LanguageFilterEnabled bool               `json:"language_filter_enabled"`
+	UpdatedAt             pgtype.Timestamptz `json:"updated_at"`
+}
+
 type Queue struct {
 	ID              pgtype.UUID        `json:"id"`
 	GuildID         string             `json:"guild_id"`
-	TrackID         string             `json:"track_id"`
+	TrackID         pgtype.UUID        `json:"track_id"`
 	UserID          *string            `json:"user_id"`
 	UserName        *string            `json:"user_name"`
 	CurrentPosition int32              `json:"current_position"`
@@ -32,10 +48,24 @@ type Queue struct {
 type QueueHistory struct {
 	ID       pgtype.UUID        `json:"id"`
 	GuildID  string             `json:"guild_id"`
-	TrackID  string             `json:"track_id"`
+	TrackID  pgtype.UUID        `json:"track_id"`
 	UserID   *string            `json:"user_id"`
 	UserName *string            `json:"user_name"`
 	AddedAt  pgtype.Timestamptz `json:"added_at"`
+}
+
+type RecentlyPlayed struct {
+	ID              pgtype.UUID        `json:"id"`
+	GuildID         string             `json:"guild_id"`
+	VoiceChannelID  string             `json:"voice_channel_id"`
+	Url             string             `json:"url"`
+	Title           *string            `json:"title"`
+	Artist          *string            `json:"artist"`
+	DurationSeconds int32              `json:"duration_seconds"`
+	Thumbnail       *string            `json:"thumbnail"`
+	AddedBy         *string            `json:"added_by"`
+	AddedByID       *string            `json:"added_by_id"`
+	AddedAt         pgtype.Timestamptz `json:"added_at"`
 }
 
 type Track struct {

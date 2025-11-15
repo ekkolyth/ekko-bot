@@ -8,9 +8,11 @@ import (
 
 	"github.com/ekkolyth/ekko-bot/internal/cache"
 	"github.com/ekkolyth/ekko-bot/internal/context"
+	"github.com/ekkolyth/ekko-bot/internal/db"
 	"github.com/ekkolyth/ekko-bot/internal/discord"
 	"github.com/ekkolyth/ekko-bot/internal/handlers"
 	"github.com/ekkolyth/ekko-bot/internal/logging"
+	"github.com/ekkolyth/ekko-bot/internal/recentlyplayed"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
@@ -59,6 +61,14 @@ func main() {
 	}
 	context.SetQueueStore(context.NewRedisQueueStore(redisClient))
 	defer cache.CloseRedis(stdctx.Background())
+
+	dbService, err := db.NewService(stdctx.Background())
+	if err != nil {
+		logging.Fatal("Failed to connect to database", err)
+	}
+	defer dbService.DB.Close()
+	recentlyplayed.SetService(recentlyplayed.NewService(dbService.DB))
+	handlers.SetCustomCommandService(dbService.CustomCommands)
 
 	dg, err := discordgo.New("Bot " + context.Token)
 	if err != nil {

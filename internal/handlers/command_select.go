@@ -1,10 +1,21 @@
 package handlers
 
 import (
+	stdctx "context"
+	"errors"
+
 	"github.com/ekkolyth/ekko-bot/internal/api/httpx"
 	"github.com/ekkolyth/ekko-bot/internal/context"
+	appdb "github.com/ekkolyth/ekko-bot/internal/db"
 	"github.com/ekkolyth/ekko-bot/internal/discord"
+	"github.com/ekkolyth/ekko-bot/internal/logging"
 )
+
+var customCommandService *appdb.CustomCommandService
+
+func SetCustomCommandService(service *appdb.CustomCommandService) {
+	customCommandService = service
+}
 
 // Both handlers can use this to forward to the correct command
 func commandSelector(ctx *context.Context) {
@@ -43,6 +54,32 @@ func commandSelector(ctx *context.Context) {
 	case "help":
 		discord.Help(ctx)
 	default:
+		if runCustomCommand(ctx) {
+			return
+		}
 		discord.Unknown(ctx)
 	}
+}
+
+func runCustomCommand(ctx *context.Context) bool {
+	if customCommandService == nil || ctx == nil || ctx.CommandName == "" {
+		return false
+	}
+
+	guildID := ctx.GetGuildID()
+	if guildID == "" {
+		return false
+	}
+
+	command, err := customCommandService.GetByName(stdctx.Background(), guildID, ctx.CommandName)
+	if err != nil {
+		if errors.Is(err, appdb.ErrCustomCommandNotFound) || errors.Is(err, appdb.ErrCustomCommandNameRequired) {
+			return false
+		}
+		logging.Error("Custom command lookup failed for " + ctx.CommandName + ": " + err.Error())
+		return false
+	}
+
+	ctx.Reply(command.Response)
+	return true
 }

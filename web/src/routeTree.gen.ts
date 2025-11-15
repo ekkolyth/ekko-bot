@@ -17,9 +17,11 @@ import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
 import { Route as AuthLinkRouteImport } from './routes/auth/link'
 import { Route as AuthConnectRouteImport } from './routes/auth/connect'
+import { Route as ApiRecentIndexRouteImport } from './routes/api/recent/index'
 import { Route as ApiQueueIndexRouteImport } from './routes/api/queue/index'
 import { Route as ApiHealthzIndexRouteImport } from './routes/api/healthz/index'
 import { Route as ApiGuildsIndexRouteImport } from './routes/api/guilds/index'
+import { Route as ApiCommandsIndexRouteImport } from './routes/api/commands/index'
 import { Route as authenticatedWelcomeChannelIndexRouteImport } from './routes/(authenticated)/welcome-channel/index'
 import { Route as authenticatedRemindersIndexRouteImport } from './routes/(authenticated)/reminders/index'
 import { Route as authenticatedReactionRolesIndexRouteImport } from './routes/(authenticated)/reaction-roles/index'
@@ -87,6 +89,11 @@ const AuthConnectRoute = AuthConnectRouteImport.update({
   path: '/connect',
   getParentRoute: () => AuthRouteRoute,
 } as any)
+const ApiRecentIndexRoute = ApiRecentIndexRouteImport.update({
+  id: '/api/recent/',
+  path: '/api/recent/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiQueueIndexRoute = ApiQueueIndexRouteImport.update({
   id: '/api/queue/',
   path: '/api/queue/',
@@ -100,6 +107,11 @@ const ApiHealthzIndexRoute = ApiHealthzIndexRouteImport.update({
 const ApiGuildsIndexRoute = ApiGuildsIndexRouteImport.update({
   id: '/api/guilds/',
   path: '/api/guilds/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCommandsIndexRoute = ApiCommandsIndexRouteImport.update({
+  id: '/api/commands/',
+  path: '/api/commands/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const authenticatedWelcomeChannelIndexRoute =
@@ -278,9 +290,11 @@ export interface FileRoutesByFullPath {
   '/reaction-roles': typeof authenticatedReactionRolesIndexRoute
   '/reminders': typeof authenticatedRemindersIndexRoute
   '/welcome-channel': typeof authenticatedWelcomeChannelIndexRoute
+  '/api/commands': typeof ApiCommandsIndexRoute
   '/api/guilds': typeof ApiGuildsIndexRoute
   '/api/healthz': typeof ApiHealthzIndexRoute
   '/api/queue': typeof ApiQueueIndexRoute
+  '/api/recent': typeof ApiRecentIndexRoute
   '/api/guilds/$guildId/channels': typeof ApiGuildsGuildIdChannelsRoute
   '/api/guilds/current/voice': typeof ApiGuildsCurrentVoiceRoute
   '/api/queue/clear': typeof ApiQueueClearIndexRoute
@@ -317,9 +331,11 @@ export interface FileRoutesByTo {
   '/reaction-roles': typeof authenticatedReactionRolesIndexRoute
   '/reminders': typeof authenticatedRemindersIndexRoute
   '/welcome-channel': typeof authenticatedWelcomeChannelIndexRoute
+  '/api/commands': typeof ApiCommandsIndexRoute
   '/api/guilds': typeof ApiGuildsIndexRoute
   '/api/healthz': typeof ApiHealthzIndexRoute
   '/api/queue': typeof ApiQueueIndexRoute
+  '/api/recent': typeof ApiRecentIndexRoute
   '/api/guilds/$guildId/channels': typeof ApiGuildsGuildIdChannelsRoute
   '/api/guilds/current/voice': typeof ApiGuildsCurrentVoiceRoute
   '/api/queue/clear': typeof ApiQueueClearIndexRoute
@@ -358,9 +374,11 @@ export interface FileRoutesById {
   '/(authenticated)/reaction-roles/': typeof authenticatedReactionRolesIndexRoute
   '/(authenticated)/reminders/': typeof authenticatedRemindersIndexRoute
   '/(authenticated)/welcome-channel/': typeof authenticatedWelcomeChannelIndexRoute
+  '/api/commands/': typeof ApiCommandsIndexRoute
   '/api/guilds/': typeof ApiGuildsIndexRoute
   '/api/healthz/': typeof ApiHealthzIndexRoute
   '/api/queue/': typeof ApiQueueIndexRoute
+  '/api/recent/': typeof ApiRecentIndexRoute
   '/api/guilds/$guildId/channels': typeof ApiGuildsGuildIdChannelsRoute
   '/api/guilds/current/voice': typeof ApiGuildsCurrentVoiceRoute
   '/api/queue/clear/': typeof ApiQueueClearIndexRoute
@@ -399,9 +417,11 @@ export interface FileRouteTypes {
     | '/reaction-roles'
     | '/reminders'
     | '/welcome-channel'
+    | '/api/commands'
     | '/api/guilds'
     | '/api/healthz'
     | '/api/queue'
+    | '/api/recent'
     | '/api/guilds/$guildId/channels'
     | '/api/guilds/current/voice'
     | '/api/queue/clear'
@@ -438,9 +458,11 @@ export interface FileRouteTypes {
     | '/reaction-roles'
     | '/reminders'
     | '/welcome-channel'
+    | '/api/commands'
     | '/api/guilds'
     | '/api/healthz'
     | '/api/queue'
+    | '/api/recent'
     | '/api/guilds/$guildId/channels'
     | '/api/guilds/current/voice'
     | '/api/queue/clear'
@@ -478,9 +500,11 @@ export interface FileRouteTypes {
     | '/(authenticated)/reaction-roles/'
     | '/(authenticated)/reminders/'
     | '/(authenticated)/welcome-channel/'
+    | '/api/commands/'
     | '/api/guilds/'
     | '/api/healthz/'
     | '/api/queue/'
+    | '/api/recent/'
     | '/api/guilds/$guildId/channels'
     | '/api/guilds/current/voice'
     | '/api/queue/clear/'
@@ -499,9 +523,11 @@ export interface RootRouteChildren {
   ApiAuthCheckPasswordAccountRoute: typeof ApiAuthCheckPasswordAccountRoute
   ApiAuthDeleteAutoCreatedAccountRoute: typeof ApiAuthDeleteAutoCreatedAccountRoute
   ApiAuthHasDiscordRoute: typeof ApiAuthHasDiscordRoute
+  ApiCommandsIndexRoute: typeof ApiCommandsIndexRoute
   ApiGuildsIndexRoute: typeof ApiGuildsIndexRoute
   ApiHealthzIndexRoute: typeof ApiHealthzIndexRoute
   ApiQueueIndexRoute: typeof ApiQueueIndexRoute
+  ApiRecentIndexRoute: typeof ApiRecentIndexRoute
   ApiGuildsGuildIdChannelsRoute: typeof ApiGuildsGuildIdChannelsRoute
   ApiGuildsCurrentVoiceRoute: typeof ApiGuildsCurrentVoiceRoute
   ApiQueueClearIndexRoute: typeof ApiQueueClearIndexRoute
@@ -570,6 +596,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthConnectRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/api/recent/': {
+      id: '/api/recent/'
+      path: '/api/recent'
+      fullPath: '/api/recent'
+      preLoaderRoute: typeof ApiRecentIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/queue/': {
       id: '/api/queue/'
       path: '/api/queue'
@@ -589,6 +622,13 @@ declare module '@tanstack/react-router' {
       path: '/api/guilds'
       fullPath: '/api/guilds'
       preLoaderRoute: typeof ApiGuildsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/commands/': {
+      id: '/api/commands/'
+      path: '/api/commands'
+      fullPath: '/api/commands'
+      preLoaderRoute: typeof ApiCommandsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(authenticated)/welcome-channel/': {
@@ -851,9 +891,11 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthCheckPasswordAccountRoute: ApiAuthCheckPasswordAccountRoute,
   ApiAuthDeleteAutoCreatedAccountRoute: ApiAuthDeleteAutoCreatedAccountRoute,
   ApiAuthHasDiscordRoute: ApiAuthHasDiscordRoute,
+  ApiCommandsIndexRoute: ApiCommandsIndexRoute,
   ApiGuildsIndexRoute: ApiGuildsIndexRoute,
   ApiHealthzIndexRoute: ApiHealthzIndexRoute,
   ApiQueueIndexRoute: ApiQueueIndexRoute,
+  ApiRecentIndexRoute: ApiRecentIndexRoute,
   ApiGuildsGuildIdChannelsRoute: ApiGuildsGuildIdChannelsRoute,
   ApiGuildsCurrentVoiceRoute: ApiGuildsCurrentVoiceRoute,
   ApiQueueClearIndexRoute: ApiQueueClearIndexRoute,
