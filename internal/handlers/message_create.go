@@ -19,5 +19,5 @@ func HandleMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	ctx := context.NewMessageContext(s, m)
 
-	commandSelector(ctx)
+	CommandSelector(ctx)
 }

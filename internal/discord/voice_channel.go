@@ -43,7 +43,7 @@ func JoinUserVoiceChannel(ctx *context.Context) (*discordgo.VoiceConnection, err
 		return nil, fmt.Errorf("invalid guild ID in context: %q (must be a valid Discord snowflake)", guildID)
 	}
 
-	if ensureVoiceChannelID(ctx) {
+	if EnsureVoiceChannelID(ctx) {
 		vc, err := ctx.GetSession().ChannelVoiceJoin(guildID, ctx.VoiceChannelID, false, true)
 		if err != nil {
 			return nil, err
@@ -55,10 +55,10 @@ func JoinUserVoiceChannel(ctx *context.Context) (*discordgo.VoiceConnection, err
 }
 
 func IsUserInVoiceChannel(ctx *context.Context) bool {
-	return ensureVoiceChannelID(ctx)
+	return EnsureVoiceChannelID(ctx)
 }
 
-func ensureVoiceChannelID(ctx *context.Context) bool {
+func EnsureVoiceChannelID(ctx *context.Context) bool {
 	if ctx.VoiceChannelID != "" {
 		return true
 	}

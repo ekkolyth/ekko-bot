@@ -1,4 +1,5 @@
-.env
+.env.local
+web/.env.local
 bin
 web/node_modules
 .DS_Store

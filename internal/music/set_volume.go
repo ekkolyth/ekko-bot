@@ -1,10 +1,11 @@
-package discord
+package music
 
 import (
 	"fmt"
 	"strconv"
 
 	"github.com/ekkolyth/ekko-bot/internal/context"
+	"github.com/ekkolyth/ekko-bot/internal/discord"
 )
 
 func SetVolume(ctx *context.Context) {
@@ -21,7 +22,7 @@ func SetVolume(ctx *context.Context) {
 		return
 	}
 
-	if !ensureVoiceChannelID(ctx) {
+	if !discord.EnsureVoiceChannelID(ctx) {
 		ctx.Reply("Could not determine your voice channel.")
 		return
 	}

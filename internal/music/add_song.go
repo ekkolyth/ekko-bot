@@ -1,14 +1,15 @@
-package discord
+package music
 
 import (
 	stdcontext "context"
+	"os"
 	"strings"
 
 	"github.com/ekkolyth/ekko-bot/internal/api/httpx"
 	"github.com/ekkolyth/ekko-bot/internal/context"
+	"github.com/ekkolyth/ekko-bot/internal/discord"
 	"github.com/ekkolyth/ekko-bot/internal/logging"
-	"github.com/ekkolyth/ekko-bot/internal/media"
-	"github.com/ekkolyth/ekko-bot/internal/recentlyplayed"
+	"github.com/ekkolyth/ekko-bot/internal/youtube"
 )
 
 func AddSong(ctx *context.Context, search_mode bool, apiURL ...string) { // search_mode - false for play, true for search
@@ -28,19 +29,19 @@ func AddSong(ctx *context.Context, search_mode bool, apiURL ...string) { // sear
 		isAPICall = true
 		url = strings.TrimSpace(apiURL[0])
 
-		// For API calls, we need to get guildID from the Discord bot token
-		// For now, we'll use a hardcoded guildID or get it from context if available
+		// For API calls, get guildID from context or environment
 		if ctx != nil {
 			guildID = ctx.GetGuildID()
 		}
 
-		// If no guildID from context, we need to handle this differently
-		// For now, we'll use a default or require it to be passed
+		// If no guildID from context, get from DISCORD_GUILD_ID environment variable
 		if guildID == "" {
-			// TODO: Implement proper guild management for API calls
-			// For now, we'll use a hardcoded guildID or get it from environment
-			guildID = "320162956706971648" // This should be replaced with proper guild management
-			logging.Info("Using default guild ID for API call: " + guildID)
+			guildID = os.Getenv("DISCORD_GUILD_ID")
+			if guildID == "" {
+				ctx.Reply("Missing DISCORD_GUILD_ID environment variable")
+				return
+			}
+			logging.Info("Using DISCORD_GUILD_ID from environment for API call: " + guildID)
 		}
 	} else {
 		// Discord command - get URL from context
@@ -48,7 +49,7 @@ func AddSong(ctx *context.Context, search_mode bool, apiURL ...string) { // sear
 		guildID = ctx.GetGuildID()
 
 		// Check voice channel only for Discord commands
-		if !IsUserInVoiceChannel(ctx) {
+		if !discord.IsUserInVoiceChannel(ctx) {
 			ctx.Reply("You must be in a voice channel to use this command.")
 			return
 		}
@@ -75,7 +76,7 @@ func AddSong(ctx *context.Context, search_mode bool, apiURL ...string) { // sear
 		}
 
 		var found_result bool
-		url, found_result = media.SearchYoutube(searchQuery)
+		url, found_result = youtube.SearchYoutube(searchQuery)
 
 		if !found_result {
 			logging.Error("No results found for: " + searchQuery)
@@ -117,7 +118,7 @@ func AddSong(ctx *context.Context, search_mode bool, apiURL ...string) { // sear
 			AddedByID: requesterID,
 		}
 
-		videoInfo, err := media.GetVideoInfo(url)
+		videoInfo, err := youtube.GetVideoInfo(url)
 		if err == nil && videoInfo != nil {
 			meta.Title = videoInfo.Title
 			meta.Artist = videoInfo.Artist
@@ -131,7 +132,7 @@ func AddSong(ctx *context.Context, search_mode bool, apiURL ...string) { // sear
 			}
 		}
 
-		if recordErr := recentlyplayed.Record(stdcontext.Background(), recentlyplayed.RecordParams{
+		if recordErr := Record(stdcontext.Background(), RecordParams{
 			GuildID:         guild,
 			VoiceChannelID:  voiceChannel,
 			URL:             url,

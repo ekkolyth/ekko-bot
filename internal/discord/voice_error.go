@@ -1,4 +1,4 @@
-package media
+package discord
 
 import (
 	"github.com/ekkolyth/ekko-bot/internal/logging"

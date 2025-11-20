@@ -17,9 +17,12 @@ import (
 	appctx "github.com/ekkolyth/ekko-bot/internal/context"
 	"github.com/ekkolyth/ekko-bot/internal/db"
 	"github.com/ekkolyth/ekko-bot/internal/logging"
-	"github.com/ekkolyth/ekko-bot/internal/recentlyplayed"
+	"github.com/ekkolyth/ekko-bot/internal/music"
 	"github.com/joho/godotenv"
 )
+
+
+
 
 var StartTime = time.Now()
 
@@ -31,8 +34,9 @@ func getenvDefault(key, def string) string {
 }
 
 func main() {
-	if _, err := os.Stat(".env"); err == nil {
-		if err := godotenv.Load(); err != nil {
+
+	if _, err := os.Stat(".env.local"); err == nil {
+		if err := godotenv.Load(".env.local"); err != nil {
 			log.Println("Warning: .env present but could not be loaded:", err)
 		}
 	}
@@ -59,12 +63,12 @@ func main() {
 	}
 	defer dbService.DB.Close()
 	logging.Info("Database connection established")
-	recentlyplayed.SetService(recentlyplayed.NewService(dbService.DB))
+	music.SetService(music.NewService(dbService.DB))
 
 	// Discord
 	discordToken := os.Getenv("DISCORD_BOT_TOKEN")
 	if discordToken == "" {
-		log.Fatal("DISCORD_BOT_TOKEN is required")
+		logging.Fatal("[API] DISCORD_BOT_TOKEN not found - check .env file", err)
 	}
 	dg, err := discordgo.New("Bot " + discordToken)
 	if err != nil {

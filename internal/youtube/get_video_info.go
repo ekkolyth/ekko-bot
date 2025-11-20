@@ -1,4 +1,4 @@
-package media
+package youtube
 
 import (
 	"encoding/json"
@@ -70,11 +70,10 @@ func GetVideoInfoQuick(url string) string {
 		// Fallback to URL if we can't get the title
 		return url
 	}
-	
+
 	if info.Artist != "" {
 		return info.Title + " - " + info.Artist
 	}
-	
+
 	return info.Title
 }
-

@@ -12,7 +12,7 @@ import (
 	"github.com/ekkolyth/ekko-bot/internal/discord"
 	"github.com/ekkolyth/ekko-bot/internal/handlers"
 	"github.com/ekkolyth/ekko-bot/internal/logging"
-	"github.com/ekkolyth/ekko-bot/internal/recentlyplayed"
+	"github.com/ekkolyth/ekko-bot/internal/music"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
@@ -21,15 +21,15 @@ import (
 func setup() {
 
 	// Check .env file (optional - env vars may be provided by docker-compose)
-	if _, err := os.Stat(".env"); err == nil {
-		if err := godotenv.Load(); err != nil {
+	if _, err := os.Stat(".env.local"); err == nil {
+		if err := godotenv.Load(".env.local"); err != nil {
 			logging.Fatal("Error loading .env file", err)
 		}
 	}
 	//Check Discord Token
 	context.Token = os.Getenv("DISCORD_BOT_TOKEN")
 	if context.Token == "" {
-		logging.Fatal("Token not found - check .env file", nil)
+		logging.Fatal("[BOT] DISCORD_BOT_TOKEN not found - check .env file", nil)
 	}
 
 	// Check yt-dlp
@@ -67,7 +67,7 @@ func main() {
 		logging.Fatal("Failed to connect to database", err)
 	}
 	defer dbService.DB.Close()
-	recentlyplayed.SetService(recentlyplayed.NewService(dbService.DB))
+	music.SetService(music.NewService(dbService.DB))
 	handlers.SetCustomCommandService(dbService.CustomCommands)
 	handlers.SetGuildConfigService(dbService.GuildConfig)
 

@@ -1,4 +1,4 @@
-package recentlyplayed
+package music
 
 import (
 	stdcontext "context"

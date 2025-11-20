@@ -1,21 +1,22 @@
-package discord
+package music
 
 import (
 	"time"
 
 	"github.com/ekkolyth/ekko-bot/internal/context"
+	"github.com/ekkolyth/ekko-bot/internal/discord"
 	"github.com/ekkolyth/ekko-bot/internal/logging"
 )
 
 func StopSong(ctx *context.Context) {
 	// Get the voice connection for the guild
-	vc, err := GetVoiceConnection(ctx)
+	vc, err := discord.GetVoiceConnection(ctx)
 	if err != nil {
 		ctx.Reply("Not in a voice channel")
 		return
 	}
 
-	if !ensureVoiceChannelID(ctx) {
+	if !discord.EnsureVoiceChannelID(ctx) {
 		ctx.Reply("Could not determine your voice channel.")
 		return
 	}

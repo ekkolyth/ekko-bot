@@ -37,13 +37,13 @@ all: build
 build: build-bot build-api
 
 build-bot:
-	mkdir -p $(OUTPUT_DIR)
-	$(GOBUILD) -ldflags "-X 'github.com/ekkolyth/ekko-bot/internal/shared/context/state.GoSourceHash=$(GO_SOURCE_HASH)'" \
+	@mkdir -p $(OUTPUT_DIR)
+	@$(GOBUILD) -ldflags "-X 'github.com/ekkolyth/ekko-bot/internal/shared/context/state.GoSourceHash=$(GO_SOURCE_HASH)'" \
 		-o $(OUTPUT_DIR)/$(BOT_BINARY_NAME) -v ./cmd/bot
 
 build-api:
-	mkdir -p $(OUTPUT_DIR)
-	$(GOBUILD) -o $(OUTPUT_DIR)/$(API_BINARY_NAME) -v ./cmd/api
+	@mkdir -p $(OUTPUT_DIR)
+	@$(GOBUILD) -o $(OUTPUT_DIR)/$(API_BINARY_NAME) -v ./cmd/api
 
 clean:
 	go clean

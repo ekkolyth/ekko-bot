@@ -7,9 +7,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/ekkolyth/ekko-bot/internal/api/httpx"
 	appctx "github.com/ekkolyth/ekko-bot/internal/context"
-	"github.com/ekkolyth/ekko-bot/internal/discord"
 	"github.com/ekkolyth/ekko-bot/internal/logging"
-	"github.com/ekkolyth/ekko-bot/internal/recentlyplayed"
+	"github.com/ekkolyth/ekko-bot/internal/music"
 )
 
 // getGuildID reads and validates DISCORD_GUILD_ID from environment
@@ -173,7 +172,7 @@ func QueueRecent() http.HandlerFunc {
 			return
 		}
 
-		recent, err := recentlyplayed.List(read.Context(), guildID, voiceChannelID, 100)
+		recent, err := music.List(read.Context(), guildID, voiceChannelID, 100)
 		if err != nil {
 			httpx.RespondError(write, http.StatusInternalServerError, "Failed to load recently played tracks")
 			return
@@ -325,7 +324,7 @@ func QueueAdd() http.HandlerFunc {
 
 		logging.Api("queue.add user:" + request.DiscordTag + request.DiscordUserID + " discord_tag=")
 
-		discord.AddSong(ctx, false, request.URL)
+		music.AddSong(ctx, false, request.URL)
 
 		httpx.RespondJSON(write, http.StatusCreated, map[string]any{
 			"ok":         true,
@@ -470,7 +469,7 @@ func QueuePause() http.HandlerFunc {
 			VoiceChannelID: req.VoiceChannelID,
 		}
 
-		discord.PauseSong(ctx)
+		music.PauseSong(ctx)
 
 		httpx.RespondJSON(write, http.StatusOK, map[string]any{"ok": true})
 	}
@@ -520,10 +519,10 @@ func QueuePlay() http.HandlerFunc {
 		appctx.PauseMutex.Unlock()
 
 		if isPaused {
-			discord.PauseSong(ctx) // Toggle pause off
+			music.PauseSong(ctx) // Toggle pause off
 		} else {
 			// Start playing if not already
-			discord.ProcessQueue(ctx)
+			music.ProcessQueue(ctx)
 		}
 
 		httpx.RespondJSON(write, http.StatusOK, map[string]any{"ok": true})
@@ -566,7 +565,7 @@ func QueueSkip() http.HandlerFunc {
 			VoiceChannelID: req.VoiceChannelID,
 		}
 
-		discord.SkipSong(ctx)
+		music.SkipSong(ctx)
 
 		httpx.RespondJSON(write, http.StatusOK, map[string]any{"ok": true})
 	}
@@ -608,7 +607,7 @@ func QueueStop() http.HandlerFunc {
 			VoiceChannelID: req.VoiceChannelID,
 		}
 
-		discord.StopSong(ctx)
+		music.StopSong(ctx)
 
 		httpx.RespondJSON(write, http.StatusOK, map[string]any{"ok": true})
 	}

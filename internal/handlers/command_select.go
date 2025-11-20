@@ -9,6 +9,7 @@ import (
 	appdb "github.com/ekkolyth/ekko-bot/internal/db"
 	"github.com/ekkolyth/ekko-bot/internal/discord"
 	"github.com/ekkolyth/ekko-bot/internal/logging"
+	"github.com/ekkolyth/ekko-bot/internal/music"
 )
 
 var customCommandService *appdb.CustomCommandService
@@ -17,8 +18,8 @@ func SetCustomCommandService(service *appdb.CustomCommandService) {
 	customCommandService = service
 }
 
-// Both handlers can use this to forward to the correct command
-func commandSelector(ctx *context.Context) {
+// CommandSelector forwards commands to the appropriate handlers
+func CommandSelector(ctx *context.Context) {
 	if context.DisabledCommands[ctx.CommandName] {
 		ctx.Reply("This command has been disabled.")
 		return
@@ -30,21 +31,21 @@ func commandSelector(ctx *context.Context) {
 	case "pong":
 		discord.Ping(ctx)
 	case "play":
-		discord.AddSong(ctx, false) // false as in not a search
+		music.AddSong(ctx, false) // false as in not a search
 	case "search":
-		discord.AddSong(ctx, true) // true as in search for a song
+		music.AddSong(ctx, true) // true as in search for a song
 	case "skip":
-		discord.SkipSong(ctx)
+		music.SkipSong(ctx)
 	case "queue":
-		discord.ShowQueue(ctx)
+		music.ShowQueue(ctx)
 	case "stop":
-		discord.StopSong(ctx)
+		music.StopSong(ctx)
 	case "pause", "resume":
-		discord.PauseSong(ctx)
+		music.PauseSong(ctx)
 	case "volume":
-		discord.SetVolume(ctx)
+		music.SetVolume(ctx)
 	case "currentvolume":
-		discord.CurrentVolume(ctx)
+		music.CurrentVolume(ctx)
 	case "nuke": // delete n messages
 		discord.NukeMessages(ctx)
 	case "uptime":

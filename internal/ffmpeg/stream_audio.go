@@ -1,4 +1,4 @@
-package media
+package ffmpeg
 
 import (
 	"bufio"
@@ -15,6 +15,7 @@ import (
 	"github.com/ekkolyth/ekko-bot/internal/api/httpx"
 	"github.com/ekkolyth/ekko-bot/internal/config"
 	"github.com/ekkolyth/ekko-bot/internal/context"
+	"github.com/ekkolyth/ekko-bot/internal/discord"
 )
 
 // Discord voice server/channel.  voice websocket and udp socket
@@ -22,7 +23,7 @@ import (
 func StreamAudio(v *discordgo.VoiceConnection, url string, queueKey string, stop <-chan bool, pauseCh <-chan bool) {
 
 	if !httpx.IsValidURL(url) {
-		OnError("Invalid URL"+url, nil)
+		discord.OnError("Invalid URL"+url, nil)
 		return
 	}
 
@@ -69,35 +70,35 @@ func StreamAudio(v *discordgo.VoiceConnection, url string, queueKey string, stop
 	// Connect yt-dlp output to ffmpeg input
 	ytDlpOut, err := ytDlpCmd.StdoutPipe()
 	if err != nil {
-		OnError("yt-dlp StdoutPipe Error", err)
+		discord.OnError("yt-dlp StdoutPipe Error", err)
 		return
 	}
 
 	ffmpegIn, err := ffmpegCmd.StdinPipe()
 	if err != nil {
-		OnError("ffmpeg StdinPipe Error", err)
+		discord.OnError("ffmpeg StdinPipe Error", err)
 		return
 	}
 
 	ffmpegOut, err := ffmpegCmd.StdoutPipe()
 	if err != nil {
-		OnError("ffmpeg StdoutPipe Error", err)
+		discord.OnError("ffmpeg StdoutPipe Error", err)
 		return
 	}
 
 	// Start the yt-dlp and ffmpeg processes
 	err = ytDlpCmd.Start()
 	if err != nil {
-		OnError("yt-dlp Start Error", err)
+		discord.OnError("yt-dlp Start Error", err)
 		return
 	}
 
 	err = ffmpegCmd.Start()
 	if err != nil {
-		OnError("ffmpeg Start Error", err)
+		discord.OnError("ffmpeg Start Error", err)
 		// Check for stderr output from yt-dlp
 		if ytDlpStderr.Len() > 0 {
-			OnError("yt-dlp stderr: "+ytDlpStderr.String(), nil)
+			discord.OnError("yt-dlp stderr: "+ytDlpStderr.String(), nil)
 		}
 		return
 	}
@@ -108,9 +109,9 @@ func StreamAudio(v *discordgo.VoiceConnection, url string, queueKey string, stop
 		defer func() { ytDlpWaitDone <- true }()
 		if err := ytDlpCmd.Wait(); err != nil {
 			if ytDlpStderr.Len() > 0 {
-				OnError("yt-dlp failed: "+ytDlpStderr.String(), err)
+				discord.OnError("yt-dlp failed: "+ytDlpStderr.String(), err)
 			} else {
-				OnError("yt-dlp process exited with error", err)
+				discord.OnError("yt-dlp process exited with error", err)
 			}
 		}
 	}()
@@ -121,9 +122,9 @@ func StreamAudio(v *discordgo.VoiceConnection, url string, queueKey string, stop
 		defer func() { ffmpegWaitDone <- true }()
 		if err := ffmpegCmd.Wait(); err != nil {
 			if ffmpegStderr.Len() > 0 {
-				OnError("ffmpeg failed: "+ffmpegStderr.String(), err)
+				discord.OnError("ffmpeg failed: "+ffmpegStderr.String(), err)
 			} else {
-				OnError("ffmpeg process exited with error", err)
+				discord.OnError("ffmpeg process exited with error", err)
 			}
 		}
 	}()
@@ -132,7 +133,7 @@ func StreamAudio(v *discordgo.VoiceConnection, url string, queueKey string, stop
 	go func() {
 		_, err := io.Copy(ffmpegIn, ytDlpOut)
 		if err != nil {
-			OnError("Error copying yt-dlp output to ffmpeg input", err)
+			discord.OnError("Error copying yt-dlp output to ffmpeg input", err)
 		}
 		ffmpegIn.Close() // Important: close the pipe when done
 	}()
@@ -156,7 +157,7 @@ func StreamAudio(v *discordgo.VoiceConnection, url string, queueKey string, stop
 	// Set voice speaking status
 	err = v.Speaking(true)
 	if err != nil {
-		OnError("Couldn't set speaking", err)
+		discord.OnError("Couldn't set speaking", err)
 	}
 
 	// Stop speaking when done (voice overlay feature)
@@ -173,7 +174,7 @@ func StreamAudio(v *discordgo.VoiceConnection, url string, queueKey string, stop
 		}
 		err := v.Speaking(false)
 		if err != nil {
-			OnError("Couldn't stop speaking", err)
+			discord.OnError("Couldn't stop speaking", err)
 		}
 	}()
 
@@ -182,7 +183,7 @@ func StreamAudio(v *discordgo.VoiceConnection, url string, queueKey string, stop
 
 	closeCh := make(chan bool)
 	go func() {
-		SendPCM(v, send)
+		discord.SendPCM(v, send)
 		closeCh <- true
 	}()
 
@@ -228,7 +229,7 @@ func StreamAudio(v *discordgo.VoiceConnection, url string, queueKey string, stop
 			return
 		}
 		if err != nil {
-			OnError("Error reading from ffmpeg stdout", err)
+			discord.OnError("Error reading from ffmpeg stdout", err)
 			return
 		}
 

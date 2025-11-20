@@ -1,4 +1,4 @@
-package media
+package youtube
 
 import (
 	"bytes"

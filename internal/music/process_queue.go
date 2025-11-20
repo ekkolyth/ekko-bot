@@ -1,10 +1,11 @@
-package discord
+package music
 
 import (
 	"fmt"
 	"time"
 
 	"github.com/ekkolyth/ekko-bot/internal/context"
+	"github.com/ekkolyth/ekko-bot/internal/discord"
 	"github.com/ekkolyth/ekko-bot/internal/logging"
 )
 
@@ -40,7 +41,7 @@ func ProcessQueue(ctx *context.Context) {
 				// Wait a moment before disconnecting to avoid rapid connect/disconnect cycles
 				time.Sleep(500 * time.Millisecond)
 
-				vc, vcErr := GetVoiceConnection(ctx)
+				vc, vcErr := discord.GetVoiceConnection(ctx)
 				if vcErr == nil {
 					vc.Speaking(false)
 					vc.Disconnect()

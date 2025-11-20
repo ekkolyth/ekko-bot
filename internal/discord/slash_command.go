@@ -73,24 +73,45 @@ func SetupSlashCommands(s *discordgo.Session) {
 	refreshCommands := strings.ToLower(os.Getenv("REFRESH_COMMANDS"))
 	shouldRefresh := refreshCommands == "true" || refreshCommands == "1" || refreshCommands == "yes"
 
+	// Get guild ID from environment (1 app instance = 1 guild)
+	guildID := os.Getenv("DISCORD_GUILD_ID")
+
 	existingCommands, err := s.ApplicationCommands(s.State.User.ID, "")
 	if err != nil {
 		logging.Fatal("Could not fetch existing commands", err)
 	}
 
 	if shouldRefresh {
-		// Delete all existing commands to ensure they're up to date
-		logging.Info("REFRESH_COMMANDS enabled - deleting existing commands to refresh them...")
+		// Delete all existing global commands to ensure they're up to date
+		logging.Info("REFRESH_COMMANDS enabled - deleting existing global commands to refresh them...")
 		for _, existingCmd := range existingCommands {
 			err := s.ApplicationCommandDelete(s.State.User.ID, "", existingCmd.ID)
 			if err != nil {
-				logging.Warning("Could not delete command:" + existingCmd.Name + " " + err.Error())
+				logging.Warning("Could not delete global command:" + existingCmd.Name + " " + err.Error())
 			} else {
-				logging.Info("Deleted command: " + existingCmd.Name)
+				logging.Info("Deleted global command: " + existingCmd.Name)
 			}
 		}
 
-		// Register all commands fresh
+		// Also delete guild-specific commands if guild ID is set
+		if guildID != "" {
+			logging.Info("Deleting guild-specific commands for guild: " + guildID)
+			guildCommands, guildErr := s.ApplicationCommands(s.State.User.ID, guildID)
+			if guildErr != nil {
+				logging.Warning("Could not fetch guild commands: " + guildErr.Error())
+			} else {
+				for _, existingCmd := range guildCommands {
+					err := s.ApplicationCommandDelete(s.State.User.ID, guildID, existingCmd.ID)
+					if err != nil {
+						logging.Warning("Could not delete guild command:" + existingCmd.Name + " " + err.Error())
+					} else {
+						logging.Info("Deleted guild command: " + existingCmd.Name)
+					}
+				}
+			}
+		}
+
+		// Register all commands fresh (as global commands)
 		for _, cmd := range commands {
 			if context.DisabledCommands[cmd.Name] {
 				logging.Warning("Skipping disabled command:" + cmd.Name)
