@@ -173,7 +173,7 @@ func AddSong(ctx *context.Context, search_mode bool, apiURL ...string) { // sear
 	if !isAPICall {
 		ctx.Reply("Added to queue.")
 	} else {
-		logging.Info("Added to queue via API: " + url)
+		logging.Info("Added to queue via API: %s", url)
 	}
 
 	if !isAlreadyPlaying {

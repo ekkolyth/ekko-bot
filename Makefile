@@ -82,8 +82,14 @@ test:
 # ==========================================================
 
 redis/up:
-	@if [ -z "$$(docker ps -q -f name=$(REDIS_CONTAINER_NAME))" ]; then \
-		if [ -z "$$(docker ps -aq -f name=$(REDIS_CONTAINER_NAME))" ]; then \
+	@if ! timeout 3 docker info >/dev/null 2>&1; then \
+		echo "Error: Docker daemon is not responding. Please start Docker Desktop."; \
+		exit 1; \
+	fi; \
+	RUNNING_CONTAINER=$$(timeout 3 docker ps -q -f name=$(REDIS_CONTAINER_NAME) 2>/dev/null || echo ""); \
+	if [ -z "$$RUNNING_CONTAINER" ]; then \
+		EXISTING_CONTAINER=$$(timeout 3 docker ps -aq -f name=$(REDIS_CONTAINER_NAME) 2>/dev/null || echo ""); \
+		if [ -z "$$EXISTING_CONTAINER" ]; then \
 			echo "Creating Redis container $(REDIS_CONTAINER_NAME) on port $(REDIS_PORT)..."; \
 			if [ -n "$(REDIS_PASSWORD)" ]; then \
 				docker run -d --name $(REDIS_CONTAINER_NAME) -p $(REDIS_PORT):6379 $(REDIS_IMAGE) \
@@ -101,7 +107,12 @@ redis/up:
 	fi
 
 redis/down:
-	@if [ -n "$$(docker ps -q -f name=$(REDIS_CONTAINER_NAME))" ]; then \
+	@if ! timeout 3 docker info >/dev/null 2>&1; then \
+		echo "Error: Docker daemon is not responding."; \
+		exit 1; \
+	fi; \
+	RUNNING_CONTAINER=$$(timeout 3 docker ps -q -f name=$(REDIS_CONTAINER_NAME) 2>/dev/null || echo ""); \
+	if [ -n "$$RUNNING_CONTAINER" ]; then \
 		echo "Stopping Redis container $(REDIS_CONTAINER_NAME)..."; \
 		docker stop $(REDIS_CONTAINER_NAME) >/dev/null; \
 	else \

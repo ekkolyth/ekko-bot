@@ -17,6 +17,7 @@ import (
 	appctx "github.com/ekkolyth/ekko-bot/internal/context"
 	"github.com/ekkolyth/ekko-bot/internal/db"
 	"github.com/ekkolyth/ekko-bot/internal/logging"
+	"github.com/ekkolyth/ekko-bot/internal/lua"
 	"github.com/ekkolyth/ekko-bot/internal/music"
 	"github.com/joho/godotenv"
 )
@@ -45,6 +46,12 @@ func main() {
 	if _, err := strconv.Atoi(port); err != nil {
 		log.Fatal("Invalid API_PORT value:", port)
 	}
+
+	// Initialize Lua VM
+	if err := lua.Init(); err != nil {
+		log.Fatal("Failed to initialize Lua VM:", err)
+	}
+	defer lua.Close()
 
 	ctx := context.Background()
 

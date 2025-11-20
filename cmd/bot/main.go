@@ -12,6 +12,7 @@ import (
 	"github.com/ekkolyth/ekko-bot/internal/discord"
 	"github.com/ekkolyth/ekko-bot/internal/handlers"
 	"github.com/ekkolyth/ekko-bot/internal/logging"
+	"github.com/ekkolyth/ekko-bot/internal/lua"
 	"github.com/ekkolyth/ekko-bot/internal/music"
 
 	"github.com/bwmarrin/discordgo"
@@ -54,6 +55,12 @@ func setup() {
 
 func main() {
 	setup()
+
+	// Initialize Lua VM
+	if err := lua.Init(); err != nil {
+		logging.Fatal("Failed to initialize Lua VM", err)
+	}
+	defer lua.Close()
 
 	redisClient, err := cache.InitRedis()
 	if err != nil {

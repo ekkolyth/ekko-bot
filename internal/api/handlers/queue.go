@@ -7,8 +7,10 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/ekkolyth/ekko-bot/internal/api/httpx"
 	appctx "github.com/ekkolyth/ekko-bot/internal/context"
+	"github.com/ekkolyth/ekko-bot/internal/lua"
 	"github.com/ekkolyth/ekko-bot/internal/logging"
 	"github.com/ekkolyth/ekko-bot/internal/music"
+	luaLib "github.com/yuin/gopher-lua"
 )
 
 // getGuildID reads and validates DISCORD_GUILD_ID from environment
@@ -287,10 +289,34 @@ func QueueAdd() http.HandlerFunc {
 			return
 		}
 
-		if !httpx.IsValidURL(request.URL) {
+		// Normalize URL using Lua scripts (normalization includes validation)
+		script := lua.Get()
+		if err := script.LoadScript("lua/scripts/validate_url/validate_youtube_url.lua"); err != nil {
+			logging.Error("Failed to load normalization script: " + err.Error() + " - URL: " + request.URL)
 			httpx.RespondError(write, http.StatusBadRequest, "Invalid URL")
 			return
 		}
+
+		results, err := script.CallLuaFunc("validate_youtube_url", "normalize_youtube_url", 2, luaLib.LString(request.URL))
+		if err != nil {
+			logging.Error("Failed to normalize URL: " + err.Error() + " - URL: " + request.URL)
+			httpx.RespondError(write, http.StatusBadRequest, "Invalid URL")
+			return
+		}
+
+		if results[1].Type() != luaLib.LTNil {
+			logging.Error("Lua normalization error code: " + results[1].String() + " - URL: " + request.URL)
+			httpx.RespondError(write, http.StatusBadRequest, "Invalid URL")
+			return
+		}
+
+		if results[0].Type() == luaLib.LTNil {
+			logging.Error("Nil result from normalization - URL: " + request.URL)
+			httpx.RespondError(write, http.StatusBadRequest, "Invalid URL")
+			return
+		}
+
+		normalizedURL := results[0].String()
 
 		// Use Discord session directly in API
 		if discordSessionProvider == nil {
@@ -318,17 +344,17 @@ func QueueAdd() http.HandlerFunc {
 			VoiceChannelID:         request.VoiceChannelID,
 			RequesterDiscordUserID: request.DiscordUserID,
 			RequesterTag:           request.DiscordTag,
-			Arguments:              map[string]string{"url": request.URL},
+			Arguments:              map[string]string{"url": normalizedURL},
 			ArgumentsRaw:           make(map[string]any),
 		}
 
 		logging.Api("queue.add user:" + request.DiscordTag + request.DiscordUserID + " discord_tag=")
 
-		music.AddSong(ctx, false, request.URL)
+		music.AddSong(ctx, false, normalizedURL)
 
 		httpx.RespondJSON(write, http.StatusCreated, map[string]any{
 			"ok":         true,
-			"youtubeUrl": request.URL,
+			"youtubeUrl": normalizedURL,
 		})
 	}
 }
