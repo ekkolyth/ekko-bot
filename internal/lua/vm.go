@@ -54,7 +54,7 @@ func Close() {
 	}
 }
 
-// load a lua script from the embedded filesystem on first use
+// load lua script
 func (script *Script) LoadScript(scriptPath string) error {
 	loadersMutex.Lock()
 	loader, exists := scriptLoaders[scriptPath]
@@ -72,7 +72,7 @@ func (script *Script) LoadScript(scriptPath string) error {
 		}
 
 		// wrap script so its return value becomes a global module
-		// extract module name from script path (e.g. ".../validate_youtube_url.lua" -> "validate_youtube_url")
+		// extract module name from script path /validate_youtube_url.lua -> validate_youtube_url
 		moduleName := extractModuleName(scriptPath)
 		wrappedScript := fmt.Sprintf("local _module = (function()\n%s\nend)(); %s = _module", string(scriptContent), moduleName)
 
@@ -94,7 +94,6 @@ func extractModuleName(scriptPath string) string {
 }
 
 // call a lua function and return its values
-// numReturns specifies how many values to read back
 func (script *Script) CallLuaFunc(moduleName, funcName string, numReturns int, args ...lua.LValue) ([]lua.LValue, error) {
 	mod := script.State.GetGlobal(moduleName)
 	if mod == nil || mod.Type() != lua.LTTable {

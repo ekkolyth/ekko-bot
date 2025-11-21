@@ -10,7 +10,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// QueueStore abstracts queue persistence so both bot and API share state
+// share state bewtween API and Bot
 type QueueStore interface {
 	Append(queueKey string, track *TrackInfo) error
 	PopNext(queueKey string) (*TrackInfo, error)
@@ -38,12 +38,12 @@ type QueueStore interface {
 
 var store QueueStore
 
-// SetQueueStore wires the shared store implementation
+// set the shared store
 func SetQueueStore(s QueueStore) {
 	store = s
 }
 
-// GetQueueStore returns the configured store
+// return the shared store
 func GetQueueStore() QueueStore {
 	return store
 }
@@ -52,12 +52,13 @@ type redisQueueStore struct {
 	client *redis.Client
 }
 
-// NewRedisQueueStore returns a Redis backed QueueStore
+// return a Redis backed QueueStore
 func NewRedisQueueStore(client *redis.Client) QueueStore {
 	return &redisQueueStore{client: client}
 }
 
-func (s *redisQueueStore) Append(queueKey string, track *TrackInfo) error {
+// add track to end of queue
+func (store *redisQueueStore) Append(queueKey string, track *TrackInfo) error {
 	if track == nil {
 		return errors.New("track is required")
 	}
@@ -67,11 +68,12 @@ func (s *redisQueueStore) Append(queueKey string, track *TrackInfo) error {
 		return err
 	}
 
-	return s.client.RPush(stdctx.Background(), listKey(queueKey), payload).Err()
+	return store.client.RPush(stdctx.Background(), listKey(queueKey), payload).Err()
 }
 
-func (s *redisQueueStore) PopNext(queueKey string) (*TrackInfo, error) {
-	result, err := s.client.LPop(stdctx.Background(), listKey(queueKey)).Result()
+// return first track from queue
+func (store *redisQueueStore) PopNext(queueKey string) (*TrackInfo, error) {
+	result, err := store.client.LPop(stdctx.Background(), listKey(queueKey)).Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			return nil, nil
@@ -82,8 +84,9 @@ func (s *redisQueueStore) PopNext(queueKey string) (*TrackInfo, error) {
 	return decodeTrack(result)
 }
 
-func (s *redisQueueStore) Snapshot(queueKey string) ([]*TrackInfo, error) {
-	values, err := s.client.LRange(stdctx.Background(), listKey(queueKey), 0, -1).Result()
+// return all tracks in queue in order
+func (store *redisQueueStore) Snapshot(queueKey string) ([]*TrackInfo, error) {
+	values, err := store.client.LRange(stdctx.Background(), listKey(queueKey), 0, -1).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -100,13 +103,14 @@ func (s *redisQueueStore) Snapshot(queueKey string) ([]*TrackInfo, error) {
 	return tracks, nil
 }
 
-func (s *redisQueueStore) Remove(queueKey string, index int) error {
+// remove track at index
+func (store *redisQueueStore) Remove(queueKey string, index int) error {
 	if index < 0 {
 		return fmt.Errorf("invalid index %d", index)
 	}
 
 	ctx := stdctx.Background()
-	values, err := s.client.LRange(ctx, listKey(queueKey), 0, -1).Result()
+	values, err := store.client.LRange(ctx, listKey(queueKey), 0, -1).Result()
 	if err != nil {
 		return err
 	}
@@ -118,7 +122,7 @@ func (s *redisQueueStore) Remove(queueKey string, index int) error {
 	updated := append([]string{}, values[:index]...)
 	updated = append(updated, values[index+1:]...)
 
-	pipe := s.client.TxPipeline()
+	pipe := store.client.TxPipeline()
 	pipe.Del(ctx, listKey(queueKey))
 	for _, val := range updated {
 		pipe.RPush(ctx, listKey(queueKey), val)
@@ -127,15 +131,18 @@ func (s *redisQueueStore) Remove(queueKey string, index int) error {
 	return execErr
 }
 
-func (s *redisQueueStore) Clear(queueKey string) error {
-	return s.client.Del(stdctx.Background(), listKey(queueKey)).Err()
+// clear queue
+func (store *redisQueueStore) Clear(queueKey string) error {
+	return store.client.Del(stdctx.Background(), listKey(queueKey)).Err()
 }
 
-func (s *redisQueueStore) Length(queueKey string) (int64, error) {
-	return s.client.LLen(stdctx.Background(), listKey(queueKey)).Result()
+// return queue length
+func (store *redisQueueStore) Length(queueKey string) (int64, error) {
+	return store.client.LLen(stdctx.Background(), listKey(queueKey)).Result()
 }
 
-func (s *redisQueueStore) SaveMetadata(queueKey, url string, info *TrackInfo) error {
+// save metadata for url
+func (store *redisQueueStore) SaveMetadata(queueKey, url string, info *TrackInfo) error {
 	if info == nil {
 		return errors.New("metadata track required")
 	}
@@ -144,11 +151,12 @@ func (s *redisQueueStore) SaveMetadata(queueKey, url string, info *TrackInfo) er
 		return err
 	}
 
-	return s.client.HSet(stdctx.Background(), metadataKey(queueKey), url, payload).Err()
+	return store.client.HSet(stdctx.Background(), metadataKey(queueKey), url, payload).Err()
 }
 
-func (s *redisQueueStore) LookupMetadata(queueKey, url string) (*TrackInfo, error) {
-	result, err := s.client.HGet(stdctx.Background(), metadataKey(queueKey), url).Result()
+// return metadata for url
+func (store *redisQueueStore) LookupMetadata(queueKey, url string) (*TrackInfo, error) {
+	result, err := store.client.HGet(stdctx.Background(), metadataKey(queueKey), url).Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			return nil, nil
@@ -159,23 +167,26 @@ func (s *redisQueueStore) LookupMetadata(queueKey, url string) (*TrackInfo, erro
 	return decodeTrack(result)
 }
 
-func (s *redisQueueStore) ClearMetadata(queueKey string) error {
-	return s.client.Del(stdctx.Background(), metadataKey(queueKey)).Err()
+// clear metadata
+func (store *redisQueueStore) ClearMetadata(queueKey string) error {
+	return store.client.Del(stdctx.Background(), metadataKey(queueKey)).Err()
 }
 
-func (s *redisQueueStore) SetNowPlaying(queueKey string, info *TrackInfo) error {
+// set now playing track
+func (store *redisQueueStore) SetNowPlaying(queueKey string, info *TrackInfo) error {
 	if info == nil {
-		return s.client.Del(stdctx.Background(), nowPlayingKey(queueKey)).Err()
+		return store.client.Del(stdctx.Background(), nowPlayingKey(queueKey)).Err()
 	}
 	payload, err := json.Marshal(info)
 	if err != nil {
 		return err
 	}
-	return s.client.Set(stdctx.Background(), nowPlayingKey(queueKey), payload, 0).Err()
+	return store.client.Set(stdctx.Background(), nowPlayingKey(queueKey), payload, 0).Err()
 }
 
-func (s *redisQueueStore) GetNowPlaying(queueKey string) (*TrackInfo, error) {
-	result, err := s.client.Get(stdctx.Background(), nowPlayingKey(queueKey)).Result()
+// return now playing track
+func (store *redisQueueStore) GetNowPlaying(queueKey string) (*TrackInfo, error) {
+	result, err := store.client.Get(stdctx.Background(), nowPlayingKey(queueKey)).Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			return nil, nil
@@ -185,32 +196,39 @@ func (s *redisQueueStore) GetNowPlaying(queueKey string) (*TrackInfo, error) {
 	return decodeTrack(result)
 }
 
-func (s *redisQueueStore) ClearNowPlaying(queueKey string) error {
-	return s.client.Del(stdctx.Background(), nowPlayingKey(queueKey)).Err()
+// clear now playing
+func (store *redisQueueStore) ClearNowPlaying(queueKey string) error {
+	return store.client.Del(stdctx.Background(), nowPlayingKey(queueKey)).Err()
 }
 
-func (s *redisQueueStore) SetPlaying(queueKey string, value bool) error {
-	return s.client.HSet(stdctx.Background(), metaKey(queueKey), "playing", boolString(value)).Err()
+// set playing state
+func (store *redisQueueStore) SetPlaying(queueKey string, value bool) error {
+	return store.client.HSet(stdctx.Background(), metaKey(queueKey), "playing", boolString(value)).Err()
 }
 
-func (s *redisQueueStore) IsPlaying(queueKey string) (bool, error) {
-	return s.readBool(metaKey(queueKey), "playing")
+// return playing state
+func (store *redisQueueStore) IsPlaying(queueKey string) (bool, error) {
+	return store.readBool(metaKey(queueKey), "playing")
 }
 
-func (s *redisQueueStore) SetPaused(queueKey string, value bool) error {
-	return s.client.HSet(stdctx.Background(), metaKey(queueKey), "paused", boolString(value)).Err()
+// set paused state
+func (store *redisQueueStore) SetPaused(queueKey string, value bool) error {
+	return store.client.HSet(stdctx.Background(), metaKey(queueKey), "paused", boolString(value)).Err()
 }
 
-func (s *redisQueueStore) IsPaused(queueKey string) (bool, error) {
-	return s.readBool(metaKey(queueKey), "paused")
+// return paused state
+func (store *redisQueueStore) IsPaused(queueKey string) (bool, error) {
+	return store.readBool(metaKey(queueKey), "paused")
 }
 
-func (s *redisQueueStore) SetVolume(queueKey string, value float64) error {
-	return s.client.HSet(stdctx.Background(), metaKey(queueKey), "volume", fmt.Sprintf("%f", value)).Err()
+// set volume
+func (store *redisQueueStore) SetVolume(queueKey string, value float64) error {
+	return store.client.HSet(stdctx.Background(), metaKey(queueKey), "volume", fmt.Sprintf("%f", value)).Err()
 }
 
-func (s *redisQueueStore) GetVolume(queueKey string) (float64, error) {
-	result, err := s.client.HGet(stdctx.Background(), metaKey(queueKey), "volume").Result()
+// return volume
+func (store *redisQueueStore) GetVolume(queueKey string) (float64, error) {
+	result, err := store.client.HGet(stdctx.Background(), metaKey(queueKey), "volume").Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			return 1.0, nil
@@ -225,8 +243,9 @@ func (s *redisQueueStore) GetVolume(queueKey string) (float64, error) {
 	return parsed, nil
 }
 
-func (s *redisQueueStore) readBool(key, field string) (bool, error) {
-	result, err := s.client.HGet(stdctx.Background(), key, field).Result()
+// return bool value from hash field
+func (store *redisQueueStore) readBool(key, field string) (bool, error) {
+	result, err := store.client.HGet(stdctx.Background(), key, field).Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			return false, nil
@@ -236,6 +255,7 @@ func (s *redisQueueStore) readBool(key, field string) (bool, error) {
 	return result == "1", nil
 }
 
+// convert bool to string
 func boolString(value bool) string {
 	if value {
 		return "1"
@@ -243,22 +263,27 @@ func boolString(value bool) string {
 	return "0"
 }
 
+// return queue list key
 func listKey(queueKey string) string {
 	return "queue:list:" + queueKey
 }
 
+// return metadata key
 func metadataKey(queueKey string) string {
 	return "queue:metadata:" + queueKey
 }
 
+// return now playing key
 func nowPlayingKey(queueKey string) string {
 	return "queue:now:" + queueKey
 }
 
+// return meta key
 func metaKey(queueKey string) string {
 	return "queue:meta:" + queueKey
 }
 
+// decode track from json
 func decodeTrack(payload string) (*TrackInfo, error) {
 	if payload == "" {
 		return nil, errors.New("empty track payload")

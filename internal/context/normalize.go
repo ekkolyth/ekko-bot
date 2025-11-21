@@ -34,8 +34,8 @@ case "play": // url string (also support old "song" parameter name)
         }
     }
     // Strip any leading "/play " prefix that Discord might include
-    if strings.HasPrefix(urlValue, "/play ") {
-        urlValue = strings.TrimPrefix(urlValue, "/play ")
+    if trimmed, ok := strings.CutPrefix(urlValue, "/play "); ok {
+        urlValue = trimmed
     }
     ctx.Arguments["url"] = strings.TrimSpace(urlValue)
 	case "search": // query string
