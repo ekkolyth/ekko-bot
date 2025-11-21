@@ -17,7 +17,7 @@ REDIS_IMAGE ?= redis:7-alpine
 GOBUILD=go build
 GO_SOURCE_HASH:=$(shell find . -name "*.go" | sort | xargs cat | sha1sum | cut -c1-8)
 
--include .env
+-include .env.local
 export
 
 ifndef REDIS_PORT

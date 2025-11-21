@@ -32,6 +32,7 @@ type WelcomeSettings struct {
 	GuildID   string
 	ChannelID *string
 	Message   *string
+	EmbedTitle *string
 }
 
 // NewGuildConfigService builds a GuildConfigService.
@@ -58,11 +59,12 @@ func (s *GuildConfigService) GetWelcomeSettings(ctx context.Context, guildID str
 		GuildID:   row.GuildID,
 		ChannelID: row.WelcomeChannelID,
 		Message:   row.WelcomeMessage,
+		EmbedTitle: row.WelcomeEmbedTitle,
 	}, nil
 }
 
 // SaveWelcomeSettings upserts the desired welcome channel and message for a guild.
-func (s *GuildConfigService) SaveWelcomeSettings(ctx context.Context, guildID, rawChannelID, rawMessage string) (*WelcomeSettings, error) {
+func (s *GuildConfigService) SaveWelcomeSettings(ctx context.Context, guildID, rawChannelID, rawMessage, rawEmbedTitle string) (*WelcomeSettings, error) {
 	id := strings.TrimSpace(guildID)
 	if id == "" {
 		return nil, ErrGuildIDRequired
@@ -83,11 +85,19 @@ func (s *GuildConfigService) SaveWelcomeSettings(ctx context.Context, guildID, r
 
 	channelValue := channelID
 	messageValue := message
+	var embedTitleValue *string
+	if rawEmbedTitle != "" {
+		trimmed := strings.TrimSpace(rawEmbedTitle)
+		if trimmed != "" {
+			embedTitleValue = &trimmed
+		}
+	}
 
 	row, err := s.queries.UpsertWelcomeConfig(ctx, &UpsertWelcomeConfigParams{
-		GuildID:          id,
-		WelcomeChannelID: &channelValue,
-		WelcomeMessage:   &messageValue,
+		GuildID:           id,
+		WelcomeChannelID:  &channelValue,
+		WelcomeMessage:    &messageValue,
+		WelcomeEmbedTitle: embedTitleValue,
 	})
 	if err != nil {
 		return nil, err
@@ -97,5 +107,6 @@ func (s *GuildConfigService) SaveWelcomeSettings(ctx context.Context, guildID, r
 		GuildID:   row.GuildID,
 		ChannelID: row.WelcomeChannelID,
 		Message:   row.WelcomeMessage,
+		EmbedTitle: row.WelcomeEmbedTitle,
 	}, nil
 }

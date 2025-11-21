@@ -10,13 +10,15 @@ import (
 )
 
 type welcomeConfigResponse struct {
-	ChannelID *string `json:"channel_id"`
-	Message   *string `json:"message"`
+	ChannelID  *string `json:"channel_id"`
+	Message    *string `json:"message"`
+	EmbedTitle *string `json:"embed_title"`
 }
 
 type welcomeConfigRequest struct {
-	ChannelID string `json:"channel_id"`
-	Message   string `json:"message"`
+	ChannelID  string `json:"channel_id"`
+	Message    string `json:"message"`
+	EmbedTitle string `json:"embed_title"`
 }
 
 func WelcomeConfigGet(service *appdb.GuildConfigService) http.HandlerFunc {
@@ -44,8 +46,9 @@ func WelcomeConfigGet(service *appdb.GuildConfigService) http.HandlerFunc {
 		}
 
 		httpx.RespondJSON(write, http.StatusOK, welcomeConfigResponse{
-			ChannelID: settings.ChannelID,
-			Message:   settings.Message,
+			ChannelID:  settings.ChannelID,
+			Message:    settings.Message,
+			EmbedTitle: settings.EmbedTitle,
 		})
 	}
 }
@@ -71,7 +74,7 @@ func WelcomeConfigSave(service *appdb.GuildConfigService) http.HandlerFunc {
 			return
 		}
 
-		settings, err := service.SaveWelcomeSettings(read.Context(), guildID, payload.ChannelID, payload.Message)
+		settings, err := service.SaveWelcomeSettings(read.Context(), guildID, payload.ChannelID, payload.Message, payload.EmbedTitle)
 		if err != nil {
 			switch {
 			case errors.Is(err, appdb.ErrGuildIDRequired):
@@ -89,8 +92,9 @@ func WelcomeConfigSave(service *appdb.GuildConfigService) http.HandlerFunc {
 		}
 
 		httpx.RespondJSON(write, http.StatusOK, welcomeConfigResponse{
-			ChannelID: settings.ChannelID,
-			Message:   settings.Message,
+			ChannelID:  settings.ChannelID,
+			Message:    settings.Message,
+			EmbedTitle: settings.EmbedTitle,
 		})
 	}
 }

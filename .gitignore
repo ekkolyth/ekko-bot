@@ -3,3 +3,5 @@ web/.env.local
 bin
 web/node_modules
 .DS_Store
+.cursor/
+docs/

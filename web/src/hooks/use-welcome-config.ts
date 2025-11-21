@@ -3,11 +3,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 export interface WelcomeConfig {
   channel_id: string | null;
   message: string | null;
+  embed_title: string | null;
 }
 
 interface SaveWelcomeConfigPayload {
   channel_id: string;
   message: string;
+  embed_title: string;
 }
 
 async function fetchWelcomeConfig() {
@@ -19,7 +21,7 @@ async function fetchWelcomeConfig() {
     throw new Error(message);
   }
 
-  return (data ?? { channel_id: null, message: null }) as WelcomeConfig;
+  return (data ?? { channel_id: null, message: null, embed_title: null }) as WelcomeConfig;
 }
 
 export function useWelcomeConfig() {

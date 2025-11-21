@@ -10,49 +10,53 @@ import (
 )
 
 const GetWelcomeConfig = `-- name: GetWelcomeConfig :one
-SELECT guild_id, welcome_channel_id, welcome_message
+SELECT guild_id, welcome_channel_id, welcome_message, welcome_embed_title
 FROM guild_config
 WHERE guild_id = $1
 `
 
 type GetWelcomeConfigRow struct {
-	GuildID          string  `json:"guild_id"`
+	GuildID           string  `json:"guild_id"`
 	WelcomeChannelID *string `json:"welcome_channel_id"`
 	WelcomeMessage   *string `json:"welcome_message"`
+	WelcomeEmbedTitle *string `json:"welcome_embed_title"`
 }
 
 func (q *Queries) GetWelcomeConfig(ctx context.Context, guildID string) (*GetWelcomeConfigRow, error) {
 	row := q.db.QueryRow(ctx, GetWelcomeConfig, guildID)
 	var i GetWelcomeConfigRow
-	err := row.Scan(&i.GuildID, &i.WelcomeChannelID, &i.WelcomeMessage)
+	err := row.Scan(&i.GuildID, &i.WelcomeChannelID, &i.WelcomeMessage, &i.WelcomeEmbedTitle)
 	return &i, err
 }
 
 const UpsertWelcomeConfig = `-- name: UpsertWelcomeConfig :one
-INSERT INTO guild_config (guild_id, welcome_channel_id, welcome_message)
-VALUES ($1, $2, $3)
+INSERT INTO guild_config (guild_id, welcome_channel_id, welcome_message, welcome_embed_title)
+VALUES ($1, $2, $3, $4)
 ON CONFLICT (guild_id) DO UPDATE
 SET welcome_channel_id = EXCLUDED.welcome_channel_id,
     welcome_message = EXCLUDED.welcome_message,
+    welcome_embed_title = EXCLUDED.welcome_embed_title,
     updated_at = now()
-RETURNING guild_id, welcome_channel_id, welcome_message
+RETURNING guild_id, welcome_channel_id, welcome_message, welcome_embed_title
 `
 
 type UpsertWelcomeConfigParams struct {
-	GuildID          string  `json:"guild_id"`
-	WelcomeChannelID *string `json:"welcome_channel_id"`
-	WelcomeMessage   *string `json:"welcome_message"`
+	GuildID           string  `json:"guild_id"`
+	WelcomeChannelID  *string `json:"welcome_channel_id"`
+	WelcomeMessage    *string `json:"welcome_message"`
+	WelcomeEmbedTitle *string `json:"welcome_embed_title"`
 }
 
 type UpsertWelcomeConfigRow struct {
-	GuildID          string  `json:"guild_id"`
-	WelcomeChannelID *string `json:"welcome_channel_id"`
-	WelcomeMessage   *string `json:"welcome_message"`
+	GuildID           string  `json:"guild_id"`
+	WelcomeChannelID  *string `json:"welcome_channel_id"`
+	WelcomeMessage    *string `json:"welcome_message"`
+	WelcomeEmbedTitle *string `json:"welcome_embed_title"`
 }
 
 func (q *Queries) UpsertWelcomeConfig(ctx context.Context, arg *UpsertWelcomeConfigParams) (*UpsertWelcomeConfigRow, error) {
-	row := q.db.QueryRow(ctx, UpsertWelcomeConfig, arg.GuildID, arg.WelcomeChannelID, arg.WelcomeMessage)
+	row := q.db.QueryRow(ctx, UpsertWelcomeConfig, arg.GuildID, arg.WelcomeChannelID, arg.WelcomeMessage, arg.WelcomeEmbedTitle)
 	var i UpsertWelcomeConfigRow
-	err := row.Scan(&i.GuildID, &i.WelcomeChannelID, &i.WelcomeMessage)
+	err := row.Scan(&i.GuildID, &i.WelcomeChannelID, &i.WelcomeMessage, &i.WelcomeEmbedTitle)
 	return &i, err
 }

@@ -83,6 +83,9 @@ func main() {
 		logging.Fatal("Error creating Discord session", err)
 	}
 
+	// Configure Discord intents - required for receiving guild member events
+	dg.Identify.Intents = discordgo.IntentsGuilds | discordgo.IntentsGuildMembers | discordgo.IntentsGuildVoiceStates | discordgo.IntentsGuildMessages
+
 	dg.AddHandler(handlers.HandleMessageCreate)
 	dg.AddHandler(handlers.HandleInteractionCreate)
 	dg.AddHandler(handlers.HandleVoiceStateUpdate)

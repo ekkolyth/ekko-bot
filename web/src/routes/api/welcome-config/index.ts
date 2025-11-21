@@ -7,6 +7,7 @@ import { baseURL } from '@/lib/base-url';
 interface WelcomeConfigRequest {
   channel_id: string;
   message: string;
+  embed_title: string;
 }
 
 export const Route = createFileRoute('/api/welcome-config/')({

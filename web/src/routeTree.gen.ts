@@ -22,6 +22,7 @@ import { Route as ApiWeatherIndexRouteImport } from './routes/api/weather/index'
 import { Route as ApiRecentIndexRouteImport } from './routes/api/recent/index'
 import { Route as ApiQueueIndexRouteImport } from './routes/api/queue/index'
 import { Route as ApiLocationNameIndexRouteImport } from './routes/api/location-name/index'
+import { Route as ApiIdentityIndexRouteImport } from './routes/api/identity/index'
 import { Route as ApiHealthzIndexRouteImport } from './routes/api/healthz/index'
 import { Route as ApiGuildsIndexRouteImport } from './routes/api/guilds/index'
 import { Route as ApiCommandsIndexRouteImport } from './routes/api/commands/index'
@@ -117,6 +118,11 @@ const ApiQueueIndexRoute = ApiQueueIndexRouteImport.update({
 const ApiLocationNameIndexRoute = ApiLocationNameIndexRouteImport.update({
   id: '/api/location-name/',
   path: '/api/location-name/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiIdentityIndexRoute = ApiIdentityIndexRouteImport.update({
+  id: '/api/identity/',
+  path: '/api/identity/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiHealthzIndexRoute = ApiHealthzIndexRouteImport.update({
@@ -325,6 +331,7 @@ export interface FileRoutesByFullPath {
   '/api/commands': typeof ApiCommandsIndexRoute
   '/api/guilds': typeof ApiGuildsIndexRoute
   '/api/healthz': typeof ApiHealthzIndexRoute
+  '/api/identity': typeof ApiIdentityIndexRoute
   '/api/location-name': typeof ApiLocationNameIndexRoute
   '/api/queue': typeof ApiQueueIndexRoute
   '/api/recent': typeof ApiRecentIndexRoute
@@ -371,6 +378,7 @@ export interface FileRoutesByTo {
   '/api/commands': typeof ApiCommandsIndexRoute
   '/api/guilds': typeof ApiGuildsIndexRoute
   '/api/healthz': typeof ApiHealthzIndexRoute
+  '/api/identity': typeof ApiIdentityIndexRoute
   '/api/location-name': typeof ApiLocationNameIndexRoute
   '/api/queue': typeof ApiQueueIndexRoute
   '/api/recent': typeof ApiRecentIndexRoute
@@ -419,6 +427,7 @@ export interface FileRoutesById {
   '/api/commands/': typeof ApiCommandsIndexRoute
   '/api/guilds/': typeof ApiGuildsIndexRoute
   '/api/healthz/': typeof ApiHealthzIndexRoute
+  '/api/identity/': typeof ApiIdentityIndexRoute
   '/api/location-name/': typeof ApiLocationNameIndexRoute
   '/api/queue/': typeof ApiQueueIndexRoute
   '/api/recent/': typeof ApiRecentIndexRoute
@@ -467,6 +476,7 @@ export interface FileRouteTypes {
     | '/api/commands'
     | '/api/guilds'
     | '/api/healthz'
+    | '/api/identity'
     | '/api/location-name'
     | '/api/queue'
     | '/api/recent'
@@ -513,6 +523,7 @@ export interface FileRouteTypes {
     | '/api/commands'
     | '/api/guilds'
     | '/api/healthz'
+    | '/api/identity'
     | '/api/location-name'
     | '/api/queue'
     | '/api/recent'
@@ -560,6 +571,7 @@ export interface FileRouteTypes {
     | '/api/commands/'
     | '/api/guilds/'
     | '/api/healthz/'
+    | '/api/identity/'
     | '/api/location-name/'
     | '/api/queue/'
     | '/api/recent/'
@@ -588,6 +600,7 @@ export interface RootRouteChildren {
   ApiCommandsIndexRoute: typeof ApiCommandsIndexRoute
   ApiGuildsIndexRoute: typeof ApiGuildsIndexRoute
   ApiHealthzIndexRoute: typeof ApiHealthzIndexRoute
+  ApiIdentityIndexRoute: typeof ApiIdentityIndexRoute
   ApiLocationNameIndexRoute: typeof ApiLocationNameIndexRoute
   ApiQueueIndexRoute: typeof ApiQueueIndexRoute
   ApiRecentIndexRoute: typeof ApiRecentIndexRoute
@@ -694,6 +707,13 @@ declare module '@tanstack/react-router' {
       path: '/api/location-name'
       fullPath: '/api/location-name'
       preLoaderRoute: typeof ApiLocationNameIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/identity/': {
+      id: '/api/identity/'
+      path: '/api/identity'
+      fullPath: '/api/identity'
+      preLoaderRoute: typeof ApiIdentityIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/healthz/': {
@@ -996,6 +1016,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiCommandsIndexRoute: ApiCommandsIndexRoute,
   ApiGuildsIndexRoute: ApiGuildsIndexRoute,
   ApiHealthzIndexRoute: ApiHealthzIndexRoute,
+  ApiIdentityIndexRoute: ApiIdentityIndexRoute,
   ApiLocationNameIndexRoute: ApiLocationNameIndexRoute,
   ApiQueueIndexRoute: ApiQueueIndexRoute,
   ApiRecentIndexRoute: ApiRecentIndexRoute,

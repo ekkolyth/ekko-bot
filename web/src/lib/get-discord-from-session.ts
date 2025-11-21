@@ -13,14 +13,38 @@ export async function getDiscordFromSession(session: any): Promise<{
   }
 
   // Use the helper that auto-refreshes tokens
-  const { accountId } = await getDiscordAccessToken(session.user.id);
+  const { token, accountId } = await getDiscordAccessToken(session.user.id);
 
-  if (!accountId) {
+  if (!token || !accountId) {
     return { discordUserId: null, discordTag: null };
   }
 
+  // Fetch actual Discord username from Discord API
+  try {
+    const response = await fetch('https://discord.com/api/v10/users/@me', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (response.ok) {
+      const discordUser = await response.json();
+      // Discord username is the @mention handle (e.g., "johndoe")
+      // This is what will appear in the welcome message mention
+      const discordTag = discordUser.username || accountId;
+      return {
+        discordUserId: accountId,
+        discordTag: discordTag,
+      };
+    }
+  } catch (err) {
+    console.error('Failed to fetch Discord user info:', err);
+  }
+
+  // Fallback to account ID if API call fails
   return {
-    discordUserId: accountId, // This is the Discord user ID
-    discordTag: session?.user?.name || accountId, // Fallback to ID if no name
+    discordUserId: accountId,
+    discordTag: accountId,
   };
 }
